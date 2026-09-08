@@ -25,6 +25,7 @@ export {
   STATUS_HUES,
   type StatusHues,
 } from '#recipe.ts'
+export { THEME_CONTRIBUTION, THEME_KEY, type ThemeContribution } from '#registration.ts'
 export {
   BLUR,
   DROP_SHADOW,

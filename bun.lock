@@ -74,6 +74,9 @@
     "core/theme": {
       "name": "@stealthscale/core-theme",
       "version": "0.0.0",
+      "dependencies": {
+        "@stealthscale/core-schema": "workspace:^",
+      },
       "devDependencies": {
         "@stealthscale/tool-config": "workspace:^",
       },
@@ -154,6 +157,7 @@
       "name": "@stealthscale/tool-workspace",
       "version": "0.0.0",
       "dependencies": {
+        "@stealthscale/core-result": "workspace:^",
         "@stealthscale/core-schema": "workspace:^",
       },
       "devDependencies": {

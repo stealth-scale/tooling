@@ -97,6 +97,23 @@ because sRGB cannot hold it.
 `transparent` is refused because it has no colour to measure, and `contrast` answers 0 for
 anything unreadable, so a caller tells "unreadable" from "not measured".
 
+## Declaring a package a theme
+
+A package says it is a theme in its manifest, under the `stealth` field the toolchain reads:
+
+```json
+{
+  "name": "@acme/theme-thesmos",
+  "stealth": { "theme": { "recipe": "./src/recipe.ts", "title": "Thesmos" } }
+}
+```
+
+`THEME_KEY` names that entry and `THEME_CONTRIBUTION` is the schema it is held to, so the
+toolchain finds every theme in a workspace by reading the manifests. Adding a theme is adding
+a package, and no file anywhere lists the themes. The value written to the document's theme
+attribute is the basename of the package's directory, which is why it is not declared here:
+two themes cannot claim one name.
+
 ## Install
 
 ```sh

@@ -44,6 +44,8 @@ describe('the package barrel', () => {
         'SURFACE_TOKENS',
         'TEXT',
         'TEXT_SHADOW',
+        'THEME_CONTRIBUTION',
+        'THEME_KEY',
         'TRACKING',
         'assertComplete',
         'buildPalette',

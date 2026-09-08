@@ -21,12 +21,28 @@ directories, and `readManifest` narrows one manifest to the fields the toolchain
 `dependencyClosure` orders a set of roots so a list walked front to back never meets a package
 before what it needs.
 
-## What it does not decide
+## What a package registers
 
-`Manifest.contributions` carries a package's `stealth` field exactly as written, unread. This
-package knows the field exists and nothing about what a package may put in it: the schema for
-a theme, for what a catalogue draws with, or for the words a package ships belongs to whatever
-owns those words, and that consumer holds the field to it.
+`Manifest.contributions` carries a package's `stealth` field exactly as written, unread. A
+consumer reads one kind of contribution out of it by naming the key and handing over the
+schema for what sits under that key:
+
+```ts
+import { contributions, workspaceManifests } from '@stealthscale/tool-workspace'
+import { THEME_CONTRIBUTION, THEME_KEY } from '@stealthscale/core-theme'
+
+const read = contributions(workspaceManifests(root), THEME_KEY, THEME_CONTRIBUTION)
+```
+
+Every package that registered that kind comes back in workspace order, each beside the
+manifest that declared it, so a relative path inside the contribution resolves against the
+package it came from. A field that does not fit the schema is a refusal rather than a throw,
+and every malformed package is reported at once, each issue pointing at
+`@scope/pkg.stealth.theme.title`.
+
+This package knows the field exists and nothing about what a package may put in it. The words
+a theme, a catalogue or a set of messages is declared with belong to whatever owns those
+words, and adding a kind of contribution changes nothing here.
 
 ## Install
 

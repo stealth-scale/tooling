@@ -33,6 +33,9 @@
   "scripts": {
     "build": "vp pack src/index.ts"
   },
+  "dependencies": {
+    "@stealthscale/core-schema": "workspace:^"
+  },
   "devDependencies": {
     "@stealthscale/tool-config": "workspace:^"
   }
