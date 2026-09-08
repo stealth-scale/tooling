@@ -1,6 +1,7 @@
 import { vi } from 'vite-plus/test'
 
 import {
+  type ManifestFields,
   packageFiles,
   type ScratchFiles,
   type ScratchWorkspace,
@@ -21,25 +22,13 @@ export const CONFIGURED_REGISTRY = 'http://127.0.0.1:1'
 export const THEME_REGISTRY = 'http://127.0.0.1:2'
 
 /**
- * Holds the manifest fields a built package is written with.
- */
-interface BuiltFields {
-  /**
-   * Names the package.
-   */
-  name: string
-
-  readonly [field: string]: unknown
-}
-
-/**
  * Writes a built package: its manifest, and the `dist` its files name.
  *
  * @param {string} directory - The package's directory, relative to the workspace root.
- * @param {BuiltFields} fields - The manifest's fields.
+ * @param {ManifestFields} fields - The manifest's fields.
  * @returns {ScratchFiles} The files to write.
  */
-export function built(directory: string, fields: BuiltFields): ScratchFiles {
+export function built(directory: string, fields: ManifestFields): ScratchFiles {
   return packageFiles(
     directory,
     { files: ['dist'], publishConfig: { access: 'public' }, version: '0.1.0', ...fields },

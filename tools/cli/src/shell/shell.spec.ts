@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vite-plus/test'
 
 import { scratchWorkspace } from '@stealthscale/tool-testing'
 
-import { inOrder, shell } from './shell.ts'
+import { shell } from './shell.ts'
 
 /** Node, run with a one-line script. */
 function node(script: string): [string, string[]] {
@@ -135,26 +135,5 @@ describe('shell', () => {
       expect(port).toBeGreaterThan(1024)
       expect(port).toBeLessThan(65_536)
     })
-  })
-})
-
-describe('inOrder', () => {
-  it('runs the steps one after another and keeps their results in order', async () => {
-    const started: number[] = []
-
-    const results = await inOrder([30, 10, 20], async (delay) => {
-      started.push(delay)
-      await new Promise((resolve) => {
-        setTimeout(resolve, delay)
-      })
-      return delay * 2
-    })
-
-    expect(results).toEqual([60, 20, 40])
-    expect(started).toEqual([30, 10, 20])
-  })
-
-  it('answers nothing for nothing', async () => {
-    await expect(inOrder([], () => Promise.resolve(1))).resolves.toEqual([])
   })
 })

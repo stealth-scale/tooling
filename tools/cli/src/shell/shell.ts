@@ -249,23 +249,3 @@ function freePort(): Promise<number> {
 export function shell(): Shell {
   return { freePort, run, start }
 }
-
-/**
- * Runs a step for each item, one after the other, and collects the results. The steps here
- * share a registry, a directory or a build order, so they must not overlap.
- *
- * @template Item - The type of one item.
- * @template Result - The type one step resolves to.
- * @param {readonly Item[]} items - The items to step through.
- * @param {(item: Item) => Promise<Result>} step - The step to run for each item.
- * @returns {Promise<Result[]>} Every result, in the items' order.
- */
-export function inOrder<Item, Result>(
-  items: readonly Item[],
-  step: (item: Item) => Promise<Result>,
-): Promise<Result[]> {
-  return items.reduce<Promise<Result[]>>(
-    async (before, item) => [...(await before), await step(item)],
-    Promise.resolve([]),
-  )
-}

@@ -28,7 +28,6 @@ export {
 } from './report/report.ts'
 export {
   type CommandOutcome,
-  inOrder,
   type RunOptions,
   shell,
   type Shell,

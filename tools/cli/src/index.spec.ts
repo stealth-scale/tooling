@@ -11,7 +11,6 @@ describe('index', () => {
       'expandWorkspacePattern',
       'failed',
       'failures',
-      'inOrder',
       'lastLines',
       'missingFiles',
       'pack',
