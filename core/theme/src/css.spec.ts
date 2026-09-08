@@ -22,6 +22,22 @@ describe('the shadow writers', () => {
     )
   })
 
+  it('rings a floating step, since a dark page separates by a light edge and not by ink', () => {
+    expect(boxShadowOf([{ fraction: 40, geometry: '0 10px 15px -3px' }], 70)).toBe(
+      [
+        'inset 0 1px 0 0 var(--shadow-highlight)',
+        '0 0 0 1px color-mix(in oklch, var(--shadow-rim) 70%, transparent)',
+        '0 10px 15px -3px color-mix(in oklch, var(--shadow) 40%, transparent)',
+      ].join(', '),
+    )
+  })
+
+  it('leaves a resting step unringed, so a button keeps the one hairline its border draws', () => {
+    expect(boxShadowOf([{ fraction: 20, geometry: '0 1px 2px 0' }], 0)).not.toContain(
+      '--shadow-rim',
+    )
+  })
+
   it('throws a glow in the glow colour, with no raised edge under it', () => {
     expect(glowOf([{ fraction: 80, geometry: '0 0 12px -2px' }])).toBe(
       '0 0 12px -2px color-mix(in oklch, var(--glow) 80%, transparent)',

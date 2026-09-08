@@ -349,14 +349,16 @@ function chartAndSidebar(theme: Resolved, which: ThemeMode): Record<string, stri
 }
 
 /**
- * Builds the effects a page draws over itself, and the two colours every shadow mixes from.
+ * Builds the effects a page draws over itself, and the three colours every shadow mixes from.
  *
  * The scrim is the theme's ink at an opacity the mode allows, so a dialog on a dark page
  * still has a scrim. Selected and highlighted text is still text, so each carries a
  * foreground solved to AAA against its fill. The shadow ink carries the opacity of the
  * largest step, and every step takes a share of it in the stylesheet; the highlight along a
- * raised edge is transparent in light, where the shadow does that work. The glass is the card
- * at the alpha the mode allows, so it lifts off whatever page the recipe named.
+ * raised edge is transparent in light, where the shadow does that work. The rim is the page's
+ * own ink, which is what flips it: a dark hairline on paper, a light one on a near-black page,
+ * where a shadow moves the page three points of lightness and nobody sees it. The glass is the
+ * card at the alpha the mode allows, so it lifts off whatever page the recipe named.
  *
  * @param {Resolved} theme - The resolved recipe.
  * @param {ThemeMode} which - The mode.
@@ -379,6 +381,7 @@ function effects(theme: Resolved, which: ThemeMode): Record<string, string> {
     shadow: oklch(rung.shadow, 0.08, neutral.hue, rung.shadowAlpha),
     'shadow-highlight':
       which === 'dark' ? oklch(98, 0.005, neutral.hue, rung.shadowHighlightAlpha) : 'transparent',
+    'shadow-rim': oklch(rung.text, neutral.chroma, neutral.hue, rung.shadowRimAlpha),
   }
 }
 

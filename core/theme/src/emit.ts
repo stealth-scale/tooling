@@ -58,7 +58,7 @@ function boxShadows(tables: Tables): Record<string, string> {
   return Object.fromEntries([
     ...Object.entries(tables.shadow).map(([step, layers]): [string, string] => [
       step,
-      boxShadowOf(layers),
+      boxShadowOf(layers, tables.shadowRim[step]),
     ]),
     ...Object.entries(tables.glow).map(([step, layers]): [string, string] => [
       `glow-${step}`,

@@ -73,6 +73,7 @@ export {
   PERSPECTIVE,
   RADIUS,
   SHADOW,
+  SHADOW_RIM,
   type ShadowLayer,
   SIZE_STEPS,
   TARGET_SIZES,

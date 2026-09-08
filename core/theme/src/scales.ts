@@ -153,6 +153,29 @@ export const SHADOW: Readonly<Record<string, readonly ShadowLayer[]>> = {
 }
 
 /**
+ * Sets how strong the rim around each box shadow step is, as a share of the rim colour.
+ *
+ * A shadow is ink, and ink on a near-black page draws nothing a person sees: a dark page sits
+ * around 13% lightness and the heaviest layer composites to about 10%, three points spread
+ * under a blur. What separates a raised surface from a dark page is a light edge, not a dark
+ * haze. Both Primer and Radix ring a floating surface for exactly this reason, and the rim
+ * colour flips with the mode, so the same ring is a dark hairline on paper and a light one on
+ * a dark page.
+ *
+ * Only the floating steps take one. A button or a small card is a resting surface that draws
+ * its own border, and ringing those puts two hairlines where a designer asked for one.
+ */
+export const SHADOW_RIM: Readonly<Record<string, number>> = {
+  '2xl': 100,
+  '2xs': 0,
+  lg: 60,
+  md: 40,
+  sm: 0,
+  xl: 80,
+  xs: 0,
+}
+
+/**
  * Sets each inset shadow, drawn from the theme's shadow colour. Each step is one layer, in
  * the shape the other shadow tables share.
  */

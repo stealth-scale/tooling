@@ -65,9 +65,9 @@ describe('the colour tokens', () => {
     ])
   })
 
-  it('name the three gradient stops, the glow, and the two colours a shadow mixes from', () => {
+  it('name the three gradient stops, the glow, and the three colours a shadow mixes from', () => {
     expect([...GRADIENT_TOKENS]).toEqual(['gradient-1', 'gradient-2', 'gradient-3', 'glow'])
-    expect([...SHADOW_TOKENS]).toEqual(['shadow', 'shadow-highlight'])
+    expect([...SHADOW_TOKENS]).toEqual(['shadow', 'shadow-highlight', 'shadow-rim'])
   })
 })
 

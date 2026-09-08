@@ -160,14 +160,16 @@ export const EFFECT_TOKENS = [
 export const GRADIENT_TOKENS = ['gradient-1', 'gradient-2', 'gradient-3', 'glow'] as const
 
 /**
- * Names the two colours every shadow is mixed from.
+ * Names the three colours every shadow is mixed from.
  *
  * `shadow` is the ink, with the opacity the mode allows, and every box, inset, drop and text
  * shadow takes a share of it. `shadow-highlight` is the light along the top edge of a raised
  * surface in dark mode, where a shadow is ink on ink and what reads as an edge is light
- * catching the top; in light it is transparent.
+ * catching the top; in light it is transparent. `shadow-rim` is the ring a floating surface
+ * carries, in the page's own ink, so it is a dark hairline on paper and a light one on a
+ * near-black page.
  */
-export const SHADOW_TOKENS = ['shadow', 'shadow-highlight'] as const
+export const SHADOW_TOKENS = ['shadow', 'shadow-highlight', 'shadow-rim'] as const
 
 /**
  * Names every colour a theme defines, in the order they are emitted.

@@ -95,6 +95,16 @@ describe('emit', () => {
     expect(root['text-shadow-sm']).toContain('var(--shadow)')
   })
 
+  it('rings the floating steps and leaves the resting ones alone', () => {
+    for (const [step, share] of Object.entries(DEFAULT_TABLES.shadowRim)) {
+      const shadow = root[`shadow-${step}`] ?? ''
+
+      expect(shadow.includes('--shadow-rim'), `shadow-${step}`).toBe(share > 0)
+    }
+    expect(root['shadow-xs'], 'a button rests').not.toContain('--shadow-rim')
+    expect(root['shadow-2xl'], 'a dialog floats').toContain('var(--shadow-rim) 100%')
+  })
+
   it('registers the glows under the shadow namespace, thrown in the glow colour', () => {
     for (const step of Object.keys(DEFAULT_TABLES.glow)) {
       const glow = root[`shadow-glow-${step}`] ?? ''

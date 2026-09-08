@@ -79,7 +79,7 @@ A theme defines every token in both modes: every colour `COLOR_TOKENS` names, on
 two font families. The colours are the surfaces and the text on each, the emphasis levels,
 four outcomes with the outcome as ink on the page, the edges, five chart series and three
 chart tones, eight syntax roles, the sidebar's plane, the scrim under a dialog, selection,
-highlight, glass, the three gradient stops, the glow, and the two colours every shadow mixes
+highlight, glass, the three gradient stops, the glow, and the three colours every shadow mixes
 from. `secondary` is `muted` under the name shadcn's components ask for.
 
 Every scale derives from those tokens or is fixed. Eight radii are multiples of the one
@@ -87,6 +87,35 @@ Every scale derives from those tokens or is fixed. Eight radii are multiples of 
 so no shadow in the product is black. The type scale, the weights, tracking, leading, blur
 and the easings are the same in every theme, because a scale is a reading decision and a
 product that changes it has a different rhythm rather than a different brand.
+
+## Elevation in dark mode
+
+A shadow is ink, and ink on a near-black page draws nothing a person sees. A dark page sits
+around 13% lightness and the heaviest layer composites to about 10%, three points spread under
+a fifteen pixel blur, so every step looks the same and nothing reads as raised.
+
+What separates a raised surface from a dark page is a light edge. The four floating steps
+carry a 1px rim in `--shadow-rim`, which is the page's own ink and so flips with the mode: a
+dark hairline at 10% on paper, a light one at 32% on a near-black page. Primer rings its
+floating shadows for the same reason, and Radix rings every step in a grey that inverts
+between themes.
+
+```css
+--shadow-lg:
+  inset 0 1px 0 0 var(--shadow-highlight),
+  0 0 0 1px color-mix(in oklch, var(--shadow-rim) 60%, transparent),
+  0 10px 15px -3px color-mix(in oklch, var(--shadow) 40%, transparent),
+  0 4px 6px -4px color-mix(in oklch, var(--shadow) 40%, transparent);
+```
+
+`2xs`, `xs` and `sm` take no rim. Those are resting surfaces, and a button or a small card
+already draws its own border, so ringing them puts two hairlines where a designer asked for
+one. `md` through `2xl` are the floating steps a menu, a popover and a dialog use, and those
+sit over the page with nothing else to delineate them.
+
+No surface colour moves. `--card` is what a card renders as, whatever shadow it carries, so
+the pairs the guarantees measure are the pairs that ship. `effect.depth` scales the rim along
+with the ink.
 
 The emitter nulls every namespace it owns before it registers a step, so a utility nothing
 here defines renders nothing rather than rendering Tailwind's default. A theme controls

@@ -28,6 +28,7 @@ import {
   LEADING,
   PERSPECTIVE,
   SHADOW,
+  SHADOW_RIM,
   type ShadowLayer,
   TEXT,
   TEXT_SHADOW,
@@ -130,6 +131,12 @@ export interface Tables {
   shadow: Layers
 
   /**
+   * Maps each box shadow step to how strong the rim around it is. A step mapped to 0 draws
+   * no rim.
+   */
+  shadowRim: Readonly<Record<string, number>>
+
+  /**
    * Sets the one length every gap, padding and gutter derives from.
    */
   spacing: string
@@ -169,6 +176,7 @@ export const DEFAULT_TABLES: Tables = {
   perspective: PERSPECTIVE,
   press: PRESS_SCALE,
   shadow: SHADOW,
+  shadowRim: SHADOW_RIM,
   spacing: '0.25rem',
   text: TEXT,
   textShadow: TEXT_SHADOW,
@@ -255,11 +263,37 @@ function deepened(table: Readonly<Record<string, readonly ShadowLayer[]>>, depth
 }
 
 /**
+ * Scales every share of a numeric table, and never past all of it.
+ *
+ * A theme setting a deeper `depth` asks for more separation between planes, and the rim is
+ * part of that separation, so it moves with the ink rather than staying put.
+ *
+ * @param {Readonly<Record<string, number>>} table - Each step mapped to its share.
+ * @param {number} depth - The factor the theme sets.
+ * @returns {Record<string, number>} The table, every share multiplied.
+ */
+function scaled(table: Readonly<Record<string, number>>, depth: number): Record<string, number> {
+  return Object.fromEntries(
+    Object.entries(table).map(([step, share]): [string, number] => [
+      step,
+      Math.min(100, Math.round(share * depth)),
+    ]),
+  )
+}
+
+/**
  * Carries the tables the effect group settles.
  */
 type ShadowTables = Pick<
   Tables,
-  'blur' | 'dropShadow' | 'glow' | 'insetShadow' | 'perspective' | 'shadow' | 'textShadow'
+  | 'blur'
+  | 'dropShadow'
+  | 'glow'
+  | 'insetShadow'
+  | 'perspective'
+  | 'shadow'
+  | 'shadowRim'
+  | 'textShadow'
 >
 
 /**
@@ -278,6 +312,7 @@ function effectTables(effect: EffectRecipe): ShadowTables {
     insetShadow: deepened(over(DEFAULT_TABLES.insetShadow, effect.insetShadow), depth),
     perspective: over(DEFAULT_TABLES.perspective, effect.perspective),
     shadow: deepened(over(DEFAULT_TABLES.shadow, effect.shadow), depth),
+    shadowRim: scaled(DEFAULT_TABLES.shadowRim, depth),
     textShadow: deepened(over(DEFAULT_TABLES.textShadow, effect.textShadow), depth),
   }
 }

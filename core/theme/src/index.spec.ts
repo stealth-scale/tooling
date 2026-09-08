@@ -48,6 +48,7 @@ describe('the package barrel', () => {
         'REQUIRED_TOKENS',
         'SCALAR_TOKENS',
         'SHADOW',
+        'SHADOW_RIM',
         'SHADOW_TOKENS',
         'SIZE_STEPS',
         'SIDEBAR_TOKENS',

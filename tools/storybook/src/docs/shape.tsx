@@ -65,7 +65,7 @@ export function Shadows(): JSX.Element {
       {({ tables, tokens }: CurrentTheme) => {
         const shadows = bySize(tables.shadow).map(([step, layers]) => [
           `shadow-${step}`,
-          boxShadowOf(layers),
+          boxShadowOf(layers, tables.shadowRim[step]),
         ])
         const glows = bySize(tables.glow).map(([step, layers]) => [
           `shadow-glow-${step}`,

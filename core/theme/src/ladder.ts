@@ -148,6 +148,16 @@ export interface Ladder {
   shadowHighlightAlpha: number
 
   /**
+   * Sets the opacity of the rim around a floating surface at the heaviest step, which every
+   * step that takes a rim takes a share of.
+   *
+   * It is higher in dark than in light. The rim is drawn in the page's own ink, so it is dark
+   * on paper, where the shadow under it already reads, and light on a near-black page, where
+   * the shadow does not and the rim is the whole of what separates the two planes.
+   */
+  shadowRimAlpha: number
+
+  /**
    * Sets how far the sidebar's accent sits from the page.
    */
   sidebarAccentLift: number
@@ -236,6 +246,7 @@ export const LIGHT: Ladder = {
   shadow: 12,
   shadowAlpha: 0.25,
   shadowHighlightAlpha: 0,
+  shadowRimAlpha: 0.1,
   sidebarAccentLift: -6,
   sidebarBorderLift: -10,
   sidebarLift: -1,
@@ -269,6 +280,7 @@ export const DARK: Ladder = {
   shadow: 4,
   shadowAlpha: 0.9,
   shadowHighlightAlpha: 0.2,
+  shadowRimAlpha: 0.32,
   sidebarAccentLift: 9,
   sidebarBorderLift: 13,
   sidebarLift: 2,

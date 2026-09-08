@@ -70,15 +70,23 @@ function inked({ fraction, geometry }: ShadowLayer, ink = '--shadow'): string {
 }
 
 /**
- * Writes one box shadow as a `box-shadow` value: the raised edge's highlight, then every
- * layer drawn from the theme's shadow ink.
+ * Writes one box shadow as a `box-shadow` value: the raised edge's highlight, the rim that
+ * separates the surface from the page, then every layer drawn from the theme's shadow ink.
+ *
+ * A step with no rim writes none, so a resting surface keeps the single hairline its own
+ * border draws.
  *
  * @param {readonly ShadowLayer[]} layers - The step's layers, as `SHADOW` lists them.
- * @returns {string} The value, which reads the theme's own `--shadow` and
- *     `--shadow-highlight`.
+ * @param {number} [rim] - How much of the rim colour the ring takes, as `SHADOW_RIM` lists it
+ *     for this step. Default: none, which writes no ring.
+ * @returns {string} The value, which reads the theme's own `--shadow`, `--shadow-highlight`
+ *     and `--shadow-rim`.
  */
-export function boxShadowOf(layers: readonly ShadowLayer[]): string {
-  return [HIGHLIGHT, ...layers.map((layer) => inked(layer))].join(', ')
+export function boxShadowOf(layers: readonly ShadowLayer[], rim = 0): string {
+  const ring =
+    rim > 0 ? [`0 0 0 1px color-mix(in oklch, var(--shadow-rim) ${String(rim)}%, transparent)`] : []
+
+  return [HIGHLIGHT, ...ring, ...layers.map((layer) => inked(layer))].join(', ')
 }
 
 /**
