@@ -4,8 +4,14 @@ import { defineConfig } from 'vite-plus'
 // its source is set by the config being loaded, so this one file cannot use it. Every other
 // repository imports the same builders as `@stealthscale/tool-config` and
 // `@stealthscale/tool-storybook/config`.
+//
+// The rule reaches through what is imported as well. A module named here may import another
+// workspace package only by a relative path, because a name resolves to a `dist` that a
+// clean checkout has not built yet and nothing can build until this file loads. That is why
+// the project comes from its own module rather than from the kit's config barrel, which
+// reads the workspace and names four packages to do it.
 import { lintConfig, runConfig, stealthDefaults, testConfig } from './tools/config/src/index.ts'
-import { storiesProject } from './tools/storybook/src/config/index.ts'
+import { storiesProject } from './tools/storybook/src/config/project.ts'
 
 /**
  * Configures this workspace once, at its root.

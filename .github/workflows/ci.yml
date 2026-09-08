@@ -32,6 +32,9 @@ jobs:
         with:
           bun-version-file: package.json
       - run: bun install --frozen-lockfile
-      - if: inputs.browsers
+      # `inputs` is empty on a push and a pull request, so a caller's answer only decides for
+      # a caller. This repository plays its own stories in Chromium, so it installs one
+      # whenever it is the repository being checked.
+      - if: inputs.browsers || github.event_name != 'workflow_call'
         run: bunx playwright install --with-deps chromium
       - run: bunx vp run ci
