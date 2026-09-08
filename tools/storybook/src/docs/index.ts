@@ -1,7 +1,7 @@
 export { Guarantees } from './contrast.tsx'
 export { Edges, Syntax } from './edges.tsx'
 export { type TokenGroup, tokensOf } from './groups.ts'
-export { Durations, Easings } from './motion.tsx'
+export { Animations, Durations, Easings } from './motion.tsx'
 export { Inks, type InksProps, Pairs, type PairsProps, type Reached, reached } from './pairs.tsx'
 export { Radii, Shadows } from './shape.tsx'
 export { Series, Swatches, type SwatchesProps } from './swatches.tsx'

@@ -1,4 +1,4 @@
-import { Durations, Easings } from '@stealthscale/tool-storybook/docs'
+import { Animations, Durations, Easings } from '@stealthscale/tool-storybook/docs'
 
 # Motion
 
@@ -29,6 +29,20 @@ side.
 press. `normal` is the default for anything appearing or disappearing. `slow` is for something
 large enough that the eye has to follow it across the screen. Anything past a third of a
 second reads as waiting rather than as motion.
+
+## Animations
+
+Which animations exist is a contract, not a theme's choice: a component writes
+`animate-fade-in` and every theme has to have one. `core-theme` names them and each is built
+from the durations and easings above, so retuning a curve moves the whole vocabulary at once.
+
+<Animations />
+
+An entrance carries `backwards` and an exit carries `forwards`. Without them an entrance shows
+one frame at full opacity before it starts and an exit snaps back to visible the instant it
+ends, which reads as a blip rather than as motion. A collapse animates to
+`--collapsible-panel-height`, which the component measures and sets, because a keyframe cannot
+animate to `auto`.
 
 ## Reduced motion
 

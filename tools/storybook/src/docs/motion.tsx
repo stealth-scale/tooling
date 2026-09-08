@@ -1,12 +1,13 @@
 /**
- * @fileoverview Runs the easings and the durations the contract fixes for every theme, side
- * by side. A curve is invisible in a table of `cubic-bezier` values, and the only way to tell
- * one from another is to watch them start and stop together.
+ * @fileoverview Runs the motion the contract fixes for every theme: the easings, the durations
+ * and the animations built from them, each family side by side. A curve is invisible in a
+ * table of `cubic-bezier` values, and the only way to tell one from another is to watch them
+ * start and stop together.
  */
 
 import { type CSSProperties, type JSX, useState } from 'react'
 
-import { DURATION, EASE } from '@stealthscale/core-theme'
+import { ANIMATION, DURATION, EASE } from '@stealthscale/core-theme'
 
 import { usePreview } from '#preview/store.ts'
 
@@ -163,4 +164,77 @@ export function Durations(): JSX.Element {
     .map(([name, time]) => [`duration-${name}`, ONE_CURVE, `${String(time)}ms`] as const)
 
   return <Runners rows={rows} />
+}
+
+/**
+ * Sets the stage one animation plays on.
+ *
+ * A collapse animates to `--collapsible-panel-height`, which a component measures and sets,
+ * because a keyframe cannot animate to `auto`. The stage sets it so the specimen plays what a
+ * component would, rather than snapping.
+ */
+const STAGE: CSSProperties = {
+  ['--collapsible-panel-height' as string]: '1.5rem',
+  alignItems: 'center',
+  background: 'var(--muted)',
+  blockSize: '4rem',
+  borderRadius: CORNER,
+  display: 'grid',
+  justifyItems: 'center',
+  overflow: 'hidden',
+}
+
+/**
+ * Plays every animation the contract names, each on its own stage.
+ *
+ * The shorthand is read from `ANIMATION` rather than from `var(--animate-*)`. Tailwind drops a
+ * theme value in a namespace it owns when no utility uses it, so a page that read the custom
+ * property would draw nothing at all for the entrances and exits nothing else on the page
+ * happens to use.
+ *
+ * @returns {JSX.Element} A button that replays them, then one stage per animation.
+ */
+export function Animations(): JSX.Element {
+  const [run, setRun] = useState(0)
+  const reduced = usePreview()?.appearance.reducedMotion === true
+
+  return (
+    <div style={{ display: 'grid', gap: '0.75rem', margin: '1.5rem 0' }}>
+      <button
+        onClick={() => {
+          setRun((was) => was + 1)
+        }}
+        style={BUTTON}
+        type="button"
+      >
+        Play them again
+      </button>
+      <div
+        style={{
+          display: 'grid',
+          gap: '0.75rem',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(11rem, 1fr))',
+        }}
+      >
+        {Object.entries(ANIMATION).map(([name, shorthand]) => (
+          <div key={`${name} ${String(run)}`} style={{ display: 'grid', gap: '0.375rem' }}>
+            <div style={STAGE}>
+              <div
+                data-animation={reduced ? undefined : shorthand}
+                data-slot="animated"
+                style={{
+                  animation: reduced ? '' : shorthand,
+                  background: 'var(--primary)',
+                  blockSize: '1.5rem',
+                  borderRadius: CORNER,
+                  inlineSize: '1.5rem',
+                }}
+              />
+            </div>
+            <code style={CAPTION}>animate-{name}</code>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
 }
