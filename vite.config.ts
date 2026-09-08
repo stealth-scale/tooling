@@ -14,8 +14,8 @@ import { lintConfig, stealthDefaults, testConfig } from './tools/config/src/inde
 export default defineConfig({
   ...stealthDefaults,
 
-  // Nothing here renders, so no `web` globs and no jsdom project; the defaults already leave
-  // both out. `tools/` is where the console is the interface rather than a leftover.
+  // Only the story kit renders, so it alone takes the `web` rules; `tools/` is where the
+  // console is the interface rather than a leftover.
   lint: lintConfig({
     layers: [
       {
@@ -39,9 +39,10 @@ export default defineConfig({
         rules: { 'no-script-url': 'off' },
       },
     ],
+    web: ['tools/storybook/**'],
   }),
 
   // The `stealth` bin hands its command to citty and decides nothing, so there is nothing in
   // it to specify; the command it starts is specified in full beside it.
-  test: testConfig({ uncovered: ['tools/cli/src/bin/**'] }),
+  test: testConfig({ dom: true, uncovered: ['tools/cli/src/bin/**'] }),
 })

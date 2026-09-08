@@ -1,0 +1,76 @@
+{
+  "name": "@stealthscale/tool-storybook",
+  "version": "0.0.0",
+  "description": "Builds the catalogue a repository ships: what a story is written with, the Storybook config, and the toolbars that drive the document.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stealth-scale/tooling.git",
+    "directory": "tools/storybook"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "imports": {
+    "#*": "./src/*"
+  },
+  "exports": {
+    ".": {
+      "stealth-source": "./src/index.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./config": {
+      "stealth-source": "./src/config/index.ts",
+      "default": "./dist/config/index.mjs"
+    },
+    "./manager": {
+      "stealth-source": "./src/preview/manager.tsx",
+      "default": "./dist/preview/manager.mjs"
+    },
+    "./package.json": "./package.json",
+    "./preset": {
+      "stealth-source": "./src/preview/preset.ts",
+      "default": "./dist/preview/preset.mjs"
+    },
+    "./preview": {
+      "stealth-source": "./src/preview/index.ts",
+      "default": "./dist/preview/index.mjs"
+    }
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.mjs",
+      "./config": "./dist/config/index.mjs",
+      "./manager": "./dist/preview/manager.mjs",
+      "./package.json": "./package.json",
+      "./preset": "./dist/preview/preset.mjs",
+      "./preview": "./dist/preview/index.mjs"
+    },
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vp pack src/index.ts src/config/index.ts src/preview/index.ts src/preview/manager.tsx src/preview/preset.ts"
+  },
+  "dependencies": {
+    "magic-string": "catalog:",
+    "react-docgen": "catalog:"
+  },
+  "devDependencies": {
+    "@stealthscale/tool-config": "workspace:^",
+    "@stealthscale/tool-testing": "workspace:^",
+    "@storybook/react-vite": "catalog:",
+    "@testing-library/react": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "storybook": "catalog:"
+  },
+  "peerDependencies": {
+    "@storybook/react-vite": "catalog:",
+    "react": "catalog:",
+    "storybook": "catalog:"
+  }
+}
