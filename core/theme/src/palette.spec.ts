@@ -5,7 +5,7 @@ import { contrast } from '#color.ts'
 import { fromPolar, inGamut } from '#convert.ts'
 import { buildPalette } from '#palette.ts'
 import { type PaletteRecipe } from '#recipe.ts'
-import { COLOR_TOKENS } from '#tokens.ts'
+import { CODE_TOKENS, COLOR_TOKENS, type TokenName } from '#tokens.ts'
 
 /** The lightness an `oklch()` value states, 0 to 100. */
 function lightness(value: string): number {
@@ -43,8 +43,12 @@ const bare: PaletteRecipe = {
   primary: 258,
 }
 
-/** The pairs the system guarantees for text: a fill, and the text meant to sit on it. */
-const TEXT_PAIRS = [
+/**
+ * Lists the pairs the system guarantees for text: a fill, and the text meant to sit on it.
+ * The syntax colours sit on `muted`, which is the one surface a code block is drawn on.
+ */
+const TEXT_PAIRS: readonly (readonly [TokenName, TokenName])[] = [
+  ...CODE_TOKENS.map((token) => ['muted', token] as const),
   ['background', 'foreground'],
   ['background', 'muted-foreground'],
   ['background', 'primary-ink'],
@@ -194,7 +198,7 @@ describe('a generated palette', () => {
   })
 
   it.each(RECIPES)(
-    'clears 3:1 on a field’s outline and the focus ring, as WCAG 1.4.11 asks (primary $primary)',
+    "clears 3:1 on a field's outline and each focus ring, as WCAG 1.4.11 asks ($primary)",
     (recipe) => {
       const palette = buildPalette(recipe)
 
@@ -206,6 +210,10 @@ describe('a generated palette', () => {
         expect(
           contrast(palette[mode].ring, palette[mode].background),
           `${mode} ring on page`,
+        ).toBeGreaterThanOrEqual(3)
+        expect(
+          contrast(palette[mode]['sidebar-ring'], palette[mode].sidebar),
+          `${mode} ring on sidebar`,
         ).toBeGreaterThanOrEqual(3)
       }
     },

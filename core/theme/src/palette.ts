@@ -275,6 +275,8 @@ function syntax(recipe: PaletteRecipe, which: ThemeMode): Record<string, string>
  *
  * The chart tones are the outcome hues at the series' lightness. The status fills themselves
  * will not do, because those are built to carry white text and as an arc they read muddy.
+ * The sidebar's ring is solved to 3:1 against the sidebar, as the page's ring is against the
+ * page, because a focus ring on the sidebar has to be found there.
  *
  * @param {PaletteRecipe} recipe - The theme's recipe.
  * @param {ThemeMode} which - The mode.
@@ -306,7 +308,11 @@ function chartAndSidebar(recipe: PaletteRecipe, which: ThemeMode): Record<string
       RATIOS[levelOf(recipe)],
     ),
     'sidebar-primary-foreground': oklch(fills.keyText, tint, primary),
-    'sidebar-ring': oklch(fills.key, chroma, primary),
+    'sidebar-ring': solveContrast(
+      { chroma, hue: primary, lightness: fills.key },
+      oklch(ladder.sidebar, tint, neutral),
+      RATIOS.UI,
+    ),
   }
 }
 
