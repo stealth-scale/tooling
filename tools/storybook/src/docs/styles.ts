@@ -30,3 +30,20 @@ export const HAIRLINE = '1px solid var(--border)'
  * Sets the corner a specimen takes, which is the theme's own.
  */
 export const CORNER = 'var(--radius)'
+
+/**
+ * Sets the badge a block prints a measurement in.
+ *
+ * The badge restates the page's own surface and ink rather than inheriting the specimen's, so
+ * the words keep their contrast on whatever colour they are printed over. Every theme holds
+ * `foreground` and `destructive-ink` to AAA against `background`, and the badge puts that
+ * background back under them.
+ */
+export const BADGE: CSSProperties = {
+  background: 'var(--background)',
+  border: HAIRLINE,
+  borderRadius: CORNER,
+  color: 'var(--foreground)',
+  display: 'inline-block',
+  padding: '0.125rem 0.375rem',
+}

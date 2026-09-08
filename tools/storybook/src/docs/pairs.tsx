@@ -9,7 +9,7 @@ import { type JSX } from 'react'
 
 import { type ColorToken, contrast, RATIOS } from '@stealthscale/core-theme'
 
-import { CAPTION, CORNER, GRID, HAIRLINE, MONO } from './styles.ts'
+import { BADGE, CAPTION, CORNER, GRID, HAIRLINE, MONO } from './styles.ts'
 import { type CurrentTheme, Themed } from './theme.tsx'
 
 /**
@@ -47,8 +47,13 @@ interface RatioProps {
 /**
  * Prints the ratio one colour measures against another, and the level it reaches.
  *
+ * It prints in a badge because a measurement sits on whatever colour the specimen is drawn
+ * in, and a fill solved to carry its own label carries nothing else: the page's ink on
+ * `primary` is what the theme guarantees against, and it is not readable there. The badge
+ * puts the page back under the words.
+ *
  * @param {RatioProps} props - The two colours. `RatioProps` documents every member.
- * @returns {JSX.Element} The ratio to two decimals, then the level.
+ * @returns {JSX.Element} The ratio to two decimals, then the level, in a badge.
  */
 function Ratio({ on, over }: Readonly<RatioProps>): JSX.Element {
   const ratio = contrast(over, on)
@@ -56,7 +61,7 @@ function Ratio({ on, over }: Readonly<RatioProps>): JSX.Element {
   const tone = level === 'fails' ? 'var(--destructive-ink)' : 'var(--foreground)'
 
   return (
-    <span data-reached={level} style={{ ...MONO, color: tone }}>
+    <span data-reached={level} style={{ ...BADGE, ...MONO, color: tone, justifySelf: 'start' }}>
       {ratio.toFixed(2)}:1 {level}
     </span>
   )
