@@ -35,6 +35,12 @@ describe('DOC_RULES', () => {
     expect(DOC_RULES['jsdoc-js/no-types'], 'the opposite rule is not set').toBeUndefined()
   })
 
+  it('holds a type to one that parses, spells it in TypeScript, and knows the name', () => {
+    expect(DOC_RULES['jsdoc-js/valid-types'], 'a type that does not parse').toBe('error')
+    expect(DOC_RULES['jsdoc-js/check-types'], 'a Closure spelling').toBe('error')
+    expect(DOC_RULES['jsdoc-js/no-undefined-types'], 'a name the file does not know').toBe('error')
+  })
+
   it('refuses the single-line form, on anything', () => {
     expect(DOC_RULES['jsdoc-js/multiline-blocks']).toEqual(['error', { noSingleLineBlocks: true }])
   })

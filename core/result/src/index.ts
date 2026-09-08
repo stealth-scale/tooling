@@ -1,6 +1,7 @@
 export {
   andThen,
   collect,
+  type Collected,
   mapFailure,
   mapValue,
   type Refusal,

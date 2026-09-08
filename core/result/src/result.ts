@@ -50,6 +50,17 @@ export interface Refusal<Failure> {
  */
 export type Result<Value, Failure> = Refusal<Failure> | Success<Value>
 
+// jsdoc's type parser reads a `readonly` prefix only at the top level of a type, so a tag
+// cannot spell `Result<readonly Value[], readonly Failure[]>` and `collect` names it instead.
+/**
+ * Names what `collect` answers: every value when each step worked, or every reason when
+ * any refused.
+ *
+ * @template Value - What each step produces.
+ * @template Failure - What each reports when it refuses.
+ */
+export type Collected<Value, Failure> = Result<readonly Value[], readonly Failure[]>
+
 /**
  * Builds the result of a step that worked.
  *
@@ -146,12 +157,12 @@ export function andThen<Value, Next, Failure>(
  * @template Value - What each step produces.
  * @template Failure - What each reports when it refuses.
  * @param {readonly Result<Value, Failure>[]} results - The results to collect, in the order the caller made them.
- * @returns {Result<readonly Value[], readonly Failure[]>} Every value in order when all
- *     worked, and otherwise every reason in order. An empty list succeeds with an empty list.
+ * @returns {Collected<Value, Failure>} Every value in order when all worked, and otherwise
+ *     every reason in order. An empty list succeeds with an empty list.
  */
 export function collect<Value, Failure>(
   results: readonly Result<Value, Failure>[],
-): Result<readonly Value[], readonly Failure[]> {
+): Collected<Value, Failure> {
   const values: Value[] = []
   const failures: Failure[] = []
 

@@ -100,7 +100,7 @@ export function testConfig(options: Readonly<TestOptions> = {}): TestBlock {
       include: ['**/src/**/*.{ts,tsx}'],
       provider: 'v8',
       reporter: ['text-summary', 'html', 'lcov'],
-      thresholds: { 100: true },
+      thresholds: { 100: true, perFile: true },
     },
     projects: [node, ...(options.dom === true ? [dom] : []), ...(options.projects ?? [])],
     testTimeout: 15_000,

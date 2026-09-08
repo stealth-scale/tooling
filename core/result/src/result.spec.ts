@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vite-plus/test'
 import {
   andThen,
   collect,
+  type Collected,
   mapFailure,
   mapValue,
   refused,
@@ -140,5 +141,11 @@ describe('collect', () => {
 
   it('succeeds with an empty list when there was nothing to collect', () => {
     expect(collect([])).toEqual(succeeded([]))
+  })
+
+  it('answers a `Collected`, which a caller can name without writing the union out', () => {
+    const collected: Collected<number, string> = collect([succeeded(1), succeeded(2)])
+
+    expect(collected).toEqual(succeeded([1, 2]))
   })
 })
