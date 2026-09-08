@@ -1,0 +1,37 @@
+{
+  "name": "@stealthscale/core-env",
+  "version": "0.0.0",
+  "description": "The environment as a value: layered .env files, the machine winning over them, and one written default per absence.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stealth-scale/tooling.git",
+    "directory": "core/env"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "stealth-source": "./src/index.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.mjs",
+      "./package.json": "./package.json"
+    },
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vp pack src/index.ts"
+  },
+  "devDependencies": {
+    "@stealthscale/tool-config": "workspace:^",
+    "@stealthscale/tool-testing": "workspace:^"
+  }
+}
