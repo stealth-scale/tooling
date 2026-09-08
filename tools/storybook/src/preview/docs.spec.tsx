@@ -6,6 +6,7 @@ import { describe, expect, it, vi } from 'vite-plus/test'
 import { type Appearance } from '@stealthscale/core-appearance'
 import { DEFAULT_TABLES, type ThemeValues } from '@stealthscale/core-theme'
 
+import { DOCS_STYLE } from './blocks.ts'
 import { docsParameters, ThemedDocs } from './docs.tsx'
 import { sourceOf } from './source.ts'
 import { preview } from './store.ts'
@@ -75,7 +76,13 @@ describe('ThemedDocs', () => {
     })
 
     expect(container.querySelector('section')?.dataset['base']).toBe('dark')
-    expect(container.textContent).toBe('the page')
+    expect(container.querySelector('p')?.textContent).toBe('the page')
+  })
+
+  it('carries the stylesheet that draws a props table on the theme’s own surface', () => {
+    const container = page()
+
+    expect(container.querySelector('style')?.textContent).toBe(DOCS_STYLE)
   })
 
   it("leaves Storybook's own chrome where the theme on is one the workspace lacks", () => {

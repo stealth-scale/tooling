@@ -10,6 +10,7 @@ import { type JSX, type PropsWithChildren } from 'react'
 import { DocsContainer, type DocsContainerProps } from '@storybook/addon-docs/blocks'
 
 import { extractArgTypes } from './argtypes.ts'
+import { DOCS_STYLE } from './blocks.ts'
 import { chromeFor } from './chrome.ts'
 import { extractComponentDescription } from './description.ts'
 import { sourceOf } from './source.ts'
@@ -36,6 +37,7 @@ export function ThemedDocs({
 
   return (
     <DocsContainer context={context} {...(theme === undefined ? {} : { theme })}>
+      <style>{DOCS_STYLE}</style>
       {children}
     </DocsContainer>
   )
