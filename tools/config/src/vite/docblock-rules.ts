@@ -34,7 +34,7 @@ const TAG_ORDER = [
  * A pure negative lookahead: this is about how a sentence starts, and whether it is a
  * sentence at all is `require-description-complete-sentence`'s job.
  */
-const NO_VAGUE_OPENER = '^(?!(?:What|Whatever|Something|Anything|Stuff)\\b)'
+const NO_VAGUE_OPENER = String.raw`^(?!(?:What|Whatever|Something|Anything|Stuff)\b)`
 
 /**
  * Where a docblock is required beyond the declarations `require` already names: the
@@ -56,6 +56,7 @@ const DOCUMENTED_CONTEXTS = [
   'PropertyDefinition',
   'Program > VariableDeclaration',
   'ExportNamedDeclaration[declaration.type="VariableDeclaration"]',
+  'VariableDeclarator > ArrowFunctionExpression',
 ]
 
 /**
@@ -126,7 +127,6 @@ export const DOC_RULES: Rules = {
       contexts: DOCUMENTED_CONTEXTS,
       exemptOverloadedImplementations: true,
       require: {
-        ArrowFunctionExpression: true,
         ClassDeclaration: true,
         ClassExpression: true,
         FunctionDeclaration: true,

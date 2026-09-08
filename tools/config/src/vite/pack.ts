@@ -1,4 +1,4 @@
-import type { UserConfig } from 'vite-plus'
+import { type UserConfig } from 'vite-plus'
 
 import { SOURCE_CONDITION } from './source.ts'
 

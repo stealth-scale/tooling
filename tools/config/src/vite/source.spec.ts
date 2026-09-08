@@ -1,11 +1,12 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vite-plus/test'
 
-import { SOURCE_CONDITION, sourceConditions } from './source.ts'
+import { serverSourceConditions, SOURCE_CONDITION, sourceConditions } from './source.ts'
 
 /** A Vite config, as far as this spec reads it. */
 interface Resolving {
   resolve?: { conditions?: string[] }
+  ssr?: { resolve?: { conditions?: string[] } }
 }
 
 describe('sourceConditions', () => {
@@ -30,5 +31,23 @@ describe('sourceConditions', () => {
     const root = (await import('../../../../vite.config.ts')).default as Resolving
 
     expect(root.resolve?.conditions).toEqual(sourceConditions())
+  })
+})
+
+describe('serverSourceConditions', () => {
+  it('puts the workspace condition ahead of the defaults Node resolves with', () => {
+    const conditions = serverSourceConditions()
+
+    expect(conditions[0]).toBe(SOURCE_CONDITION)
+    expect(conditions).toContain('node')
+    expect(conditions, 'the browser condition belongs to the other resolver').not.toContain(
+      'browser',
+    )
+  })
+
+  it('reaches the resolver a specification loads another package through', async () => {
+    const root = (await import('../../../../vite.config.ts')).default as Resolving
+
+    expect(root.ssr?.resolve?.conditions).toEqual(serverSourceConditions())
   })
 })

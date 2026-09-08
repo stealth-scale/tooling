@@ -4,7 +4,7 @@ import { stealthDefaults } from './defaults.ts'
 import { formatConfig } from './format.ts'
 import { lintConfig } from './lint.ts'
 import { runConfig } from './run.ts'
-import { sourceConditions } from './source.ts'
+import { serverSourceConditions, sourceConditions } from './source.ts'
 import { stagedConfig } from './staged.ts'
 import { testConfig } from './test.ts'
 
@@ -16,6 +16,7 @@ describe('stealthDefaults', () => {
       'pack',
       'resolve',
       'run',
+      'ssr',
       'staged',
       'test',
     ])
@@ -28,6 +29,10 @@ describe('stealthDefaults', () => {
     expect(stealthDefaults.staged).toEqual(stagedConfig())
     expect(stealthDefaults.test).toEqual(testConfig())
     expect(stealthDefaults.resolve?.conditions).toEqual(sourceConditions())
+    expect(
+      stealthDefaults.ssr?.resolve?.conditions,
+      'a spec loads another package through the node resolver',
+    ).toEqual(serverSourceConditions())
   })
 
   it('packs the way the pack builder does, deriving stylesheets per package', () => {
@@ -40,7 +45,7 @@ describe('stealthDefaults', () => {
   })
 
   it('assumes nothing renders, which is what a repository overrides when something does', () => {
-    expect(stealthDefaults.lint?.overrides, 'the specification override alone').toHaveLength(1)
+    expect(stealthDefaults.lint?.overrides, 'a config and a specification').toHaveLength(2)
     expect(stealthDefaults.test?.projects, 'no jsdom project').toHaveLength(1)
   })
 })

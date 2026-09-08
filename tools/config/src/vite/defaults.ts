@@ -1,10 +1,10 @@
-import type { UserConfig } from 'vite-plus'
+import { type UserConfig } from 'vite-plus'
 
 import { formatConfig } from './format.ts'
 import { lintConfig } from './lint.ts'
 import { packConfig } from './pack.ts'
 import { runConfig } from './run.ts'
-import { sourceConditions } from './source.ts'
+import { serverSourceConditions, sourceConditions } from './source.ts'
 import { stagedConfig } from './staged.ts'
 import { testConfig } from './test.ts'
 
@@ -32,6 +32,7 @@ export const stealthDefaults: UserConfig = {
   pack: packConfig(),
   resolve: { conditions: sourceConditions() },
   run: runConfig(),
+  ssr: { resolve: { conditions: serverSourceConditions() } },
   staged: stagedConfig(),
   test: testConfig(),
 }

@@ -17,6 +17,7 @@ describe('the vite barrel', () => {
       'lintConfig',
       'packConfig',
       'runConfig',
+      'serverSourceConditions',
       'sortRules',
       'sourceConditions',
       'stagedConfig',

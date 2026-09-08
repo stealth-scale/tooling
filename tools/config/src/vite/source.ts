@@ -1,4 +1,4 @@
-import { defaultClientConditions } from 'vite-plus'
+import { defaultClientConditions, defaultServerConditions } from 'vite-plus'
 
 /**
  * The export condition only a stealth workspace turns on.
@@ -25,4 +25,18 @@ export const SOURCE_CONDITION = 'stealth-source'
  */
 export function sourceConditions(): string[] {
   return [SOURCE_CONDITION, ...defaultClientConditions]
+}
+
+/**
+ * The same condition for the resolver Node runs under, which is the one a specification and a
+ * server load a workspace package through.
+ *
+ * `resolve.conditions` reaches the browser resolver alone. Without this, a specification in
+ * one package that imports another reads what that package last built, so a change to the
+ * imported source does not fail the specification that covers it and a stale `dist` passes.
+ *
+ * @returns {string[]} The conditions, the workspace's own first.
+ */
+export function serverSourceConditions(): string[] {
+  return [SOURCE_CONDITION, ...defaultServerConditions]
 }

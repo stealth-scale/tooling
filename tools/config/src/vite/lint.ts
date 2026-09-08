@@ -3,11 +3,11 @@
  * linted by, assembled from the rule sets beside this file.
  */
 
-import type { UserConfig } from 'vite-plus'
+import { type UserConfig } from 'vite-plus'
 
 import { DOC_RULES, docblocksOff } from './docblock-rules.ts'
 import { generatedGlobs } from './generated.ts'
-import { MARKUP_RULES, SAFETY_RULES, SIZE_RULES, sortRules } from './lint-rules.ts'
+import { MARKUP_RULES, SAFETY_RULES, SIZE_RULES, sortRules, STYLE_RULES } from './lint-rules.ts'
 
 /**
  * The `lint` block of a vite-plus config.
@@ -30,19 +30,43 @@ type LintPlugins = NonNullable<LintBlock['plugins']>
 const BASE_PLUGINS: LintPlugins = ['typescript', 'unicorn', 'oxc', 'import', 'promise']
 
 /**
- * What carries no docblocks: a specification, a story and the fixtures either draws from.
+ * What carries no docblocks: a specification and a story.
  *
  * The test names and the scene captions are the documentation, so the docblock rules are off
- * here and the rest of the rules still apply.
+ * here and the rest of the rules still apply. A fixture is not on this list. It exports names
+ * that a specification reads at a distance, and those names are documented like any other.
  */
-const UNDOCUMENTED_FILES = [
-  '**/*.spec.ts',
-  '**/*.spec.tsx',
-  '**/*.stories.ts',
-  '**/*.stories.tsx',
-  '**/*.fixtures.ts',
-  '**/*.fixtures.tsx',
-]
+const UNDOCUMENTED_FILES = ['**/*.spec.ts', '**/*.spec.tsx', '**/*.stories.ts', '**/*.stories.tsx']
+
+/**
+ * One tier's rule about what it may import.
+ *
+ * A tier is a directory and a layering rule. This states the rule as something the linter
+ * checks, so a package that reaches upward fails review before anyone reads the diff.
+ */
+export interface Layer {
+  /**
+   * Says why the tier may not reach these, shown where the rule fires.
+   */
+  because: string
+
+  /**
+   * Names what the tier may import anyway, out of what `forbid` matches. A development-time
+   * package a specification reaches for goes here, and the tier's own source is still held to
+   * the rule for everything else.
+   */
+  except?: readonly string[] | undefined
+
+  /**
+   * Globs the tier holds: `core/**`.
+   */
+  files: readonly string[]
+
+  /**
+   * Import patterns a package in the tier may not use: `@stealthscale/tool-*`.
+   */
+  forbid: readonly string[]
+}
 
 /**
  * What a repository may change about what its linter enforces.
@@ -57,6 +81,12 @@ export interface LintOptions {
    * The npm scope whose imports group as internal, as a regular expression source.
    */
   internalScope?: string | undefined
+
+  /**
+   * What each tier may not import. The rule holds for what a package ships; a specification
+   * is free to reach for a development-time package whatever tier it sits in.
+   */
+  layers?: readonly Layer[] | undefined
 
   /**
    * Globs that run in Node, where the console is the interface rather than a leftover.
@@ -80,14 +110,31 @@ export interface LintOptions {
 }
 
 /**
+ * The override each tier gets: the imports a package in it may not reach for.
+ *
+ * @param {readonly Layer[]} layers - The tiers and what each may not import.
+ * @returns {LintOverride[]} One override per tier, in the order they were given.
+ */
+function layerOverrides(layers: readonly Layer[]): LintOverride[] {
+  return layers.map((layer) => {
+    const group = [...layer.forbid, ...(layer.except ?? []).map((name) => `!${name}`)]
+
+    return {
+      files: [...layer.files],
+      rules: {
+        'no-restricted-imports': ['error', { patterns: [{ group, message: layer.because }] }],
+      },
+    }
+  })
+}
+
+/**
  * The overrides every repository gets: Node's console where output is the interface, and the
- * relaxations a specification needs.
+ * two relaxations a specification needs.
  *
  * A `describe` block is a container rather than a unit of logic, so its length is the number
- * of cases and splitting it scatters what a reader came for. An assertion is not I/O, so
- * `await expect(...)` in a loop reports the first case that is wrong rather than whichever
- * settled first. And a specification for something that refuses dangerous input has to
- * contain the input it refuses.
+ * of cases and splitting it scatters what a reader came for. And a specification narrows a
+ * builder's output from a union the toolchain never narrows for the caller.
  *
  * @param {readonly string[]} node - Globs that run in Node.
  * @returns {LintOverride[]} The overrides, in the order the linter applies them.
@@ -99,20 +146,18 @@ function sharedOverrides(node: readonly string[]): LintOverride[] {
     overrides.push({ env: { node: true }, files: [...node], rules: { 'no-console': 'off' } })
   }
 
-  overrides.push({
-    files: UNDOCUMENTED_FILES,
-    plugins: [...BASE_PLUGINS, 'vitest'],
-    rules: {
-      ...docblocksOff(),
-      'eslint/max-lines-per-function': 'off',
-      'eslint/no-await-in-loop': 'off',
-      'no-script-url': 'off',
-      'typescript/no-non-null-assertion': 'off',
-      // A spec narrows a builder's output from a union the toolchain never narrows for the
-      // caller. Shipped code keeps the rule, where an assertion does hide something.
-      'typescript/no-unsafe-type-assertion': 'off',
+  overrides.push(
+    { files: ['**/*.config.ts'], rules: { 'no-default-export': 'off' } },
+    {
+      files: UNDOCUMENTED_FILES,
+      plugins: [...BASE_PLUGINS, 'vitest'],
+      rules: {
+        ...docblocksOff(),
+        'eslint/max-lines-per-function': 'off',
+        'typescript/no-unsafe-type-assertion': 'off',
+      },
     },
-  })
+  )
 
   return overrides
 }
@@ -157,6 +202,7 @@ export function lintConfig(options: Readonly<LintOptions> = {}): LintBlock {
     options: { typeAware: true, typeCheck: true },
     overrides: [
       ...webOverrides(options.web ?? []),
+      ...layerOverrides(options.layers ?? []),
       ...sharedOverrides(options.node ?? []),
       ...(options.overrides ?? []),
     ],
@@ -164,6 +210,7 @@ export function lintConfig(options: Readonly<LintOptions> = {}): LintBlock {
     rules: {
       ...SIZE_RULES,
       ...SAFETY_RULES,
+      ...STYLE_RULES,
       ...DOC_RULES,
       ...sortRules(options.internalScope ?? '^@stealthscale/.*'),
       'vite-plus/prefer-vite-plus-imports': 'error',

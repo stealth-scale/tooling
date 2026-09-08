@@ -1,4 +1,4 @@
-import type { UserConfig } from 'vite-plus'
+import { type UserConfig } from 'vite-plus'
 
 /**
  * The `staged` block of a vite-plus config.

@@ -3,7 +3,7 @@
  * about: size, safety, markup and sorting. The docblock standard is its own module.
  */
 
-import type { UserConfig } from 'vite-plus'
+import { type UserConfig } from 'vite-plus'
 
 /**
  * A rule name mapped to what the linter should do about it.
@@ -46,9 +46,6 @@ export const SIZE_RULES: Rules = {
  * stops it.
  */
 export const SAFETY_RULES: Rules = {
-  // A stylesheet and a matcher package are imported for what they do, not for what they
-  // export. There is nothing to assign.
-  'import/no-unassigned-import': 'off',
   'no-console': ['error', { allow: ['error', 'warn'] }],
   'no-script-url': 'error',
 
@@ -57,6 +54,23 @@ export const SAFETY_RULES: Rules = {
   // satisfies the rule however it is written and the finding says nothing about the code.
   // Parameters are still written `Readonly<…>`; that is a convention here, not a rule.
   'typescript/prefer-readonly-parameter-types': 'off',
+}
+
+/**
+ * The spelling this toolchain picks where the language allows two.
+ *
+ * Each of these settles a choice that would otherwise be made per file and argued in review.
+ * A property signature is checked contravariantly where a method signature is checked both
+ * ways, so the stricter spelling is the one worth having.
+ */
+export const STYLE_RULES: Rules = {
+  'catch-error-name': 'error',
+  'consistent-type-specifier-style': ['error', 'prefer-inline'],
+  'explicit-function-return-type': 'error',
+  'method-signature-style': 'error',
+  'no-default-export': 'error',
+  'no-inferrable-types': 'error',
+  'prefer-string-raw': 'error',
 }
 
 /**
@@ -104,7 +118,8 @@ export const MARKUP_RULES: BuiltinRules = {
  *
  * A blank line starts a new block, which is what keeps a deliberate grouping — a manifest's
  * `name` before its `version`, a union's happy case before its failures — from being
- * alphabetised away.
+ * alphabetised away. A type's own members are the exception: the docblock standard puts a
+ * blank line between every one of them, so partitioning there would turn the rule off.
  *
  * @param {string} internalScope - The npm scope whose imports group as internal, as a
  *     regular expression source: `^@stealthscale/.*`.
@@ -112,6 +127,8 @@ export const MARKUP_RULES: BuiltinRules = {
  */
 export function sortRules(internalScope: string): Rules {
   const partitioned = { partitionByNewLine: true, type: 'alphabetical' } as const
+
+  const sorted = { partitionByNewLine: false, type: 'alphabetical' } as const
 
   return {
     'perfectionist/sort-exports': ['error', partitioned],
@@ -125,11 +142,11 @@ export function sortRules(internalScope: string): Rules {
         type: 'alphabetical',
       },
     ],
-    'perfectionist/sort-interfaces': ['error', partitioned],
+    'perfectionist/sort-interfaces': ['error', sorted],
     'perfectionist/sort-jsx-props': ['error', partitioned],
     'perfectionist/sort-named-exports': ['error', { type: 'alphabetical' }],
     'perfectionist/sort-named-imports': ['error', { type: 'alphabetical' }],
-    'perfectionist/sort-object-types': ['error', partitioned],
+    'perfectionist/sort-object-types': ['error', sorted],
     'perfectionist/sort-objects': ['error', partitioned],
     'perfectionist/sort-union-types': ['error', partitioned],
   }
