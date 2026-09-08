@@ -109,6 +109,55 @@
         "@stealthscale/tool-config": "workspace:^",
       },
     },
+    "themes/ember": {
+      "name": "@stealthscale/theme-ember",
+      "version": "0.0.0",
+      "dependencies": {
+        "@fontsource-variable/figtree": "catalog:",
+        "@fontsource-variable/jetbrains-mono": "catalog:",
+        "@stealthscale/core-theme": "workspace:^",
+        "@stealthscale/theme-base": "workspace:^",
+        "@tailwindcss/typography": "catalog:",
+        "tailwindcss": "catalog:",
+        "tw-animate-css": "catalog:",
+      },
+      "devDependencies": {
+        "@stealthscale/tool-config": "workspace:^",
+      },
+    },
+    "themes/harbor": {
+      "name": "@stealthscale/theme-harbor",
+      "version": "0.0.0",
+      "dependencies": {
+        "@fontsource-variable/dm-sans": "catalog:",
+        "@fontsource-variable/jetbrains-mono": "catalog:",
+        "@stealthscale/core-theme": "workspace:^",
+        "@stealthscale/theme-base": "workspace:^",
+        "@tailwindcss/typography": "catalog:",
+        "tailwindcss": "catalog:",
+        "tw-animate-css": "catalog:",
+      },
+      "devDependencies": {
+        "@stealthscale/tool-config": "workspace:^",
+      },
+    },
+    "themes/lumen": {
+      "name": "@stealthscale/theme-lumen",
+      "version": "0.0.0",
+      "dependencies": {
+        "@fontsource-variable/inter": "catalog:",
+        "@fontsource-variable/jetbrains-mono": "catalog:",
+        "@fontsource-variable/newsreader": "catalog:",
+        "@stealthscale/core-theme": "workspace:^",
+        "@stealthscale/theme-base": "workspace:^",
+        "@tailwindcss/typography": "catalog:",
+        "tailwindcss": "catalog:",
+        "tw-animate-css": "catalog:",
+      },
+      "devDependencies": {
+        "@stealthscale/tool-config": "workspace:^",
+      },
+    },
     "tools/cli": {
       "name": "@stealthscale/tool-cli",
       "version": "0.0.0",
@@ -222,8 +271,11 @@
     "@arethetypeswrong/core": "^0.18.5",
     "@changesets/cli": "^3.0.2",
     "@faker-js/faker": "^10.6.0",
+    "@fontsource-variable/dm-sans": "^5.3.0",
+    "@fontsource-variable/figtree": "^5.2.0",
     "@fontsource-variable/inter": "^5.3.0",
     "@fontsource-variable/jetbrains-mono": "^5.3.0",
+    "@fontsource-variable/newsreader": "^5.3.0",
     "@storybook/addon-a11y": "^10.6.0",
     "@storybook/addon-docs": "^10.6.0",
     "@storybook/addon-vitest": "^10.6.0",
@@ -440,9 +492,15 @@
 
     "@faker-js/faker": ["@faker-js/faker@10.6.0", "", {}, "sha512-3RQHgEtvL1Frl/d1cSreo7qhJ3Gk1OdNUai/CtZ8G+wYeRQnJih3s9xJ9/kgYekPQRdwgh0HXRPqMlzWGwivIQ=="],
 
+    "@fontsource-variable/dm-sans": ["@fontsource-variable/dm-sans@5.3.0", "", {}, "sha512-BpUG5bqePiDFMBM4ZtLSlPdAIOM990uB1dlXzIf4aw21yQR7BmykedLXXXMqGWsR18aMLOsbWccwJNh3ztTQaA=="],
+
+    "@fontsource-variable/figtree": ["@fontsource-variable/figtree@5.3.0", "", {}, "sha512-VRVodD7OiG7apQwE8/2fMjaqpY/a0qRJqL5HtYj8CKIVps+9amaFcdfKmDIf7iqYQx6iPLlArVXAfKeIZmVcNQ=="],
+
     "@fontsource-variable/inter": ["@fontsource-variable/inter@5.3.0", "", {}, "sha512-OupL48va4JNofb97w6NYeF9S7W/kHNKM0Er8Dem5nqi4jeOLrVJDoE8tZEpnMJmtkvNbB1EIPPwHcdkF6b1oUA=="],
 
     "@fontsource-variable/jetbrains-mono": ["@fontsource-variable/jetbrains-mono@5.3.0", "", {}, "sha512-F32xpS2NsGYoQi2ADSkKTgpJj7ozajsGgDJ8woTnqjmIB+dxDIqImjl4pXZVEExu8UFZ2ndhmX18EBS/hdz3Lw=="],
+
+    "@fontsource-variable/newsreader": ["@fontsource-variable/newsreader@5.3.0", "", {}, "sha512-rrzYi43qMpbzwuFtf9OkWH8sxAPVPcQQQEwXpPtwaKYeJ8yVg5aLs5kawmo1f2Q1t1M38TLmEKCkGVDsYwgdFw=="],
 
     "@humanfs/core": ["@humanfs/core@0.19.2", "", { "dependencies": { "@humanfs/types": "^0.15.0" } }, "sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA=="],
 
@@ -713,6 +771,12 @@
     "@stealthscale/core-theme": ["@stealthscale/core-theme@workspace:core/theme"],
 
     "@stealthscale/theme-base": ["@stealthscale/theme-base@workspace:themes/base"],
+
+    "@stealthscale/theme-ember": ["@stealthscale/theme-ember@workspace:themes/ember"],
+
+    "@stealthscale/theme-harbor": ["@stealthscale/theme-harbor@workspace:themes/harbor"],
+
+    "@stealthscale/theme-lumen": ["@stealthscale/theme-lumen@workspace:themes/lumen"],
 
     "@stealthscale/tool-cli": ["@stealthscale/tool-cli@workspace:tools/cli"],
 

@@ -1,0 +1,59 @@
+{
+  "name": "@stealthscale/theme-harbor",
+  "version": "0.0.0",
+  "description": "Draws a stealth product in a deep teal, at the enhanced contrast level and the touch density.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stealth-scale/tooling.git",
+    "directory": "themes/harbor"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "imports": {
+    "#*": "./src/*"
+  },
+  "exports": {
+    ".": {
+      "tooling-source": "./src/index.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json",
+    "./*.css": "./dist/*.css",
+    "./values": "./dist/values.mjs"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.mjs",
+      "./package.json": "./package.json",
+      "./*.css": "./dist/*.css",
+      "./values": "./dist/values.mjs"
+    },
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vp pack src/index.ts"
+  },
+  "dependencies": {
+    "@fontsource-variable/dm-sans": "catalog:",
+    "@fontsource-variable/jetbrains-mono": "catalog:",
+    "@stealthscale/core-theme": "workspace:^",
+    "@stealthscale/theme-base": "workspace:^",
+    "@tailwindcss/typography": "catalog:",
+    "tailwindcss": "catalog:",
+    "tw-animate-css": "catalog:"
+  },
+  "devDependencies": {
+    "@stealthscale/tool-config": "workspace:^"
+  },
+  "stealth": {
+    "theme": {
+      "title": "Harbor"
+    }
+  }
+}
