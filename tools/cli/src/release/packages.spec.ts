@@ -95,7 +95,7 @@ describe('pack', () => {
 })
 
 describe('publishTarball', () => {
-  it('uploads with npm and leaves the access and the registry to the manifest npm reads', async () => {
+  it('uploads with npm and leaves the access to the manifest npm reads', async () => {
     const fake = recordingShell()
 
     await publishTarball(
@@ -121,5 +121,31 @@ describe('publishTarball', () => {
 
     expect(fake.asked[0]?.command).toBe('npm publish /run/t.tgz --dry-run --provenance')
     expect(fake.asked[0]?.env).toBeUndefined()
+  })
+
+  it('uploads to the registry the run names, rather than the one npm is configured for', async () => {
+    const fake = recordingShell()
+
+    await publishTarball(
+      '/run/t.tgz',
+      '/run',
+      { dryRun: false, provenance: false, registry: 'http://127.0.0.1:4873/' },
+      fake.shell,
+    )
+
+    expect(fake.asked[0]?.command).toBe('npm publish /run/t.tgz --registry http://127.0.0.1:4873/')
+  })
+
+  it('names no registry when the run names none, so npm reads its own configuration', async () => {
+    const fake = recordingShell()
+
+    await publishTarball(
+      '/run/t.tgz',
+      '/run',
+      { dryRun: false, provenance: false, registry: undefined },
+      fake.shell,
+    )
+
+    expect(fake.asked[0]?.command).not.toContain('--registry')
   })
 })

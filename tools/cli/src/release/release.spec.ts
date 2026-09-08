@@ -86,11 +86,56 @@ describe('release', () => {
     ])
     expect(fake.asked.map((asked) => asked.command)).toEqual([
       `bun pm pack --destination ${tarballs} --quiet`,
-      `npm publish ${join(tarballs, 'utils.tgz')}`,
+      `npm publish ${join(tarballs, 'utils.tgz')} --registry ${REGISTRY}`,
       `bun pm pack --destination ${tarballs} --quiet`,
-      `npm publish ${join(tarballs, 'ui.tgz')}`,
+      `npm publish ${join(tarballs, 'ui.tgz')} --registry ${REGISTRY}`,
     ])
     expect(fake.asked[1]?.env).toEqual({ NPM_CONFIG_USERCONFIG: '/run/npmrc' })
+    scratch.remove()
+  })
+
+  it("uploads to the run's registry, and leaves a manifest's own to the tarball npm reads", async () => {
+    const scratch = releaseWorkspace()
+    const tarballs = scratch.path('tarballs')
+    const fake = recordingShell(packing)
+
+    await release(
+      {
+        dryRun: false,
+        fetch: registryWith({}),
+        provenance: false,
+        registry: REGISTRY,
+        root: scratch.root,
+        tarballs,
+      },
+      fake.shell,
+    )
+
+    const theme = fake.asked.find((asked) => asked.command.includes('base.tgz'))
+
+    expect(theme?.command, 'the theme is asked at its own registry').toBe(
+      `npm publish ${join(tarballs, 'base.tgz')} --registry ${REGISTRY}`,
+    )
+    expect(fake.asked.every((asked) => !asked.command.includes(THEME_REGISTRY))).toBe(true)
+    scratch.remove()
+  })
+
+  it('names no registry on the publish when the run names none', async () => {
+    const scratch = releaseWorkspace()
+    const fake = recordingShell(packing)
+
+    await release(
+      {
+        dryRun: false,
+        fetch: registryWith({}),
+        provenance: false,
+        root: scratch.root,
+        tarballs: scratch.path('tarballs'),
+      },
+      fake.shell,
+    )
+
+    expect(fake.asked.filter((asked) => asked.command.includes('--registry'))).toEqual([])
     scratch.remove()
   })
 

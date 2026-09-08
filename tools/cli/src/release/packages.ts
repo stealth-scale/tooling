@@ -2,8 +2,8 @@
  * @fileoverview Packs a built package into a tarball with bun and publishes the tarball
  * with npm. The tarball comes from bun, because bun rewrites `workspace:^` and `catalog:`
  * into ranges; the upload goes through npm, because npm can attest provenance and bun
- * cannot. The access and the registry come from the manifest's `publishConfig`, which npm
- * reads from the tarball.
+ * cannot. The access comes from the manifest's `publishConfig`, which npm reads from the
+ * tarball, and so does the registry when the manifest names one.
  */
 
 import { existsSync } from 'node:fs'
@@ -42,6 +42,14 @@ export interface PublishOptions {
    * knows.
    */
   provenance: boolean
+
+  /**
+   * Names the registry to ask and to publish to, with or without its trailing slash. Left
+   * out, npm is asked in the directory the publish runs in for the registry it is configured
+   * for. A manifest's `publishConfig.registry` wins over both, because npm reads it from the
+   * tarball.
+   */
+  registry?: string | undefined
 
   /**
    * Names an npm user config that holds the registry's token. Without one, npm uses its own
@@ -127,9 +135,13 @@ export async function pack(
  * Publishes one tarball with npm. The token, when there is one, travels in a user config
  * file npm is pointed at, so nothing else npm reads is touched.
  *
+ * The run's registry is passed on the command line rather than the manifest's. Npm reads
+ * `publishConfig.registry` out of the tarball and lets it win over the flag, which is the
+ * rule the asking side applies as well.
+ *
  * @param {string} tarball - The tarball to publish, absolute.
  * @param {string} cwd - The directory npm runs in.
- * @param {PublishOptions} options - How to publish.
+ * @param {PublishOptions} options - How to publish. `PublishOptions` documents every member.
  * @param {Shell} shell - The shell that runs npm.
  * @returns {Promise<CommandOutcome>} Npm's exit code and both streams.
  */
@@ -142,6 +154,7 @@ export function publishTarball(
   const args = ['publish', tarball]
   if (options.dryRun) args.push('--dry-run')
   if (options.provenance) args.push('--provenance')
+  if (options.registry !== undefined) args.push('--registry', options.registry)
   return shell.run('npm', args, {
     cwd,
     env:

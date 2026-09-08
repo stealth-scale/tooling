@@ -45,7 +45,8 @@ export interface ReleaseSet {
 }
 
 /**
- * Describes what a release run is told.
+ * Describes what a release run is told. `PublishOptions` documents the members it inherits,
+ * the registry among them.
  */
 export interface ReleaseOptions extends PublishOptions {
   /**
@@ -58,13 +59,6 @@ export interface ReleaseOptions extends PublishOptions {
    * Asks the registry whether it has a version already.
    */
   fetch: typeof fetch
-
-  /**
-   * Names the registry to ask, with or without its trailing slash. Leave it out to ask npm,
-   * in the directory the publish runs in, for the registry it is configured for. A manifest's
-   * `publishConfig.registry` wins for that package.
-   */
-  registry?: string | undefined
 
   /**
    * Names the workspace root.
