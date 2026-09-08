@@ -1,0 +1,53 @@
+{
+  "name": "@stealthscale/tooling",
+  "version": "0.0.0",
+  "private": true,
+  "description": "How a stealth repository is built: the schema library, the toolchain preset, the stealth command and the test helpers.",
+  "workspaces": {
+    "packages": [
+      "core/*",
+      "tools/*"
+    ],
+    "catalog": {
+      "@arethetypeswrong/core": "^0.18.5",
+      "@changesets/cli": "^3.0.2",
+      "@types/node": "^24",
+      "@vitest/coverage-v8": "4.1.11",
+      "eslint-plugin-jsdoc": "^64.3.4",
+      "eslint-plugin-perfectionist": "^5.11.0",
+      "publint": "^0.3.24",
+      "typescript": "^7.0.2",
+      "valibot": "^1.4.2",
+      "vite": "npm:@voidzero-dev/vite-plus-core@0.3.0",
+      "vite-plus": "0.3.0"
+    }
+  },
+  "type": "module",
+  "scripts": {
+    "build": "vp run -r build",
+    "prepare": "vp config"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/core": "catalog:",
+    "@changesets/cli": "catalog:",
+    "@types/node": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "eslint-plugin-jsdoc": "catalog:",
+    "eslint-plugin-perfectionist": "catalog:",
+    "publint": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "bun",
+      "version": "1.4.0",
+      "onFail": "download"
+    }
+  },
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "packageManager": "bun@1.4.0"
+}

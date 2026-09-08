@@ -1,0 +1,38 @@
+{
+  "name": "@stealthscale/tool-cli",
+  "version": "0.0.0",
+  "description": "The stealth command: create, dev, messages, derive, smoke and release.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stealth-scale/tooling.git",
+    "directory": "tools/cli"
+  },
+  "bin": {
+    "stealth": "./dist/bin/stealth.mjs"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "stealth-source": "./src/index.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vp pack src/index.ts src/bin/stealth.ts"
+  },
+  "dependencies": {
+    "@stealthscale/core-schema": "workspace:^"
+  },
+  "devDependencies": {
+    "@stealthscale/tool-config": "workspace:^"
+  }
+}

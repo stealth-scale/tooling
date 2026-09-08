@@ -1,0 +1,32 @@
+{
+  "name": "@stealthscale/tool-testing",
+  "version": "0.0.0",
+  "description": "The specification helpers every stealth tier shares: scratch workspaces, matchers and fixtures.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stealth-scale/tooling.git",
+    "directory": "tools/testing"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "stealth-source": "./src/index.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vp pack src/index.ts"
+  },
+  "devDependencies": {
+    "@stealthscale/tool-config": "workspace:^"
+  }
+}

@@ -1,0 +1,37 @@
+# What `vp run ci` runs, on every push and pull request of this repository, and in every
+# stealth repository that calls this file: the same task a developer runs, on a runner with
+# the browsers the story tests need when the caller says so.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_call:
+    inputs:
+      browsers:
+        description: Install Playwright's Chromium before the task, for stories and e2e suites.
+        type: boolean
+        default: false
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    concurrency:
+      group: ci-${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
+    env:
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # `changeset status` and every "last updated" read the history.
+          fetch-depth: 0
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+      - run: bun install --frozen-lockfile
+      - if: inputs.browsers
+        run: bunx playwright install --with-deps chromium
+      - run: bunx vp run ci

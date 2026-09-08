@@ -1,0 +1,56 @@
+# The release, after every ci run on main that passed, here and in every stealth repository
+# that calls this file. Changesets turns the pending changeset files into one version pull
+# request; while that pull request is open, every push updates it. When it merges, every
+# package whose version is not on the registry yet is packed and published by
+# `stealth release`, with provenance from the job's identity token. No long-lived token
+# anywhere.
+#
+# The version pull request is written through the GitHub API with the job's own token, so no
+# workflow runs on it: ci runs on main when it merges, and this workflow after that. What the
+# workspace cannot set up for itself: npm's trusted publishing has to be configured on
+# npmjs.com for each package, naming the calling repository and this workflow file, and the
+# repository has to be public, which provenance requires.
+name: release
+
+on:
+  workflow_run:
+    workflows: [ci]
+    types: [completed]
+    branches: [main]
+  workflow_call:
+
+jobs:
+  release:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    concurrency: release
+    permissions:
+      # The version pull request, its commits and the tags.
+      contents: write
+      pull-requests: write
+      # npm's trusted publishing reads the job's OIDC token.
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          # `changeset version` reads the history to write the changelogs.
+          fetch-depth: 0
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      # Trusted publishing needs npm 11.5.1 or later; the runner's is older.
+      - run: npm install --global npm@^11.5
+      - run: bun install --frozen-lockfile
+      # The release publishes `dist`; it does not build it.
+      - run: bunx vp run -r build
+      - uses: changesets/action@v2
+        with:
+          version-script: bunx changeset version
+          publish-script: bunx stealth release --provenance
+          commit-message: 'chore: version packages'
+          pr-title: 'chore: version packages'

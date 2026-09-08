@@ -1,0 +1,25 @@
+# The install policy. Versions themselves are declared once in the root
+# package.json's catalog; this file is the rules around fetching them.
+
+[install]
+# Nothing published in the last three days is installed. Every npm compromise
+# of the last few years — event-stream, ua-parser-js, the 2025 worm — was found
+# and yanked well inside that window, so waiting it out removes the whole class
+# of attack at the cost of never being first to a release.
+#
+# `bun install --frozen-lockfile`, which is what CI runs, resolves nothing and
+# is unaffected. The policy only applies when a dependency is deliberately added
+# or moved, which is exactly when it should.
+#
+# Adding a dependency younger than the window needs the override, once:
+#
+#     bun install --minimum-release-age=0
+#
+# Note that bun reports a package held back by this policy as "not in the
+# catalog", which is not what is wrong with it.
+minimumReleaseAge = 259_200
+
+# Postinstall scripts do not run unless the package is listed in
+# `trustedDependencies` in the root manifest — that is bun's default and it
+# stays. `bun pm untrusted` lists what is currently being refused, which is what
+# to check after adding a dependency that ships native code.

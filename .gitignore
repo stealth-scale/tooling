@@ -1,0 +1,17 @@
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+
+# Emitted by the pack step's declaration build when a spec reaches a config file
+*.config.d.ts
+
+# Written by `vp config`, which `prepare` runs on install
+.vite-hooks/
+
+# Session scratch: plans, briefs, reports
+.scratch/
+
+.env
+.env.*
+!.env.example

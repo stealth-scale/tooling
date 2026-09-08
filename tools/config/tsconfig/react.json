@@ -1,0 +1,9 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "_comment": "What a package that renders compiles under: the base, plus the document and the automatic JSX runtime. `react-jsx` is why no component imports React to write JSX, and why the linter turns `react/react-in-jsx-scope` off.",
+  "extends": "./base.json",
+  "compilerOptions": {
+    "lib": ["es2023", "dom", "dom.iterable"],
+    "jsx": "react-jsx"
+  }
+}
