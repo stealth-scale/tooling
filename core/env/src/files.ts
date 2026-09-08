@@ -1,7 +1,7 @@
 /**
  * @fileoverview Reads the environment files a repository layers, in the order that decides
- * which value wins. Node parses the format; what this adds is the layering, tolerance of a
- * file that is not there, and reading into a value rather than mutating `process.env`.
+ * which value wins. Node parses the format. This module layers the files, tolerates one that
+ * is not there, and reads into a value rather than mutating `process.env`.
  */
 
 import { readFileSync } from 'node:fs'
@@ -49,9 +49,8 @@ export function envFiles(mode?: string): string[] {
 /**
  * Reads one environment file, treating a file that is not there as empty.
  *
- * Only absence is tolerated. A file that exists and cannot be read — a directory, a
- * permission refusal — is a fault the caller should hear about rather than a missing value
- * it will chase later.
+ * This tolerates absence and nothing else. A directory in the file's place or a permission
+ * refusal is a fault the caller hears about, not a missing value it chases later.
  *
  * @param {string} path - The file to read.
  * @returns {Variables} The variables the file declares, empty when there is no such file.
@@ -81,7 +80,6 @@ export function readEnvFile(path: string): Variables {
  * @param {string} directory - The directory holding the files, usually the repository root.
  * @param {string} [mode] - The mode to layer. Left out, only `.env` and `.env.local` are read.
  * @returns {Variables} Every variable the files declare, a later file's value winning.
- * @throws {Error} When one of the files exists and cannot be read.
  */
 export function readEnvFiles(directory: string, mode?: string): Variables {
   return Object.fromEntries(

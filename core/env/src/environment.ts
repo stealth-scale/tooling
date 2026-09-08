@@ -1,35 +1,36 @@
 /**
- * @fileoverview Puts the machine's variables above the files' and reads one out. What is
- * named is used; what is not has one written default, and a required variable that is
- * missing raises an error naming what to set rather than defaulting quietly.
+ * @fileoverview Puts the machine's variables above the files' and reads one out. A named
+ * variable answers with its value, an unnamed one with the single written default, and
+ * `readRequired` raises an error naming what to set rather than defaulting quietly.
  */
 
 import { readEnvFiles, type Variables } from './files.ts'
 
 /**
- * What an environment is read from.
+ * Describes where an environment is read from.
  */
 export interface EnvironmentOptions {
   /**
-   * The directory holding the environment files. Default: the process's working directory.
+   * Names the directory holding the environment files. Default: the process's working
+   * directory.
    */
   directory?: string | undefined
 
   /**
-   * What the machine already set, which wins over every file. A name it set to nothing did
-   * not set it. Default: `process.env`.
+   * Carries what the machine already set, which wins over every file. A name it set to
+   * nothing did not set it. Default: `process.env`.
    */
   machine?: Readonly<Record<string, string | undefined>> | undefined
 
   /**
-   * The mode whose files layer above the shared ones, such as `test`. Default: none, so only
-   * `.env` and `.env.local` are read.
+   * Names the mode whose files layer above the shared ones, such as `test`. Default: none,
+   * so only `.env` and `.env.local` are read.
    */
   mode?: string | undefined
 }
 
 /**
- * Raised when a variable nothing set is read as required.
+ * Reports a required variable that nothing set. `readRequired` throws it.
  *
  * The message names the variable, so the person reading a failed start knows what to set
  * rather than which line threw.
@@ -110,7 +111,6 @@ export function readRequired(variables: Variables, name: string): string {
  * @param {Readonly<EnvironmentOptions>} options - Where to read from; every member is
  *     documented on `EnvironmentOptions`, and anything absent takes its default.
  * @returns {Variables} Every variable, the machine's value winning over any file's.
- * @throws {Error} When one of the files exists and cannot be read.
  */
 export function environment(options: Readonly<EnvironmentOptions> = {}): Variables {
   const files = readEnvFiles(options.directory ?? process.cwd(), options.mode)
