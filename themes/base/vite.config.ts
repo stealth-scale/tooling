@@ -1,7 +1,7 @@
 import { writeFileSync } from 'node:fs'
 import { defineConfig } from 'vite-plus'
 
-import { emitDensities, emitTailwind } from '@stealthscale/core-theme'
+import { emitDensities, emitMotion, emitTailwind } from '@stealthscale/core-theme'
 import { writeTheme } from '@stealthscale/core-theme/write'
 import { packConfig } from '@stealthscale/tool-config'
 
@@ -9,18 +9,19 @@ import { recipe } from './src/recipe.ts'
 
 /**
  * Writes everything this theme ships that no bundler produces: the palette solved from the
- * recipe, the densities, and the Tailwind every stealth theme runs on.
+ * recipe, the densities, the motion vocabulary, and the Tailwind every stealth theme runs on.
  *
  * It runs inside the pack rather than from a script beside it. The task runner caches a
  * script by its inputs and knows nothing about what it wrote, so a second run replays the log
  * and leaves the directory empty; the pack is a step it already tracks.
  *
- * The densities are here rather than in another theme because they are the same whatever the
- * palette, and this is the theme every other theme extends.
+ * The three that follow no palette are written here rather than in another theme because they
+ * are the same whatever the recipe solves to, and this is the theme every other theme extends.
  */
 function writeArtefacts(): void {
   writeTheme(recipe, import.meta.url)
   writeFileSync(new URL('./dist/density.css', import.meta.url), emitDensities())
+  writeFileSync(new URL('./dist/motion.css', import.meta.url), emitMotion())
   writeFileSync(new URL('./dist/tailwind.css', import.meta.url), emitTailwind())
 }
 
@@ -45,6 +46,7 @@ export default defineConfig({
       './base.css': './dist/base.css',
       './density.css': './dist/density.css',
       './index.css': './dist/index.css',
+      './motion.css': './dist/motion.css',
       './scoped.css': './dist/scoped.css',
       './tailwind.css': './dist/tailwind.css',
       './tokens.css': './dist/tokens.css',
