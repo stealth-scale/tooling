@@ -92,7 +92,7 @@ describe('lintConfig', () => {
     expect(overrides.flatMap((override) => override.plugins ?? [])).not.toContain('react')
     expect(
       overrides.map((override) => override.files),
-      'what a tool default-exports, a catalogue config and a specification',
+      'what a tool default-exports, a Storybook config and a specification',
     ).toEqual([
       ['**/*.config.ts', '**/*.stories.ts', '**/*.stories.tsx'],
       ['**/.storybook/**'],
@@ -173,7 +173,7 @@ describe('lintConfig', () => {
 
     expect(
       overrides,
-      "web, node, default exports, catalogue, spec, then this repository's own",
+      "web, node, default exports, Storybook, spec, then this repository's own",
     ).toHaveLength(6)
     expect(overrides.at(-1)).toEqual(own)
   })

@@ -47,7 +47,7 @@ describe('stealthDefaults', () => {
   it('assumes nothing renders, which is what a repository overrides when something does', () => {
     expect(
       stealthDefaults.lint?.overrides,
-      'what a tool default-exports, a catalogue config and a specification',
+      'what a tool default-exports, a Storybook config and a specification',
     ).toHaveLength(3)
     expect(stealthDefaults.test?.projects, 'no jsdom project').toHaveLength(1)
   })

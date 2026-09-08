@@ -39,12 +39,12 @@ const BASE_PLUGINS: LintPlugins = ['typescript', 'unicorn', 'oxc', 'import', 'pr
 const UNDOCUMENTED_FILES = ['**/*.spec.ts', '**/*.spec.tsx', '**/*.stories.ts', '**/*.stories.tsx']
 
 /**
- * Where a repository's catalogue configuration sits.
+ * Where a repository's Storybook configuration sits.
  *
  * Storybook reads each of these files by its default export, and they are configuration
  * rather than source, so they carry no docblocks either.
  */
-const CATALOGUE_CONFIG = '**/.storybook/**'
+const STORYBOOK_CONFIG = '**/.storybook/**'
 
 /**
  * What a tool loads by its default export rather than by name.
@@ -165,7 +165,7 @@ function sharedOverrides(node: readonly string[]): LintOverride[] {
 
   overrides.push(
     { files: DEFAULT_EXPORTED, rules: { 'no-default-export': 'off' } },
-    { files: [CATALOGUE_CONFIG], rules: { ...docblocksOff(), 'no-default-export': 'off' } },
+    { files: [STORYBOOK_CONFIG], rules: { ...docblocksOff(), 'no-default-export': 'off' } },
     {
       files: UNDOCUMENTED_FILES,
       plugins: [...BASE_PLUGINS, 'vitest'],

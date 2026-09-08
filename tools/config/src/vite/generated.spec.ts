@@ -4,7 +4,13 @@ import { GENERATED, generatedGlobs } from './generated.ts'
 
 describe('GENERATED', () => {
   it('names what a build writes, and nothing a person edits', () => {
-    expect(GENERATED).toEqual(['**/dist/**', '**/coverage/**', '**/*.gen.*', '**/*.config.d.ts'])
+    expect(GENERATED).toEqual([
+      '**/dist/**',
+      '**/coverage/**',
+      '**/storybook-static/**',
+      '**/*.gen.*',
+      '**/*.config.d.ts',
+    ])
   })
 })
 
@@ -14,9 +20,9 @@ describe('generatedGlobs', () => {
   })
 
   it('appends rather than replaces, so a repository cannot lose the shared globs', () => {
-    expect(generatedGlobs(['**/storybook-static/**'])).toEqual([
+    expect(generatedGlobs(['**/src/translations/**'])).toEqual([
       ...GENERATED,
-      '**/storybook-static/**',
+      '**/src/translations/**',
     ])
   })
 

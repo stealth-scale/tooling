@@ -7,13 +7,14 @@
  * Lists what a build writes rather than a person. Neither the formatter nor the linter
  * touches these.
  *
- * A repository that generates something else, such as a catalogue's static build or compiled
- * message catalogues, passes those globs to `formatConfig` and `lintConfig`, which append
- * them to these rather than replacing them.
+ * A repository that generates something else, such as compiled message catalogues, passes
+ * those globs to `formatConfig` and `lintConfig`, which append them to these rather than
+ * replacing them.
  */
 export const GENERATED = [
   '**/dist/**',
   '**/coverage/**',
+  '**/storybook-static/**',
   '**/*.gen.*',
   // A declaration beside a config file, which only a tsconfig that includes its own config
   // would produce. No package's tsconfig does, and nobody writes one by hand.

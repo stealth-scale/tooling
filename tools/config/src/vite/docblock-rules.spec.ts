@@ -107,7 +107,7 @@ describe('DOC_RULES', () => {
     ])
   })
 
-  it("allows the catalogue's own tag and no other beyond the standard set", () => {
+  it("allows the props table's own tag and no other beyond the standard set", () => {
     expect(DOC_RULES['jsdoc-js/check-tag-names']).toEqual(['error', { definedTags: ['category'] }])
   })
 })

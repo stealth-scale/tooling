@@ -13,7 +13,7 @@ type Rules = Record<string, unknown>
  * The order a docblock's tags are written in.
  *
  * One group, so the tags stay contiguous and `tag-lines` alone decides the blank line before
- * them. A prop's `@category` and `@default` come last, where the catalogue's table reads them.
+ * them. A prop's `@category` and `@default` come last, where the props table reads them.
  */
 const TAG_ORDER = [
   'fileoverview',
@@ -61,7 +61,7 @@ const DOCUMENTED_CONTEXTS = [
 
 /**
  * A destructured object parameter is documented as one `@param` typed as its interface; the
- * members are documented on the interface, where the editor and the catalogue read them.
+ * members are documented on the interface, where the editor and the props table read them.
  * The plugin would otherwise demand one line per destructured member, which is every React
  * component's props written twice.
  */
