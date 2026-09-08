@@ -62,6 +62,7 @@ describe('the package barrel', () => {
         'THEME_KEY',
         'TRACKING',
         'assertComplete',
+        'assertReadable',
         'boxShadowOf',
         'buildPalette',
         'completeTokens',

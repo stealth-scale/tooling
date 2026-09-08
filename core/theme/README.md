@@ -86,6 +86,63 @@ that is not five series are each refused with a code. It refuses a key that is n
 well, because a typo in an optional name would otherwise leave the default in place and say
 nothing.
 
+### What a recipe states
+
+Four members are required and ten have a default. A hue is 0 to 360 and a lightness is 0 to 100.
+
+| Member          | Required | Default               | Decides                                                     |
+| --------------- | -------- | --------------------- | ----------------------------------------------------------- |
+| `primary`       | yes      |                       | The hue of the primary action                               |
+| `accent`        | yes      |                       | The hue of the accent surface, which a hover and a row take |
+| `neutral`       | yes      |                       | The hue the greys are tinted with                           |
+| `chart`         | yes      |                       | The five series hues, in the order a chart assigns them     |
+| `chroma`        | no       | `0.17`                | How saturated the primary is; past 0.22 it shouts           |
+| `contrast`      | no       | `AAA`                 | What a fill clears against its label; text stays AAA        |
+| `fonts`         | no       | Inter, JetBrains Mono | The two families, as CSS lists                              |
+| `ink`           | no       | `13`                  | The lightness of the dark page                              |
+| `paper`         | no       | `97`                  | The lightness of the light page                             |
+| `neutralChroma` | no       | `0.008`               | How much the greys are tinted; 0 is a true grey             |
+| `surfaceChroma` | no       | `2.5 × neutralChroma` | How much the page, cards and popovers are tinted            |
+| `surfaceHue`    | no       | `neutral`             | The hue of the surfaces, when it is not the greys'          |
+| `radius`        | no       | `0.5rem`              | The corner every radius step is a multiple of               |
+| `status`        | no       | 27, 150, 85, 235      | The outcome hues: destructive, success, warning, info       |
+
+`themes/base` writes all fourteen, including the ones that would take the same value by
+default, because it is the theme another theme is written by. A theme of its own writes only
+what makes it different, and leaving a member out is how it says the default should move if
+the contract ever moves it.
+
+### Stating a colour
+
+A recipe answers for the relationships between tokens, not for a colour somebody else owns. A
+company whose blue is a fixed hex has one value the palette may not move, so a theme states it
+and leaves the rest derived:
+
+```ts
+// themes/acme/vite.config.ts
+writeTheme(recipe, import.meta.url, {
+  base: '@stealthscale/theme-base',
+  values: {
+    dark: { primary: '#4f7cff' },
+    light: { primary: '#2d5bd7' },
+  },
+})
+```
+
+Only what is named is replaced. `primary-foreground` is still solved against the new fill, the
+ring still takes the primary's hue, and the other mode is untouched where it is not named.
+
+Anything stated is checked like anything solved. `assertReadable` runs over the finished table,
+so a brand colour its own label cannot be read on fails that theme's build with the pair and
+the two ratios:
+
+```
+Theme acme fails 1 guarantee(s): light.primary-foreground on primary is 3.11:1, needs 4.5:1
+```
+
+A name that is no token is refused the same way, because a typo would otherwise pass unread
+and leave the solved value in place.
+
 ## The colour maths
 
 `parseColor` reads every notation CSS can express and sRGB can hold: hex with or without an

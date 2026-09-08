@@ -10,10 +10,10 @@
 
 import { safeParse } from '@stealthscale/core-schema'
 
-import { assertComplete } from '#assert.ts'
+import { assertComplete, assertReadable } from '#assert.ts'
 import { ANIMATION, KEYFRAMES, PRESS_SCALE, SPINNING, STILL } from '#motion.ts'
 import { buildPalette } from '#palette.ts'
-import { recipeSchema } from '#recipe.ts'
+import { levelOf, recipeSchema } from '#recipe.ts'
 import {
   BLUR,
   CONTROL_SIZES,
@@ -38,7 +38,14 @@ import {
   TEXT_SHADOW,
   TRACKING,
 } from '#scales.ts'
-import { COLOR_TOKENS, REQUIRED_TOKENS, type ThemeMode, type ThemeValues } from '#tokens.ts'
+import {
+  COLOR_TOKENS,
+  MODES,
+  REQUIRED_TOKENS,
+  type ThemeMode,
+  type ThemeValues,
+  type TokenName,
+} from '#tokens.ts'
 
 /**
  * Opens every generated stylesheet, so a reader knows not to edit it.
@@ -319,6 +326,48 @@ ${declarationLines(values, 'dark')}
 }
 
 /**
+ * Names the tokens a theme states itself, per mode, on top of what its recipe solves.
+ *
+ * A recipe is hues and a shape, and it answers for the relationships between tokens. It cannot
+ * answer for a colour somebody else owns: a company whose blue is a fixed hex has one value the
+ * palette may not move. Stating it here leaves every other token derived, so the label on that
+ * fill, the ring around it and the ink beside it still follow.
+ *
+ * Anything stated is checked like anything solved. `assertReadable` runs after, so a colour its
+ * own label cannot be read on fails the theme's build rather than the person using the product.
+ */
+export type StatedValues = Partial<Record<ThemeMode, Readonly<Partial<Record<TokenName, string>>>>>
+
+/**
+ * Lays a theme's own values over what its recipe solved.
+ *
+ * @param {ThemeValues} solved - The values the recipe built.
+ * @param {Readonly<StatedValues>} stated - The values the theme states itself.
+ * @param {string} name - The theme's name, for the message when a name is no token.
+ * @returns {ThemeValues} The values to emit.
+ * @throws {Error} When a stated name is no token of the contract, which is how a typo would
+ *     otherwise pass unread and leave the solved value in place.
+ */
+function stateValues(
+  solved: ThemeValues,
+  stated: Readonly<StatedValues>,
+  name: string,
+): ThemeValues {
+  const known = new Set<string>(REQUIRED_TOKENS)
+  const unknown = MODES.flatMap((mode) =>
+    Object.keys(stated[mode] ?? {})
+      .filter((token) => !known.has(token))
+      .map((token) => `${mode}.${token}`),
+  )
+
+  if (unknown.length > 0) {
+    throw new Error(`Theme ${name} states what is no token: ${unknown.join(', ')}`)
+  }
+
+  return { dark: { ...solved.dark, ...stated.dark }, light: { ...solved.light, ...stated.light } }
+}
+
+/**
  * Describes everything a theme package writes out when it is built.
  */
 export interface EmittedTheme {
@@ -351,18 +400,26 @@ export interface EmittedTheme {
  *     is held to the recipe schema before a palette is built from it.
  * @param {string} name - The value a document writes for this theme, which is the basename of
  *     the package's directory.
+ * @param {Readonly<StatedValues>} [stated] - The tokens the theme states itself, which lie over
+ *     what the recipe solved. `StatedValues` says when to reach for it. Default: none.
  * @returns {EmittedTheme} The two stylesheets and the solved values.
- * @throws {Error} When the recipe fails its schema, naming every field at fault.
+ * @throws {Error} When the recipe fails its schema, when a stated name is no token, or when a
+ *     pair the theme promises falls below its floor. Each message names what is at fault.
  */
-export function emitTheme(recipe: unknown, name: string): EmittedTheme {
+export function emitTheme(
+  recipe: unknown,
+  name: string,
+  stated: Readonly<StatedValues> = {},
+): EmittedTheme {
   const read = safeParse(recipeSchema(), recipe)
   if (!read.ok) {
     const reasons = read.failure.map((issue) => `${issue.path}: ${issue.reason}`)
     throw new Error(`Theme ${name} writes a recipe no palette builds from: ${reasons.join('; ')}`)
   }
 
-  const values = buildPalette(read.value)
+  const values = stateValues(buildPalette(read.value), stated, name)
   assertComplete(values)
+  assertReadable(values, levelOf(read.value))
 
   return { root: emit(values), scoped: emitScoped(values, name), values }
 }
@@ -418,7 +475,7 @@ ${blocks.join('\n\n')}
 }
 
 /**
- * Writes the Tailwind a stealth theme runs on: the framework, the animation utilities and the
+ * Writes the Tailwind a stealth theme runs on: the framework, the animation library and the
  * plugins every theme has.
  *
  * It is a stylesheet of its own so `@plugin` can sit directly after the import that defines
@@ -426,6 +483,11 @@ ${blocks.join('\n\n')}
  * at-rule, so a single file listing the framework, the plugins and then the theme's own
  * stylesheets is not possible: the plugin would have to come last, after everything it is
  * meant to sit under.
+ *
+ * `tw-animate-css` is the default an app gets before any theme speaks: the `animate-in` and
+ * `animate-out` composition and the utilities that modify a running animation. The motion
+ * stylesheet loads after it and overrides by name, so a theme decides what `animate-fade-in`
+ * means without taking the rest away.
  *
  * @returns {string} The stylesheet.
  */
@@ -505,6 +567,11 @@ ${rule("[data-reduced-motion] [data-slot='spinner']", SPINNING)}`
  * theme writes it and every theme extending that one imports it. The reduced-motion policy is
  * here rather than in a theme's own base because it overrides `--press-scale`, and a rule that
  * loads before the declaration it overrides does nothing.
+ *
+ * The `animate` namespace is not nulled, which is why it is absent from `OWNED_NAMESPACES`.
+ * Tailwind and `tw-animate-css` load first and their names stay reachable; these are declared
+ * after and win where they collide, so a theme states what `animate-fade-in` means and leaves
+ * `animate-in`, `animate-bounce` and the modifier utilities where a component found them.
  *
  * @returns {string} The stylesheet.
  */

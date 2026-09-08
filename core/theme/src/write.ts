@@ -14,7 +14,7 @@ import { mkdirSync, writeFileSync } from 'node:fs'
 import { basename, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { type EmittedTheme, emitTheme, HEADER } from '#emit.ts'
+import { type EmittedTheme, emitTheme, HEADER, type StatedValues } from '#emit.ts'
 import { type ThemeValues } from '#tokens.ts'
 
 /**
@@ -46,6 +46,12 @@ export interface ThemeBase {
    * `@stealthscale/theme-base`. Default: `.`, for the theme that carries the base itself.
    */
   base?: string
+
+  /**
+   * Carries the tokens the theme states itself, which lie over what its recipe solved.
+   * `StatedValues` says when to reach for it. Default: none, and every token is derived.
+   */
+  values?: Readonly<StatedValues>
 }
 
 /**
@@ -103,7 +109,7 @@ export function writeTheme(
 ): EmittedTheme {
   const dist = new URL('dist/', new URL('./', from))
   const name = basename(dirname(fileURLToPath(from)))
-  const emitted = emitTheme(recipe, name)
+  const emitted = emitTheme(recipe, name, options.values ?? {})
 
   mkdirSync(fileURLToPath(dist), { recursive: true })
   writeFileSync(new URL('tokens.css', dist), emitted.root)

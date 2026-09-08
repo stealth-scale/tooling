@@ -1,4 +1,4 @@
-export { assertComplete, completeTokens, isComplete } from '#assert.ts'
+export { assertComplete, assertReadable, completeTokens, isComplete } from '#assert.ts'
 export { contrast, luminance } from '#color.ts'
 export { inGamut, type Lab, type Rgb, toGamut } from '#convert.ts'
 export {
@@ -12,6 +12,7 @@ export {
   emitTheme,
   glowOf,
   radiusOf,
+  type StatedValues,
 } from '#emit.ts'
 export { FILL_PAIRS, OUTLINE_PAIRS, type Pair, TEXT_PAIRS } from '#guarantees.ts'
 export {

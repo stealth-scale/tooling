@@ -1,7 +1,21 @@
 import { describe, expect, it } from 'vite-plus/test'
 
-import { assertComplete, completeTokens, isComplete } from '#assert.ts'
+import { assertComplete, assertReadable, completeTokens, isComplete } from '#assert.ts'
+import { buildPalette } from '#palette.ts'
+import { type PaletteRecipe } from '#recipe.ts'
 import { REQUIRED_TOKENS, type ThemeValues } from '#tokens.ts'
+
+/**
+ * States a recipe to solve a palette from, so the guarantees are measured on values a builder
+ * actually produced rather than on a table written to pass.
+ */
+const RECIPE: PaletteRecipe = {
+  accent: 232,
+  chart: [258, 190, 300, 45, 12],
+  contrast: 'AA',
+  neutral: 262,
+  primary: 258,
+}
 
 /**
  * Builds one mode with every token present, from the contract itself.
@@ -64,5 +78,36 @@ describe('assertComplete', () => {
     expect(() => {
       assertComplete(values)
     }).toThrow(/missing 1 token\(s\): dark\.background$/u)
+  })
+})
+
+describe('assertReadable', () => {
+  it('passes a palette its own builder solved, in both modes', () => {
+    expect(() => {
+      assertReadable(buildPalette(RECIPE), 'AA')
+    }).not.toThrow()
+  })
+
+  it('refuses a colour a theme stated that its own label cannot be read on', () => {
+    const solved = buildPalette(RECIPE)
+    const stated = {
+      ...solved,
+      light: { ...solved.light, primary: solved.light['primary-foreground'] },
+    }
+
+    expect(() => {
+      assertReadable(stated, 'AA')
+    }).toThrow(/primary-foreground on primary/u)
+  })
+
+  it('holds a fill to the level the recipe asked for, and text to AAA regardless', () => {
+    const solved = buildPalette({ ...RECIPE, contrast: 'AA' })
+
+    expect(() => {
+      assertReadable(solved, 'AA')
+    }).not.toThrow()
+    expect(() => {
+      assertReadable(solved, 'AAA')
+    }, 'the same fills measured against the enhanced level').toThrow(/needs 7:1/u)
   })
 })

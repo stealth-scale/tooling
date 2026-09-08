@@ -156,6 +156,34 @@ describe('emitTheme', () => {
     expect(emitTheme(RECIPE, 'base').root).toBe(emitTheme(RECIPE, 'base').root)
   })
 
+  it('lays a stated colour over the solved one, and leaves the rest derived', () => {
+    const solved = emitTheme(RECIPE, 'base')
+    const stated = emitTheme(RECIPE, 'base', { light: { border: 'oklch(80% 0.02 262)' } })
+
+    expect(stated.values.light['border'], 'a brand owns this one').toBe('oklch(80% 0.02 262)')
+    expect(stated.values.dark['border'], 'the mode it was not stated in').toBe(
+      solved.values.dark['border'],
+    )
+    expect(stated.values.light['primary'], 'everything else still follows the recipe').toBe(
+      solved.values.light['primary'],
+    )
+  })
+
+  it('refuses a stated colour its own label cannot be read on', () => {
+    const solved = emitTheme(RECIPE, 'base')
+    const unreadable = { light: { primary: solved.values.light['primary-foreground'] } }
+
+    expect(() => emitTheme(RECIPE, 'base', unreadable)).toThrow(/primary-foreground on primary/u)
+  })
+
+  it('refuses a stated name that is no token, so a typo is not read as nothing', () => {
+    const typo = { light: Object.fromEntries([['primry', 'oklch(50% 0.2 258)']]) }
+
+    expect(() => emitTheme(RECIPE, 'base', typo), 'the type catches it too').toThrow(
+      /light\.primry/u,
+    )
+  })
+
   it('refuses a recipe no palette builds from, naming the theme and the field', () => {
     expect(() => emitTheme({ ...RECIPE, primary: 400 }, 'base')).toThrow(/base/u)
     expect(() => emitTheme({ ...RECIPE, primary: 400 }, 'base')).toThrow(/primary/u)
