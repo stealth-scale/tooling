@@ -4,7 +4,7 @@
  * lookup algorithm — truncate the requested tag until it names something available.
  */
 
-import { canonical, chain, type Tag, widened } from './tags.ts'
+import { canonical, chain, type Tag, widenedChain } from './tags.ts'
 
 /**
  * What a catalogue ships, keyed by canonical tag and holding the spelling the catalogue used.
@@ -106,17 +106,26 @@ function offers(available: readonly string[]): Map<Tag, Tag> {
 }
 
 /**
- * Keys the same offers by their widened form, so a comparison can be made at equal depth.
+ * Keys the same offers by every step of their widened chain, so the two sides meet at
+ * whatever depth they share.
+ *
+ * An offer keyed by its full widened tag alone is reached only by a request that widens to
+ * the same region. `zh-Hant` widens to `zh-Hant-TW`, and a request for `zh-HK` widens to
+ * `zh-Hant-HK`, so the two never meet at their full depth; keying `zh-Hant` and `zh` as well
+ * lets them meet at the script. Where two offers claim a step, the first wins, so a
+ * catalogue's own order decides.
  *
  * @param {Offers} offered - The offers, as `offers` keyed them.
- * @returns {Map<Tag, Tag>} The widened tag mapped to the tag as the catalogue wrote it.
+ * @returns {Map<Tag, Tag>} Every step of every offer's widened chain, mapped to the tag as
+ *     the catalogue wrote it.
  */
 function widenedOffers(offered: Offers): Map<Tag, Tag> {
   const wide = new Map<Tag, Tag>()
 
   for (const [canonicalised, written] of offered) {
-    const widenedTag = widened(canonicalised)
-    if (widenedTag !== undefined && !wide.has(widenedTag)) wide.set(widenedTag, written)
+    for (const step of widenedChain(canonicalised)) {
+      if (!wide.has(step)) wide.set(step, written)
+    }
   }
 
   return wide
@@ -134,10 +143,7 @@ function widenedOffers(offered: Offers): Map<Tag, Tag> {
  */
 function lookup(requested: readonly string[], offered: Offers, widen: boolean): Tag | undefined {
   for (const tag of requested) {
-    const start = widen ? widened(tag) : tag
-    if (start === undefined) continue
-
-    for (const step of chain(start)) {
+    for (const step of widen ? widenedChain(tag) : chain(tag)) {
       const match = offered.get(step)
       if (match !== undefined) return match
     }
@@ -149,10 +155,13 @@ function lookup(requested: readonly string[], offered: Offers, widen: boolean): 
 /**
  * Picks the first available locale a request would accept.
  *
- * Each requested tag is truncated in turn — `en-GB` then `en` — and the first that names an
- * available locale wins, which is ECMA-402's lookup matcher. Where truncation finds nothing,
- * every tag is widened to its likely script and region and compared again, so `zh` reaches a
- * catalogue that ships `zh-Hans` and `nl-BE` reaches one that ships `nl`.
+ * Each requested tag is truncated in turn, `en-GB` and then `en`, and the first that names an
+ * available locale wins, which is ECMA-402's lookup matcher. `nl-BE` reaches a catalogue that
+ * ships `nl` in this pass.
+ *
+ * Where truncation finds nothing, both sides are widened to their likely script and region
+ * and matched over every step of the widened chain, so they meet at whatever depth they
+ * share: `zh` reaches `zh-Hans`, `zh-HK` reaches `zh-Hant`, and `en-GB` reaches `en-US`.
  *
  * @param {readonly string[]} requested - The tags asked for, most wanted first, as
  *     `preferences` orders them.

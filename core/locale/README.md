@@ -19,9 +19,12 @@ chain('zh-Hant-TW') // ['zh-Hant-TW', 'zh-Hant', 'zh'] — the order a catalogue
 ```
 
 `negotiate` truncates each requested tag until it names something available, so `en-GB`
-reaches a catalogue that ships `en`, and `nl-BE` reaches one that ships `nl`. Where truncation
-finds nothing it widens both sides to their likely script and region, so `zh` reaches
-`zh-Hans` and `en` reaches `en-US`. It gives back the available tag **as the catalogue wrote
+reaches a catalogue that ships `en`, and `nl-BE` reaches one that ships `nl`.
+
+Where truncation finds nothing it widens both sides to their likely script and region and
+matches over every step of the widened chain, so the two meet at whatever depth they share:
+`zh` reaches `zh-Hans`, `zh-HK` reaches `zh-Hant` even though the two widen to different
+regions, and `en-GB` reaches `en-US`. It gives back the available tag **as the catalogue wrote
 it**, because that string is a file name.
 
 `preferences` drops what the client cannot use: the wildcard, anything that is not a tag, and

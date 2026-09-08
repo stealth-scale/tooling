@@ -11,6 +11,7 @@ describe('the package barrel', () => {
       'parts',
       'preferences',
       'widened',
+      'widenedChain',
     ])
   })
 })

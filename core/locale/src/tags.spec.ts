@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test'
 
-import { canonical, chain, parts, widened } from './tags.ts'
+import { canonical, chain, parts, widened, widenedChain } from './tags.ts'
 
 describe('canonical', () => {
   it('corrects the case of each subtag as BCP-47 writes it', () => {
@@ -61,5 +61,20 @@ describe('chain', () => {
 
   it('gives nothing for a string that is not a tag', () => {
     expect(chain('not a tag')).toEqual([])
+  })
+})
+
+describe('widenedChain', () => {
+  it('walks the widened tag, so two tags meet at the script they share', () => {
+    expect(widenedChain('zh-HK')).toEqual(['zh-Hant-HK', 'zh-Hant', 'zh'])
+    expect(widenedChain('zh-Hant')).toEqual(['zh-Hant-TW', 'zh-Hant', 'zh'])
+  })
+
+  it('widens a bare language to the script and region the engine considers likely', () => {
+    expect(widenedChain('nl')).toEqual(['nl-Latn-NL', 'nl-Latn', 'nl'])
+  })
+
+  it('gives nothing for a string that is not a tag', () => {
+    expect(widenedChain('not a tag')).toEqual([])
   })
 })

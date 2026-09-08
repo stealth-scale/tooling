@@ -103,3 +103,18 @@ export function chain(tag: string): Tag[] {
 
   return walked
 }
+
+/**
+ * Widens a tag and walks the result, which is the depth a lookup compares two tags at.
+ *
+ * A tag and an offer that widen to different regions still share their script, so both sides
+ * of a lookup walk this rather than compare their widened tags whole.
+ *
+ * @param {string} tag - The tag to widen and walk.
+ * @returns {Tag[]} The widened tag and each shorter form, most specific first, empty when the
+ *     tag is not a tag at all. `zh-HK` gives `zh-Hant-HK`, `zh-Hant`, `zh`.
+ */
+export function widenedChain(tag: string): Tag[] {
+  const wide = widened(tag)
+  return wide === undefined ? [] : chain(wide)
+}

@@ -80,7 +80,26 @@ describe('negotiate', () => {
 
   it('widens both sides where truncation finds nothing, so a script reaches its language', () => {
     expect(negotiate(['zh'], ['zh-Hans'], 'en'), 'zh widens to zh-Hans-CN').toBe('zh-Hans')
-    expect(negotiate(['nl-BE'], ['nl'], 'en')).toBe('nl')
+    expect(negotiate(['nl-BE'], ['nl'], 'en'), 'this one truncates rather than widens').toBe('nl')
+  })
+
+  it('meets an offer at the script where the two widen to different regions', () => {
+    expect(negotiate(['zh-HK'], ['zh-Hant'], 'en'), 'zh-Hant-HK meets zh-Hant-TW at zh-Hant').toBe(
+      'zh-Hant',
+    )
+    expect(negotiate(['sr-ME'], ['sr-Latn'], 'en'), 'sr-Latn-ME meets sr-Latn-RS at sr-Latn').toBe(
+      'sr-Latn',
+    )
+    expect(negotiate(['zh-TW'], ['zh-Hant'], 'en'), 'and where they widen alike').toBe('zh-Hant')
+  })
+
+  it('answers a sibling region once both widen to the same script, which is the matcher', () => {
+    expect(negotiate(['en-GB'], ['en-US'], 'nl'), 'both widen to en-Latn').toBe('en-US')
+  })
+
+  it('gives a step to the first offer that claims it, so a catalogue order decides', () => {
+    expect(negotiate(['en-AU'], ['en-US', 'en-GB'], 'nl')).toBe('en-US')
+    expect(negotiate(['en-AU'], ['en-GB', 'en-US'], 'nl')).toBe('en-GB')
   })
 
   it('falls back where nothing the client asked for is available', () => {
