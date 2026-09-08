@@ -9,6 +9,8 @@ The themes, the fonts and the base stylesheet belong to the design system, which
 this package and adds them.
 
 ```ts
+import { writeFileSync } from 'node:fs'
+
 import { assertComplete, buildPalette, emit } from '@stealthscale/core-theme'
 
 const values = buildPalette({
@@ -24,12 +26,12 @@ writeFileSync('src/index.gen.css', emit(values))
 
 ## The contract
 
-A theme defines every token in both modes: sixty-five colours, one radius and two font
-families. The colours are the surfaces and the text on each, four emphasis levels, four
-outcomes with the outcome as ink on the page, the edges, five chart series and three chart
-tones, eight syntax roles, the sidebar's plane, the scrim under a dialog, selection,
+A theme defines every token in both modes: every colour `COLOR_TOKENS` names, one radius and
+two font families. The colours are the surfaces and the text on each, the emphasis levels,
+four outcomes with the outcome as ink on the page, the edges, five chart series and three
+chart tones, eight syntax roles, the sidebar's plane, the scrim under a dialog, selection,
 highlight, glass, the three gradient stops, the glow, and the two colours every shadow mixes
-from.
+from. `secondary` is `muted` under the name shadcn's components ask for.
 
 Every scale derives from those tokens or is fixed. Eight radii are multiples of the one
 `--radius`. Every box, inset, drop and text shadow takes a share of the theme's shadow ink,
@@ -86,8 +88,7 @@ the 148 named colours. `luminance` and `contrast` measure as WCAG defines it.
 
 They agree with the standards' own reference values, and the specification holds them to
 those: `#777777` on white measures 4.48 and fails AA, `oklch(62.8% 0.2577 29.23)` reads back
-as pure red, and each sRGB primary round-trips from the Lab the standard gives for it. That
-last case caught a mistyped matrix row that tinted every `lab()` colour.
+as pure red, and each sRGB primary round-trips from the Lab the standard gives for it.
 
 A wide-gamut space such as `display-p3` is refused rather than clipped, because a ratio
 measured on a clipped colour describes something the page does not show. `transparent` is

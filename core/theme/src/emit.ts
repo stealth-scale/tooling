@@ -204,6 +204,12 @@ ${lines('duration', numbered(DURATION, 'ms'))}
  * Writes the stylesheet a theme package ships, with the light values on `:root` and the dark
  * values under `.dark`.
  *
+ * The stylesheet is imported unlayered. The font tokens share Tailwind's own key names, so
+ * the theme layer's `--font-sans: var(--font-sans)` makes Tailwind emit a self-referencing
+ * `--font-sans` inside `@layer theme`, and the theme's `:root` wins over it only because an
+ * unlayered declaration beats a layered one. Imported into a cascade layer, the fonts fall
+ * back to the browser's.
+ *
  * @param {ThemeValues} values - The theme.
  * @returns {string} The stylesheet.
  */

@@ -21,7 +21,8 @@ export const SURFACE_TOKENS = [
 ] as const
 
 /**
- * Names the four emphasis levels every control is built from.
+ * Names the emphasis levels every control is built from: the primary, the accent and muted,
+ * with `secondary` as `muted` under the name shadcn's components ask for.
  *
  * `primary-ink` is the primary as text on the page, such as a link or the label of a soft
  * badge, solved to AAA against `background`. It is a separate token because the fill is

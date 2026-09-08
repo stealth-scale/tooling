@@ -149,7 +149,9 @@ function surfaces(recipe: PaletteRecipe, which: ThemeMode): Record<string, strin
 }
 
 /**
- * Builds the four emphasis levels, from the primary down to muted.
+ * Builds the emphasis levels, from the primary down to muted. `secondary` is `muted` under
+ * the name shadcn's components ask for, so a component written against either reads the same
+ * surface.
  *
  * On the muted surface the label moves rather than the fill: a muted surface is defined by
  * being close to the page, so darkening it would defeat the token.
