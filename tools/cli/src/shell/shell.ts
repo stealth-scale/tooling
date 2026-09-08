@@ -4,7 +4,7 @@
  */
 
 import { spawn } from 'node:child_process'
-import { openSync } from 'node:fs'
+import { closeSync, openSync } from 'node:fs'
 import { createServer } from 'node:net'
 
 import { looseObject, number, parse } from '@stealthscale/core-schema'
@@ -66,6 +66,10 @@ export interface StartedProcess {
 
   /**
    * Ends the process and resolves once it has exited.
+   *
+   * It sends `SIGTERM` first and gives the process five seconds to leave on its own, then
+   * sends `SIGKILL`, so a child that traps the first signal cannot hold the tool open. It
+   * resolves after the exit either way, and closing the log file is part of that exit.
    *
    * @returns {Promise<void>} Resolves after the exit.
    */
@@ -153,7 +157,15 @@ function run(file: string, args: readonly string[], options: RunOptions): Promis
 }
 
 /**
+ * Sets how long a stopped process is given to leave on `SIGTERM` before it is killed.
+ */
+const GRACE_MS = 5000
+
+/**
  * Starts one long-lived process, owned by its pid.
+ *
+ * The log file is opened here and closed when the process exits, so a tool that starts and
+ * stops several registries over a run does not run out of descriptors.
  *
  * @param {string} file - The executable.
  * @param {readonly string[]} args - The arguments.
@@ -167,24 +179,45 @@ function start(file: string, args: readonly string[], options: StartOptions): St
     env: environment(options),
     stdio: ['ignore', log, log],
   })
-  const exited = new Promise<void>((resolve) => {
-    child.on('exit', () => {
-      resolve()
+  /**
+   * Waits for the process to end, however it ends, and closes its log.
+   *
+   * A process that never spawned reports `error` and one that ran reports `exit`, so the
+   * wait settles on either; a promise settles once, so the log is closed once.
+   *
+   * @returns {Promise<void>} Resolves after the exit, with the log closed.
+   */
+  async function untilClosed(): Promise<void> {
+    await new Promise<void>((resolve) => {
+      child.once('exit', () => {
+        resolve()
+      })
+      child.once('error', () => {
+        resolve()
+      })
     })
-    child.on('error', () => {
-      resolve()
-    })
-  })
+    closeSync(log)
+  }
+
+  const exited = untilClosed()
+
   return {
     pid: child.pid ?? 0,
     /**
-     * Kills the child and waits for it to exit.
+     * Asks the process to leave, kills it if it will not, and waits for the exit.
      *
      * @returns {Promise<void>} Resolves after the exit.
      */
     stop: async () => {
-      child.kill()
-      await exited
+      child.kill('SIGTERM')
+      const killer = setTimeout(() => {
+        child.kill('SIGKILL')
+      }, GRACE_MS)
+      try {
+        await exited
+      } finally {
+        clearTimeout(killer)
+      }
     },
   }
 }

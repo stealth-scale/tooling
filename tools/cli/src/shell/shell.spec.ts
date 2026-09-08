@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs'
+import { readdirSync, readFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { describe, expect, it, vi } from 'vite-plus/test'
 
@@ -9,6 +9,11 @@ import { inOrder, shell } from './shell.ts'
 /** Node, run with a one-line script. */
 function node(script: string): [string, string[]] {
   return [process.execPath, ['-e', script]]
+}
+
+/** How many descriptors this process holds open. Linux reports them under `/proc`. */
+function openDescriptors(): number {
+  return readdirSync('/proc/self/fd').length
 }
 
 describe('shell', () => {
@@ -67,6 +72,45 @@ describe('shell', () => {
       })
       await running.stop()
       expect(() => process.kill(running.pid, 0)).toThrow('ESRCH')
+      workspace.remove()
+    })
+
+    it('kills a process that traps the first signal, so one cannot hold the tool open', async () => {
+      const workspace = scratchWorkspace()
+      const [file, args] = node(
+        'process.on("SIGTERM", () => {}); console.log("up"); setInterval(() => {}, 1000)',
+      )
+
+      const running = real.start(file, args, {
+        cwd: workspace.root,
+        log: workspace.path('out.log'),
+      })
+      await vi.waitFor(() => {
+        expect(readFileSync(workspace.path('out.log'), 'utf8')).toContain('up')
+      })
+      await running.stop()
+
+      expect(() => process.kill(running.pid, 0)).toThrow('ESRCH')
+      workspace.remove()
+    })
+
+    it('closes the log of every process it started, so a run does not run out', async () => {
+      const workspace = scratchWorkspace()
+      const [file, args] = node('setInterval(() => {}, 1000)')
+
+      const before = openDescriptors()
+      await [0, 1, 2, 3, 4].reduce(async (settled, index) => {
+        await settled
+        const running = real.start(file, args, {
+          cwd: workspace.root,
+          log: workspace.path(`out-${String(index)}.log`),
+        })
+        await running.stop()
+      }, Promise.resolve())
+
+      expect(openDescriptors(), 'five starts and five stops leave none behind').toBeLessThanOrEqual(
+        before,
+      )
       workspace.remove()
     })
 
