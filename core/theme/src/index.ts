@@ -1,6 +1,6 @@
 export { assertComplete, completeTokens, isComplete } from '#assert.ts'
 export { contrast, luminance } from '#color.ts'
-export { type Lab, type Rgb } from '#convert.ts'
+export { inGamut, type Lab, type Rgb, toGamut } from '#convert.ts'
 export { emit, emitScoped } from '#emit.ts'
 export {
   type ContrastLevel,

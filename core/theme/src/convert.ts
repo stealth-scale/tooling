@@ -50,6 +50,19 @@ export interface Lab {
 const D50 = { x: 0.3457 / 0.3585, y: 1, z: (1 - 0.3457 - 0.3585) / 0.3585 }
 
 /**
+ * Sets how far outside the unit interval a linear channel may sit and still count as shown,
+ * which absorbs the rounding a written value goes through on its way back.
+ */
+const TOLERANCE = 0.000_001
+
+/**
+ * Sets how close a bisection gets to the gamut boundary before it stops: half a unit of the
+ * third decimal a stylesheet writes, so the written chroma is the boundary as far as the
+ * stylesheet can say.
+ */
+const CHROMA_STEP = 0.0005
+
+/**
  * Clamps a channel to the unit interval.
  *
  * @param {number} value - The channel as computed.
@@ -94,21 +107,74 @@ export function fromPolar(lightness: number, chroma: number, hue: number): Lab {
 }
 
 /**
- * Converts Oklab to sRGB through linear sRGB. The matrices are Björn Ottosson's.
+ * Converts Oklab to linear sRGB without clamping, so a caller can tell a colour the display
+ * shows from one it would have to clip. The matrices are Björn Ottosson's.
  *
  * @param {Lab} color - The colour in Oklab, its lightness 0 to 1.
- * @returns {Rgb} The same colour in sRGB.
+ * @returns {Rgb} The same colour in linear sRGB. A channel outside 0 to 1 is a colour the
+ *     display cannot show as written.
  */
-export function oklabToRgb({ a, b, lightness }: Lab): Rgb {
+export function oklabToLinear({ a, b, lightness }: Lab): Rgb {
   const l = (lightness + 0.396_337_777_4 * a + 0.215_803_757_3 * b) ** 3
   const m = (lightness - 0.105_561_345_8 * a - 0.063_854_172_8 * b) ** 3
   const s = (lightness - 0.089_484_177_5 * a - 1.291_485_548 * b) ** 3
 
   return {
-    b: encode(-0.004_196_086_3 * l - 0.703_418_614_7 * m + 1.707_614_701 * s),
-    g: encode(-1.268_438_004_6 * l + 2.609_757_401_1 * m - 0.341_319_396_5 * s),
-    r: encode(4.076_741_662_1 * l - 3.307_711_591_3 * m + 0.230_969_929_2 * s),
+    b: -0.004_196_086_3 * l - 0.703_418_614_7 * m + 1.707_614_701 * s,
+    g: -1.268_438_004_6 * l + 2.609_757_401_1 * m - 0.341_319_396_5 * s,
+    r: 4.076_741_662_1 * l - 3.307_711_591_3 * m + 0.230_969_929_2 * s,
   }
+}
+
+/**
+ * Converts Oklab to sRGB through linear sRGB, clamping what the display cannot show.
+ *
+ * @param {Lab} color - The colour in Oklab, its lightness 0 to 1.
+ * @returns {Rgb} The same colour in sRGB.
+ */
+export function oklabToRgb(color: Lab): Rgb {
+  const { b, g, r } = oklabToLinear(color)
+  return { b: encode(b), g: encode(g), r: encode(r) }
+}
+
+/**
+ * Returns `true` when the display shows the colour as written: every linear channel sits
+ * between 0 and 1, so `encode` clamps nothing.
+ *
+ * @param {Lab} color - The colour in Oklab, its lightness 0 to 1.
+ * @returns {boolean} `true` for a colour inside the sRGB gamut.
+ */
+export function inGamut(color: Lab): boolean {
+  const { b, g, r } = oklabToLinear(color)
+  return [r, g, b].every((channel) => channel >= -TOLERANCE && channel <= 1 + TOLERANCE)
+}
+
+/**
+ * Finds the most saturated colour the display shows at a lightness and a hue, up to the
+ * chroma asked for.
+ *
+ * A browser maps an `oklch()` value outside its gamut by reducing the chroma and keeping the
+ * lightness and the hue, which is CSS Color 4's method, so a value written at this chroma
+ * renders as written. The chroma is bisected between nothing and the value asked for until
+ * the interval is under half a unit of the third decimal.
+ *
+ * @param {number} lightness - The lightness, 0 to 1.
+ * @param {number} chroma - The chroma asked for.
+ * @param {number} hue - The hue in degrees.
+ * @returns {number} The chroma asked for when the display shows it, and otherwise the largest
+ *     chroma below it that the display shows. 0 when even the grey at that lightness is
+ *     outside the gamut.
+ */
+export function toGamut(lightness: number, chroma: number, hue: number): number {
+  if (inGamut(fromPolar(lightness, chroma, hue))) return chroma
+  let inside = 0
+  let outside = chroma
+  while (outside - inside > CHROMA_STEP) {
+    const middle = (inside + outside) / 2
+    if (inGamut(fromPolar(lightness, middle, hue))) inside = middle
+    else outside = middle
+  }
+  return inside
 }
 
 /**

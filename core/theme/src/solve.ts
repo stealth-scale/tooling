@@ -7,6 +7,7 @@
  */
 
 import { contrast, luminance } from '#color.ts'
+import { toGamut } from '#convert.ts'
 import { RATIOS } from '#ladder.ts'
 import { parseColor } from '#notation.ts'
 
@@ -31,17 +32,27 @@ export interface Start {
 }
 
 /**
- * Writes one `oklch()` value, rounded to what a stylesheet needs.
+ * Writes one `oklch()` value, rounded to what a stylesheet needs, at a chroma the display
+ * shows.
+ *
+ * The lightness and the hue are rounded first and the chroma is then mapped into the sRGB
+ * gamut at those rounded values and rounded down, so the value written is the value
+ * rendered: a browser given a chroma the display cannot show would reduce it the same way,
+ * and the contrast this package measures is measured on what a person sees.
  *
  * @param {number} lightness - How light the colour is, 0 to 100.
- * @param {number} chroma - How saturated the colour is.
+ * @param {number} chroma - How saturated the colour is asked to be. It is reduced where the
+ *     display cannot show it at that lightness and hue.
  * @param {number} hue - Where on the wheel the colour sits, in degrees.
  * @param {number} [alpha] - The opacity, 0 to 1. Default: opaque, and the value carries no
  *     alpha channel at all.
  * @returns {string} The colour as a stylesheet writes it.
  */
 export function oklch(lightness: number, chroma: number, hue: number, alpha?: number): string {
-  const channels = `${lightness.toFixed(1)}% ${chroma.toFixed(3)} ${hue.toFixed(0)}`
+  const l = Number(lightness.toFixed(1))
+  const h = Number(hue.toFixed(0))
+  const c = Math.floor(toGamut(l / 100, chroma, h) * 1000) / 1000
+  const channels = `${l.toFixed(1)}% ${c.toFixed(3)} ${h.toFixed(0)}`
   return alpha === undefined ? `oklch(${channels})` : `oklch(${channels} / ${alpha.toFixed(2)})`
 }
 
@@ -55,8 +66,8 @@ export function oklch(lightness: number, chroma: number, hue: number, alpha?: nu
  * that cannot reach the ratio, such as a mid-grey label, yields the most legible colour
  * available rather than looping.
  *
- * @param {Start} start - The colour to walk from. Chroma and hue are held; only lightness
- *     moves.
+ * @param {Start} start - The colour to walk from. The hue is held, the chroma is held where
+ *     the display shows it, and only the lightness moves.
  * @param {string} label - The colour that has to be readable on the result.
  * @param {number} [ratio] - The ratio to clear. Default: AAA.
  * @returns {string} An `oklch()` value.

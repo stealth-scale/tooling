@@ -1,11 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test'
 
-import { type Rgb } from '#convert.ts'
-
-/** A colour as the 0 to 255 channels a designer reads, rounded. */
-function bytes({ b, g, r }: Rgb): string {
-  return [r, g, b].map((channel) => Math.round(channel * 255)).join(',')
-}
 import {
   decode,
   encode,
@@ -13,10 +7,24 @@ import {
   fromPolar,
   hslToRgb,
   hwbToRgb,
+  inGamut,
   labToRgb,
+  oklabToLinear,
   oklabToRgb,
+  type Rgb,
+  toGamut,
   unit,
 } from '#convert.ts'
+
+/**
+ * Writes a colour as the 0 to 255 channels a designer reads, rounded.
+ *
+ * @param {Rgb} color - The colour in sRGB.
+ * @returns {string} The three channels, comma separated.
+ */
+function bytes({ b, g, r }: Rgb): string {
+  return [r, g, b].map((channel) => Math.round(channel * 255)).join(',')
+}
 
 describe('unit', () => {
   it('clamps a channel to the interval a display can show', () => {
@@ -58,6 +66,46 @@ describe('oklabToRgb', () => {
 
     expect(grey.r).toBeCloseTo(grey.g, 4)
     expect(grey.g).toBeCloseTo(grey.b, 4)
+  })
+
+  it('clamps what the linear conversion leaves outside the display', () => {
+    const blue = fromPolar(0.75, 0.17, 258)
+
+    expect(oklabToLinear(blue).b).toBeGreaterThan(1)
+    expect(oklabToRgb(blue).b).toBe(1)
+  })
+})
+
+describe('inGamut', () => {
+  it('accepts black, white and a grey between them', () => {
+    expect(inGamut({ a: 0, b: 0, lightness: 0 })).toBe(true)
+    expect(inGamut({ a: 0, b: 0, lightness: 1 })).toBe(true)
+    expect(inGamut({ a: 0, b: 0, lightness: 0.5 })).toBe(true)
+  })
+
+  it('refuses a colour a channel of which the display would have to clip', () => {
+    expect(inGamut(fromPolar(0.45, 0.1, 258)), 'a blue the display shows').toBe(true)
+    expect(inGamut(fromPolar(0.75, 0.17, 258)), 'a blue past the display').toBe(false)
+    expect(inGamut({ a: 0, b: 0, lightness: 1.02 }), 'lighter than white').toBe(false)
+  })
+})
+
+describe('toGamut', () => {
+  it('leaves a chroma the display shows alone', () => {
+    expect(toGamut(0.45, 0.1, 258)).toBe(0.1)
+  })
+
+  it('reduces a chroma the display cannot show to the boundary, and no further', () => {
+    const shown = toGamut(0.75, 0.17, 258)
+
+    expect(shown).toBeLessThan(0.17)
+    expect(shown).toBeGreaterThan(0)
+    expect(inGamut(fromPolar(0.75, shown, 258))).toBe(true)
+    expect(inGamut(fromPolar(0.75, shown + 0.001, 258)), 'the next thousandth is out').toBe(false)
+  })
+
+  it('answers no chroma at all where even the grey is outside the display', () => {
+    expect(toGamut(1.02, 0.01, 258)).toBe(0)
   })
 })
 

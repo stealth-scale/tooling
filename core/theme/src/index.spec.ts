@@ -53,12 +53,14 @@ describe('the package barrel', () => {
         'emit',
         'emitScoped',
         'fillsFor',
+        'inGamut',
         'isComplete',
         'ladderFor',
         'luminance',
         'oklch',
         'parseColor',
         'solveContrast',
+        'toGamut',
       ].toSorted(),
     )
   })

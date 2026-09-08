@@ -10,12 +10,21 @@ function lightness(value: string): number {
 
 describe('oklch', () => {
   it('writes the three channels rounded to what a stylesheet needs', () => {
-    expect(oklch(45.678, 0.17123, 258.4)).toBe('oklch(45.7% 0.171 258)')
+    expect(oklch(45.678, 0.10123, 258.4)).toBe('oklch(45.7% 0.101 258)')
   })
 
   it('writes an alpha channel only when given one', () => {
-    expect(oklch(12, 0.08, 260, 0.25)).toBe('oklch(12.0% 0.080 260 / 0.25)')
-    expect(oklch(12, 0.08, 260)).not.toContain('/')
+    expect(oklch(12, 0.02, 260, 0.25)).toBe('oklch(12.0% 0.020 260 / 0.25)')
+    expect(oklch(12, 0.02, 260)).not.toContain('/')
+  })
+
+  it('reduces a chroma the display cannot show, so the value written is the value rendered', () => {
+    expect(oklch(75, 0.17, 258), 'a blue past the display at this lightness').toBe(
+      'oklch(75.0% 0.129 258)',
+    )
+    expect(oklch(12, 0.08, 260, 0.25), 'a near-black cannot carry this chroma').toBe(
+      'oklch(12.0% 0.048 260 / 0.25)',
+    )
   })
 })
 

@@ -2,12 +2,26 @@ import { describe, expect, it } from 'vite-plus/test'
 
 import { assertComplete } from '#assert.ts'
 import { contrast } from '#color.ts'
+import { fromPolar, inGamut } from '#convert.ts'
 import { buildPalette } from '#palette.ts'
 import { type PaletteRecipe } from '#recipe.ts'
+import { COLOR_TOKENS } from '#tokens.ts'
 
 /** The lightness an `oklch()` value states, 0 to 100. */
 function lightness(value: string): number {
   return Number(/^oklch\(([\d.]+)%/u.exec(value)?.[1])
+}
+
+/**
+ * Reads the three channels an `oklch(L% C H)` value states, with the lightness 0 to 1.
+ *
+ * @param {string} value - The token's value as written.
+ * @returns {[number, number, number] | undefined} The channels, or `undefined` for a value
+ *     that is no `oklch()`, such as `transparent`.
+ */
+function channels(value: string): [number, number, number] | undefined {
+  const match = /^oklch\(([\d.]+)% ([\d.]+) (-?[\d.]+)/u.exec(value)
+  return match === null ? undefined : [Number(match[1]) / 100, Number(match[2]), Number(match[3])]
 }
 
 /** The hue an `oklch(L% C H)` value states, as written. */
@@ -148,6 +162,23 @@ describe('buildPalette', () => {
 })
 
 describe('a generated palette', () => {
+  it.each(RECIPES)('writes every colour inside the sRGB gamut ($primary)', (recipe) => {
+    const palette = buildPalette(recipe)
+
+    for (const mode of ['dark', 'light'] as const) {
+      for (const token of COLOR_TOKENS) {
+        const written = channels(palette[mode][token])
+        if (written === undefined) {
+          expect(palette[mode][token], `${mode} ${token}`).toBe('transparent')
+          continue
+        }
+        expect(inGamut(fromPolar(...written)), `${mode} ${token}: ${palette[mode][token]}`).toBe(
+          true,
+        )
+      }
+    }
+  })
+
   it.each(RECIPES)('clears AAA on every text pair, in both modes (primary $primary)', (recipe) => {
     const palette = buildPalette(recipe)
 

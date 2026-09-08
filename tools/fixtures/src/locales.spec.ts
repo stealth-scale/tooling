@@ -50,7 +50,7 @@ describe('nearestLocale', () => {
     expect(nearestLocale('de-AT')).toBe('de-AT')
   })
 
-  it('truncates until it reaches one, so a region nothing ships still reads as its language', () => {
+  it('truncates until it reaches one, so a region nothing ships reads as its language', () => {
     expect(nearestLocale('nl-NL')).toBe('nl')
     expect(nearestLocale('de-DE')).toBe('de')
   })
