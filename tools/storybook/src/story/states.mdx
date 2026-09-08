@@ -39,8 +39,10 @@ costs nothing and is the fastest way to notice the scene has broken, so it runs 
 play that drives the component is wrapped in `interactive()`, or opening this page sets every
 grid on it going at once.
 
-The count under the grid is the state mirror: the play asserts its text, and a reader sees at a
-glance what the assertion is about.
+The count under the grid is a `Mirror`: the story draws the state it is holding as text, the
+play reads it back with `mirrors`, and a reader sees at a glance what the assertion is about. A
+play that reached into the component for its state would assert something nobody looking at the
+page can check.
 
 <Canvas of={Stories.APlayThatDrivesIsWrapped} />
 

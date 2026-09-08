@@ -6,6 +6,7 @@ import { expect, within } from 'storybook/test'
 import { countsEveryCell } from './assert.ts'
 import { example } from './example.ts'
 import { type Cell, Grid, type GridProps, Legend } from './grid.tsx'
+import { sideOf } from './side.ts'
 
 // The home domain: a design system's own control, which is what a variant matrix is for.
 const TONES = ['neutral', 'brand', 'destructive'] as const
@@ -23,6 +24,10 @@ const METERS = ['single rate', 'day and night', 'feed-in'] as const
 // controls, because a cell renders whatever the story hands it.
 const BANDS = ['immediate', 'urgent', 'standard'] as const
 const WARDS = ['Spoedeisende hulp', 'Observatie'] as const
+
+// Energy and utilities again, in Arabic: a substation's crews against the shifts they work.
+const CREWS = ['طاقم الصيانة', 'طاقم التحويل'] as const
+const SHIFTS = ['صباحي', 'مسائي'] as const
 
 /**
  * Draws one swatch, which carries no role of its own.
@@ -157,5 +162,38 @@ export const ACellNeedsNoRole: Story = {
 
   render: ({ columns, rows }) => (
     <Matrix cell={(band) => chip(band)} columns={columns} rows={rows} />
+  ),
+}
+
+/**
+ * The same matrix in Arabic, where the row legends move to the right and the columns run the
+ * other way. The legend column is the one thing the grid places itself, so it is the thing
+ * this measures.
+ */
+export const TheRowLegendSitsAtTheStart: Story = {
+  ...example,
+  args: { columns: [...SHIFTS], rows: [...CREWS] },
+  globals: { direction: 'rtl', locale: 'ar' },
+
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement)
+    const legend = canvas.getByText(String(args.rows[0]))
+    const matrix = legend.parentElement
+
+    // Measured rather than read off a class, and written logically, so the claim is the one
+    // the left-to-right stories above make and this story mirrors.
+    await expect(sideOf(legend, matrix as HTMLElement)).toBe('start')
+  },
+
+  render: ({ columns, rows }) => (
+    <Matrix
+      cell={(crew, shift) => (
+        <button className="border-border rounded-md border px-3 py-1 text-sm" type="button">
+          {crew} · {shift}
+        </button>
+      )}
+      columns={columns}
+      rows={rows}
+    />
   ),
 }

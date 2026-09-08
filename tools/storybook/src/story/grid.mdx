@@ -36,6 +36,16 @@ text, and the query says so.
 
 <Canvas of={Stories.ACellNeedsNoRole} />
 
+## Right to left
+
+The grid places one thing itself: the legend column, which sits at the start edge and has to
+move to the right when the text does. `sideOf` measures which side an element sits on and
+answers it logically, so this story asserts `start` and so do the left-to-right ones above.
+A claim written against `left` would pass in one and fail in the other whatever the grid did,
+which is how a mirrored layout ships broken.
+
+<Canvas of={Stories.TheRowLegendSitsAtTheStart} />
+
 ## Usage
 
 ```tsx

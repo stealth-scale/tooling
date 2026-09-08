@@ -6,6 +6,8 @@ describe('the package barrel', () => {
   it('exports what a story file is written with, and nothing else', () => {
     expect(Object.keys(kit).toSorted()).toEqual([
       'Grid',
+      'Legend',
+      'Mirror',
       'STATES',
       'StateGrid',
       'countsEveryCell',
@@ -13,6 +15,8 @@ describe('the package barrel', () => {
       'forcedBy',
       'interactive',
       'localeOf',
+      'mirrors',
+      'sideOf',
       'underTest',
     ])
   })

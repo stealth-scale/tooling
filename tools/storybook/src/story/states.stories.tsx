@@ -3,9 +3,10 @@ import { type ReactNode, useCallback, useState } from 'react'
 import { type Meta, type StoryObj } from '@storybook/react-vite'
 import { expect, userEvent, within } from 'storybook/test'
 
-import { countsEveryCell } from './assert.ts'
+import { countsEveryCell, mirrors } from './assert.ts'
 import { example } from './example.ts'
 import { interactive } from './interactive.ts'
+import { Mirror } from './mirror.tsx'
 import { forcedBy, type State, StateGrid, type StateGridProps, STATES } from './states.tsx'
 
 // The home domain: a design system's own control, drawn in every state it is designed for.
@@ -60,9 +61,7 @@ function Escalation({ rows }: Readonly<Omit<StateGridProps<string>, 'cell'>>): R
   return (
     <div className="grid gap-4">
       <Matrix cell={cell} rows={rows} />
-      <span className="text-muted-foreground text-xs" data-testid="acknowledged">
-        {seen}
-      </span>
+      <Mirror of={{ acknowledged: seen }} />
     </div>
   )
 }
@@ -182,7 +181,7 @@ export const APlayThatDrivesIsWrapped: Story = {
     await userEvent.click(resting as HTMLElement)
 
     // Clicking the resting cell reaches the handler; a disabled cell in the same row does not.
-    await expect(canvas.getByTestId('acknowledged')).toHaveTextContent('1')
+    await mirrors({ acknowledged: 1 })({ canvasElement })
   }),
 
   render: ({ rows }) => <Escalation rows={rows} />,

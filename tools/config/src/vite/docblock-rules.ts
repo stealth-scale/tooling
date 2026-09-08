@@ -68,6 +68,18 @@ const DOCUMENTED_CONTEXTS = [
 const ONE_PARAM_PER_OBJECT = { checkDestructured: false }
 
 /**
+ * The types the plugin does not find for itself.
+ *
+ * It resolves a name against what the file declares and imports, and the DOM library is
+ * neither, so a parameter typed `HTMLElement` reads as a type nobody defined. These are the
+ * ones a component, a decorator or a play function takes; anything narrower than `Element` a
+ * file imports and the plugin finds.
+ */
+const AMBIENT_TYPES = {
+  definedTypes: ['Document', 'DOMRect', 'Element', 'Event', 'HTMLElement', 'Window'],
+}
+
+/**
  * The docblock standard, rule by rule.
  *
  * Everything with a name carries one, exported or not, in the multi-line form, with a
@@ -87,7 +99,7 @@ export const DOC_RULES: Rules = {
   'jsdoc-js/no-bad-blocks': 'error',
   'jsdoc-js/no-blank-blocks': 'error',
   'jsdoc-js/no-defaults': 'error',
-  'jsdoc-js/no-undefined-types': 'error',
+  'jsdoc-js/no-undefined-types': ['error', AMBIENT_TYPES],
   'jsdoc-js/require-asterisk-prefix': 'error',
   'jsdoc-js/require-description': 'error',
   'jsdoc-js/require-hyphen-before-param-description': 'error',

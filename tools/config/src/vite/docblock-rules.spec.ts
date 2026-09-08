@@ -38,7 +38,16 @@ describe('DOC_RULES', () => {
   it('holds a type to one that parses, spells it in TypeScript, and knows the name', () => {
     expect(DOC_RULES['jsdoc-js/valid-types'], 'a type that does not parse').toBe('error')
     expect(DOC_RULES['jsdoc-js/check-types'], 'a Closure spelling').toBe('error')
-    expect(DOC_RULES['jsdoc-js/no-undefined-types'], 'a name the file does not know').toBe('error')
+    const [level, options] = DOC_RULES['jsdoc-js/no-undefined-types'] as [
+      string,
+      { definedTypes: string[] },
+    ]
+
+    expect(level, 'a name the file does not know').toBe('error')
+    expect(
+      options.definedTypes,
+      'except the DOM library, which the plugin cannot resolve for itself',
+    ).toContain('HTMLElement')
   })
 
   it('refuses the single-line form, on anything', () => {
