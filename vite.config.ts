@@ -16,5 +16,15 @@ export default defineConfig({
 
   // Nothing here renders, so no `web` globs and no jsdom project — the defaults already leave
   // both out. `tools/` is where the console is the interface rather than a leftover.
-  lint: lintConfig({ node: ['tools/**'] }),
+  lint: lintConfig({
+    node: ['tools/**'],
+    overrides: [
+      {
+        // valibot exports `_addIssue`, underscore and all, as the way a custom action reports;
+        // `core/schema` owns valibot, so it is the one package that calls it.
+        files: ['core/schema/**'],
+        rules: { 'no-underscore-dangle': ['error', { allow: ['_addIssue'] }] },
+      },
+    ],
+  }),
 })

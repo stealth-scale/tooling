@@ -1,0 +1,56 @@
+import { describe, expect, it } from 'vite-plus/test'
+
+import * as schema from './index.ts'
+
+describe('the package barrel', () => {
+  it('exports the builders, the parsers and the two schema families, and nothing else', () => {
+    expect(Object.keys(schema).toSorted()).toEqual([
+      'BLOCKED_URL',
+      'InvalidValueError',
+      'NAVIGABLE_SCHEMES',
+      'array',
+      'boolean',
+      'calendarDay',
+      'check',
+      'custom',
+      'day',
+      'email',
+      'existsOnTheCalendar',
+      'fieldIssuesOf',
+      'getMetadata',
+      'integer',
+      'isNavigableUrl',
+      'isoDate',
+      'isoTimestamp',
+      'link',
+      'literal',
+      'looseObject',
+      'matches',
+      'maxLength',
+      'maxValue',
+      'metadata',
+      'minLength',
+      'minValue',
+      'navigableOrBlocked',
+      'navigableUrl',
+      'nonEmpty',
+      'nullable',
+      'number',
+      'object',
+      'optional',
+      'parse',
+      'picklist',
+      'pipe',
+      'record',
+      'regex',
+      'safeParse',
+      'string',
+      'timestamp',
+      'transform',
+      'union',
+      'unknown',
+      'url',
+      'uuid',
+    ])
+  })
+})

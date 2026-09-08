@@ -7,6 +7,7 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "customConditions": ["stealth-source"],
+    "types": ["node"],
     "moduleDetection": "force",
     "allowImportingTsExtensions": true,
     "esModuleInterop": true,
