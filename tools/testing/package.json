@@ -1,7 +1,7 @@
 {
   "name": "@stealthscale/tool-testing",
   "version": "0.0.0",
-  "description": "Builds the scratch workspace a specification reads a tree from, and writes the manifests in it.",
+  "description": "Builds the scratch workspace a specification reads a tree from, writes the manifests in it, and measures what a rendered element draws.",
   "license": "MIT",
   "repository": {
     "type": "git",
