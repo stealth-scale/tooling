@@ -201,11 +201,11 @@ export const RADIUS_TOKENS = ['radius'] as const
 export type GeometryToken = (typeof RADIUS_TOKENS)[number]
 
 /**
- * Names the two families a theme picks. The scale, the weights, tracking and leading are
- * the same in every theme: a scale is a reading decision, and a product that changes it has
- * a different rhythm rather than a different brand.
+ * Names the three families a theme picks: the text, the code, and a display face for a
+ * heading. A theme that names no display face draws headings in its text family, so a
+ * component reaches for `font-display` without checking.
  */
-export const FONT_TOKENS = ['font-sans', 'font-mono'] as const
+export const FONT_TOKENS = ['font-sans', 'font-mono', 'font-display'] as const
 
 /**
  * Names a typography token.

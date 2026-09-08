@@ -35,10 +35,19 @@ import { contributions, type Registered, workspaceManifests } from '@stealthscal
 type Refusals = readonly FieldIssue[]
 
 /**
- * Names the two entries a theme package exports and the preview imports: the stylesheet that
- * declares its tokens behind its attribute, and the module holding its solved table.
+ * Names the three entries a theme package exports and the preview imports: the files its own
+ * families load from, the stylesheet that declares its tokens behind its attribute, and the
+ * module holding its solved table and its scales.
+ *
+ * The fonts are loaded per theme rather than once, because a page drawing four themes has to
+ * carry four sets of faces: a theme that brings its own is drawn in the browser's fallback
+ * until its files are there.
  */
-const THEME_ARTEFACTS = { stylesheet: './scoped.css', values: './values' } as const
+const THEME_ARTEFACTS = {
+  fonts: './fonts.css',
+  stylesheet: './scoped.css',
+  values: './values',
+} as const
 
 /**
  * Accepts an `exports` map in the shape a manifest writes it.
@@ -54,6 +63,12 @@ const TARGET = union([string(), looseObject({ default: string() })])
  * Describes one theme a workspace holds.
  */
 export interface ThemeRegistration {
+  /**
+   * Names the stylesheet that loads the theme's own font files, absolute. It is what the
+   * package exports at `./fonts.css`.
+   */
+  fonts: string
+
   /**
    * Carries the value written to the document's theme attribute, which is the basename of the
    * package's directory: `themes/thesmos` gives `thesmos`.
@@ -217,25 +232,69 @@ function providerOf(
 }
 
 /**
+ * Reads the path one entry of an `exports` map names.
+ *
+ * A conditions object gives its `default`, because the artefact is generated and no condition
+ * points anywhere else.
+ *
+ * @param {unknown} entry - One value of the map.
+ * @returns {string | undefined} The path, or nothing where the entry names none.
+ */
+function targetOf(entry: unknown): string | undefined {
+  const target = safeParse(TARGET, entry)
+  if (!target.ok) return undefined
+  return typeof target.value === 'string' ? target.value : target.value.default
+}
+
+/**
+ * Fills a subpath pattern's `*` from the entry asked for, the way Node resolves one.
+ *
+ * A theme ships whichever stylesheets its build wrote, so it declares `./*.css` rather than
+ * listing them, and reading only exact keys would find none of them.
+ *
+ * @param {string} subpath - The key the map declares, such as `./*.css`.
+ * @param {string} entry - The entry asked for, such as `./scoped.css`.
+ * @param {string | undefined} target - Where the key points, such as `./dist/*.css`.
+ * @returns {string | undefined} The target with its `*` filled in, or nothing where the key
+ *     is no pattern or does not match.
+ */
+function filled(subpath: string, entry: string, target: string | undefined): string | undefined {
+  const star = subpath.indexOf('*')
+  if (star === -1 || target === undefined) return undefined
+
+  const opens = subpath.slice(0, star)
+  const closes = subpath.slice(star + 1)
+  const matches =
+    entry.startsWith(opens) && entry.endsWith(closes) && entry.length > opens.length + closes.length
+  if (!matches) return undefined
+
+  return target.replace('*', entry.slice(opens.length, entry.length - closes.length))
+}
+
+/**
  * Reads where one entry of an `exports` map points, relative to the package.
  *
- * The map is read rather than the package resolved by name, because a bare import in a
- * module the plugin serves is resolved from the repository's root, and the root depends on
- * no theme. A conditions object gives its `default`: the artefact is generated, so no
- * condition points anywhere else.
+ * The map is read rather than the package resolved by name, because a bare import in a module
+ * the plugin serves is resolved from the repository's root, and the root depends on no theme.
+ * An exact key wins over a pattern, as it does in Node's own resolution.
  *
  * @param {unknown} exports - The manifest's `exports` field, as written.
  * @param {string} entry - The entry to read: `./values`.
  * @returns {string | undefined} The path the entry names, or nothing where the map has no
- *     such entry or the entry names no path.
+ *     such entry and no pattern that matches it.
  */
 function exportTarget(exports: unknown, entry: string): string | undefined {
   const map = safeParse(EXPORTS, exports)
   if (!map.ok) return undefined
 
-  const target = safeParse(TARGET, map.value[entry])
-  if (!target.ok) return undefined
-  return typeof target.value === 'string' ? target.value : target.value.default
+  const exact = targetOf(map.value[entry])
+  if (exact !== undefined) return exact
+
+  for (const [subpath, target] of Object.entries(map.value)) {
+    const matched = filled(subpath, entry, targetOf(target))
+    if (matched !== undefined) return matched
+  }
+  return undefined
 }
 
 /**
@@ -255,7 +314,7 @@ function missingArtefact(name: string, entry: string): FieldIssue {
 }
 
 /**
- * Turns a theme's entry into its registration, with both artefacts resolved against the
+ * Turns a theme's entry into its registration, with every artefact resolved against the
  * package that ships them.
  *
  * @param {Registered<ThemeContribution>} registered - The package's theme entry.
@@ -268,10 +327,11 @@ function themeOf(
   log: Logger,
 ): Result<ThemeRegistration, Refusals> {
   const name = basename(manifest.directory)
+  const fonts = exportTarget(manifest.exports, THEME_ARTEFACTS.fonts)
   const stylesheet = exportTarget(manifest.exports, THEME_ARTEFACTS.stylesheet)
   const values = exportTarget(manifest.exports, THEME_ARTEFACTS.values)
 
-  if (stylesheet === undefined || values === undefined) {
+  if (fonts === undefined || stylesheet === undefined || values === undefined) {
     return refused(
       Object.values(THEME_ARTEFACTS)
         .filter((entry) => exportTarget(manifest.exports, entry) === undefined)
@@ -281,6 +341,7 @@ function themeOf(
 
   log.info('registered a theme', { name, package: manifest.name })
   return succeeded({
+    fonts: resolve(manifest.directory, fonts),
     name,
     package: manifest.name,
     stylesheet: resolve(manifest.directory, stylesheet),

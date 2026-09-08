@@ -24,26 +24,14 @@
       "default": "./dist/index.mjs"
     },
     "./package.json": "./package.json",
-    "./base.css": "./dist/base.css",
-    "./density.css": "./dist/density.css",
-    "./index.css": "./dist/index.css",
-    "./motion.css": "./dist/motion.css",
-    "./scoped.css": "./dist/scoped.css",
-    "./tailwind.css": "./dist/tailwind.css",
-    "./tokens.css": "./dist/tokens.css",
+    "./*.css": "./dist/*.css",
     "./values": "./dist/values.mjs"
   },
   "publishConfig": {
     "exports": {
       ".": "./dist/index.mjs",
       "./package.json": "./package.json",
-      "./base.css": "./dist/base.css",
-      "./density.css": "./dist/density.css",
-      "./index.css": "./dist/index.css",
-      "./motion.css": "./dist/motion.css",
-      "./scoped.css": "./dist/scoped.css",
-      "./tailwind.css": "./dist/tailwind.css",
-      "./tokens.css": "./dist/tokens.css",
+      "./*.css": "./dist/*.css",
       "./values": "./dist/values.mjs"
     },
     "access": "public"

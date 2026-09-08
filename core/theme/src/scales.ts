@@ -8,6 +8,56 @@
  */
 
 /**
+ * Lists every size step the system names, smallest first.
+ *
+ * A table is written in the order a linter sorts its keys, which puts `2xl` before `xs` and
+ * makes a page that iterates it read as a shuffled list. This is the order a person reads a
+ * scale in, and every page and specification sorts by it rather than inventing a comparator.
+ */
+export const SIZE_STEPS: readonly string[] = [
+  '2xs',
+  'xs',
+  'sm',
+  'base',
+  'md',
+  'lg',
+  'xl',
+  '2xl',
+  '3xl',
+  '4xl',
+  '5xl',
+  '6xl',
+  '7xl',
+  '8xl',
+  '9xl',
+]
+
+/**
+ * Orders a table's entries smallest first.
+ *
+ * A step the size list does not name keeps its own position after the ones it does, so a
+ * table keyed by something other than size, such as the easings, comes back as it was.
+ *
+ * @template Value - What one entry of the table holds.
+ * @param {Readonly<Record<string, Value>>} table - The table to order.
+ * @returns {[string, Value][]} Each entry, smallest step first.
+ */
+export function bySize<Value>(table: Readonly<Record<string, Value>>): [string, Value][] {
+  /**
+   * Reads where a step sits in the size list.
+   *
+   * @param {string} step - The step's name.
+   * @returns {number} Its place, and one past the end for a step the list does not name.
+   */
+  const place = (step: string): number => {
+    const found = SIZE_STEPS.indexOf(step)
+    return found === -1 ? SIZE_STEPS.length : found
+  }
+
+  return Object.entries(table).toSorted(([one], [other]) => place(one) - place(other))
+}
+
+/**
  * Carries one step of the type scale: the size, and the line height that goes with it.
  */
 export interface TextStep {

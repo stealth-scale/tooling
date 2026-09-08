@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vite-plus/test'
 import * as theme from '#index.ts'
 
 describe('the package barrel', () => {
-  it('exports the contract, the scales, the builder, the emitter and the colour maths', () => {
+  it('exports the contract, the recipe, the builder, the emitters and the colour maths', () => {
     expect(Object.keys(theme).toSorted()).toEqual(
       [
         'ANIMATION',
@@ -16,7 +16,8 @@ describe('the package barrel', () => {
         'DARK',
         'DARK_FILLS',
         'DEFAULT_DENSITY',
-        'DEFAULT_FONTS',
+        'DEFAULT_FAMILIES',
+        'DEFAULT_TABLES',
         'DENSITY',
         'DROP_SHADOW',
         'DURATION',
@@ -48,6 +49,7 @@ describe('the package barrel', () => {
         'SCALAR_TOKENS',
         'SHADOW',
         'SHADOW_TOKENS',
+        'SIZE_STEPS',
         'SIDEBAR_TOKENS',
         'SPINNING',
         'STATUS_HUES',
@@ -65,20 +67,28 @@ describe('the package barrel', () => {
         'assertReadable',
         'boxShadowOf',
         'buildPalette',
+        'bySize',
         'completeTokens',
         'contrast',
         'controlHeights',
         'declarations',
+        'densityBlocks',
+        'densityDefaults',
         'emit',
+        'emitBase',
         'emitDensities',
+        'emitFonts',
+        'emitIndex',
         'emitMotion',
-        'emitTailwind',
         'emitScoped',
+        'emitTailwind',
         'emitTheme',
+        'extendRecipe',
         'fillsFor',
         'glowOf',
         'hex',
         'inGamut',
+        'isColor',
         'isComplete',
         'ladderFor',
         'luminance',
@@ -86,9 +96,16 @@ describe('the package barrel', () => {
         'parseColor',
         'radiusOf',
         'recipeSchema',
+        'resolveRecipe',
         'solveContrast',
         'toGamut',
+        'toPolar',
+        'toneOf',
       ].toSorted(),
     )
+  })
+
+  it('leaves the node-only writer to its own subpath, so a browser bundle never sees fs', () => {
+    expect(Object.keys(theme)).not.toContain('writeTheme')
   })
 })

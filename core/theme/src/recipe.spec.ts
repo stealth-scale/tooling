@@ -2,20 +2,7 @@ import { describe, expect, it } from 'vite-plus/test'
 
 import { safeParse } from '@stealthscale/core-schema'
 
-import { DARK, LIGHT } from '#ladder.ts'
-import {
-  chromaOf,
-  DEFAULT_FONTS,
-  levelOf,
-  pageLightness,
-  type PaletteRecipe,
-  recipeSchema,
-  STATUS_HUES,
-  statusHues,
-  surfaceHue,
-  surfaceTint,
-  tintOf,
-} from '#recipe.ts'
+import { extendRecipe, type Recipe, recipeSchema } from '#recipe.ts'
 
 /**
  * Reads the codes a recipe was refused with, so a case names the rule rather than the words.
@@ -29,80 +16,148 @@ function refusals(written: unknown): string[] {
 }
 
 /**
- * Holds a recipe that states only what it must.
+ * Holds the smallest recipe there is: one colour.
  */
-const bare: PaletteRecipe = {
-  accent: 200,
-  chart: [258, 152, 292, 45, 12],
-  neutral: 260,
-  primary: 258,
-}
+const bare: Recipe = { color: { primary: 258 } }
 
 /**
- * Holds a recipe that states everything it may.
+ * Holds a recipe that states something in every group, in both layers.
  */
-const full: PaletteRecipe = {
-  ...bare,
-  chroma: 0.2,
-  contrast: 'AA',
-  fonts: { mono: 'Mono', sans: 'Sans' },
-  ink: 10,
-  neutralChroma: 0.02,
-  paper: 99,
-  radius: '1rem',
-  status: { destructive: 350, info: 210, success: 200, warning: 90 },
-  surfaceChroma: 0.05,
-  surfaceHue: 40,
+const full: Recipe = {
+  color: {
+    accent: '#2d8f7b',
+    chart: [258, 152, 292, 45, 12],
+    contrast: 'AA',
+    dark: { overlayAlpha: 0.8, page: 10 },
+    fills: { light: { key: 55, status: { warning: 80 } } },
+    light: { cardLift: 2 },
+    neutral: { chroma: 0.02, hue: 260 },
+    primary: { chroma: 0.2, hue: 258 },
+    stated: { light: { primary: '#2d5bd7' } },
+    status: { warning: 90 },
+    surface: 40,
+  },
+  effect: {
+    blur: { md: 14 },
+    depth: 1.4,
+    shadow: { md: [{ fraction: 30, geometry: '0 2px 4px' }] },
+  },
+  font: {
+    display: { family: 'Display', source: './display.css' },
+    mono: { family: 'Mono' },
+    sans: { fallback: 'sans-serif', family: 'Sans', source: ['./a.css', './b.css'] },
+    weight: { semibold: 620 },
+  },
+  motion: {
+    animation: { 'fade-in': 'fade-in 1s linear' },
+    ease: { out: 'linear' },
+    press: 0.96,
+    speed: 0.8,
+  },
+  size: {
+    density: { default: 'compact', steps: { compact: { control: 1.75, focusOffset: 0 } } },
+    focus: { width: 3 },
+    leading: { normal: 1.6 },
+    radius: '0.625rem',
+    spacing: '0.3rem',
+    text: { base: '15px', steps: { sm: { lineHeight: 1.3, size: 0.9 } } },
+    tracking: { tight: -0.03 },
+  },
 }
 
 describe('recipeSchema', () => {
-  it('accepts a recipe that states only what it must, and one that states everything', () => {
+  it('accepts one colour as a whole theme, and a recipe that states everything', () => {
     expect(refusals(bare)).toEqual([])
     expect(refusals(full)).toEqual([])
   })
 
-  it('accepts a status that names some of the outcomes and leaves the rest', () => {
-    expect(refusals({ ...bare, status: { warning: 90 } })).toEqual([])
+  it('takes a colour as a hex, a hue, or a hue with its own chroma', () => {
+    expect(refusals({ color: { primary: '#2d5bd7' } })).toEqual([])
+    expect(refusals({ color: { primary: 'oklch(52% 0.19 258)' } })).toEqual([])
+    expect(refusals({ color: { primary: { chroma: 0.2, hue: 258 } } })).toEqual([])
   })
 
-  it('refuses a recipe missing a hue it cannot derive, naming every one it wants', () => {
-    const { chart, neutral } = bare
+  it('refuses a string that names no colour, where a typo would otherwise solve as nothing', () => {
+    expect(refusals({ color: { primary: '#gg5bd7' } })).toEqual(['color.primary: check'])
+    expect(refusals({ color: { primary: 'periwinkleish' } })).toEqual(['color.primary: check'])
+  })
 
-    expect(refusals({ chart, neutral })).toEqual([
-      'accent: strict_object',
-      'primary: strict_object',
-    ])
+  it('refuses a recipe with no colour at all, which is the one thing it cannot derive', () => {
+    expect(refusals({})).toEqual(['color: strict_object'])
+    expect(refusals({ color: {} })).toEqual(['color.primary: strict_object'])
   })
 
   it('refuses a key that is no member, which is how a typo would otherwise do nothing', () => {
-    expect(refusals({ ...bare, neutralchroma: 0.02 })).toEqual(['neutralchroma: strict_object'])
-    expect(refusals({ ...bare, status: { destructve: 350 } })).toEqual([
-      'status.destructve: strict_object',
+    expect(refusals({ color: { primary: 258, primry: 200 } })).toEqual([
+      'color.primry: strict_object',
+    ])
+    expect(refusals({ ...bare, sizes: {} })).toEqual(['sizes: strict_object'])
+  })
+
+  it('refuses a hue off the wheel and a ladder step below nothing', () => {
+    expect(refusals({ color: { primary: 400 } })).toEqual(['color.primary: max_value'])
+    expect(refusals({ color: { light: { page: -1 }, primary: 258 } })).toEqual([
+      'color.light.page: min_value',
     ])
   })
 
-  it('refuses a hue off the wheel and a lightness past a percentage', () => {
-    expect(refusals({ ...bare, accent: 400 })).toEqual(['accent: max_value'])
-    expect(refusals({ ...bare, neutral: -1 })).toEqual(['neutral: min_value'])
-    expect(refusals({ ...bare, paper: 101 })).toEqual(['paper: max_value'])
-    expect(refusals({ ...bare, chroma: -0.1 })).toEqual(['chroma: min_value'])
+  it('refuses a ladder step the ladder does not have', () => {
+    expect(refusals({ color: { light: { pge: 97 }, primary: 258 } })).toEqual([
+      'color.light.pge: strict_object',
+    ])
   })
 
   it('refuses a chart that is not five series, so a series cannot go missing in silence', () => {
-    expect(refusals({ ...bare, chart: [258, 152, 292, 45] })).toEqual(['chart.4: number'])
-    expect(refusals({ ...bare, chart: [258, 152, 292, 45, 12, 300] })).toEqual([
-      'chart.5: strict_tuple',
+    expect(refusals({ color: { chart: [258, 152, 292, 45], primary: 258 } })).toEqual([
+      'color.chart.4: union',
     ])
-    expect(refusals({ ...bare, chart: [258, 152, 292, 45, 400] })).toEqual(['chart.4: max_value'])
+    expect(refusals({ color: { chart: [258, 152, 292, 45, 12, 300], primary: 258 } })).toEqual([
+      'color.chart.5: strict_tuple',
+    ])
   })
 
-  it('refuses a contrast level nothing solves for, and a font family that is no pair', () => {
-    expect(refusals({ ...bare, contrast: 'AAAA' })).toEqual(['contrast: picklist'])
-    expect(refusals({ ...bare, fonts: { sans: 'Sans' } })).toEqual(['fonts.mono: strict_object'])
+  it('refuses an animation the contract does not name, since a component reaches for the name', () => {
+    expect(refusals({ ...bare, motion: { animation: { 'fade-sideways': 'x' } } })).toEqual([
+      'motion.animation.fade-sideways: picklist',
+    ])
+    expect(refusals({ ...bare, motion: { animation: { 'fade-in': 'x' } } })).toEqual([])
+  })
+
+  it('refuses a density the contract does not name, since a page writes the attribute', () => {
+    expect(refusals({ ...bare, size: { density: { default: 'roomy' } } })).toEqual([
+      'size.density.default: picklist',
+    ])
+  })
+
+  it('refuses a weight the contract does not name', () => {
+    expect(refusals({ ...bare, font: { weight: { semibld: 620 } } })).toEqual([
+      'font.weight.semibld: picklist',
+    ])
+  })
+
+  it('refuses a length with no unit, which a stylesheet would read as nothing', () => {
+    expect(refusals({ ...bare, size: { radius: '10' } })).toEqual(['size.radius: regex'])
+    expect(refusals({ ...bare, size: { spacing: '4pt' } })).toEqual(['size.spacing: regex'])
+    expect(refusals({ ...bare, size: { text: { base: '15px' } } })).toEqual([])
+  })
+
+  it('refuses a stated name that is no token, so a typo is not read as nothing', () => {
+    expect(refusals({ color: { primary: 258, stated: { light: { primry: '#fff' } } } })).toEqual([
+      'color.stated.light.primry: picklist',
+    ])
+  })
+
+  it('refuses a contrast level nothing solves for, and a share of ink past all of it', () => {
+    expect(refusals({ color: { contrast: 'AAAA', primary: 258 } })).toEqual([
+      'color.contrast: picklist',
+    ])
+    expect(
+      refusals({ ...bare, effect: { shadow: { md: [{ fraction: 140, geometry: '0 1px' }] } } }),
+    ).toEqual(['effect.shadow.md.0.fraction: max_value'])
   })
 
   it('refuses a member written as undefined rather than left out', () => {
-    expect(refusals({ ...bare, radius: undefined })).toEqual(['radius: string'])
+    expect(refusals({ ...bare, size: { radius: undefined } })).toEqual(['size.radius: string'])
   })
 
   it('refuses a recipe that is not an object at all', () => {
@@ -110,46 +165,49 @@ describe('recipeSchema', () => {
   })
 })
 
-describe('the readers', () => {
-  it('answer the fixed value where a recipe says nothing', () => {
-    expect(chromaOf(bare)).toBe(0.17)
-    expect(tintOf(bare)).toBe(0.008)
-    expect(levelOf(bare)).toBe('AAA')
-    expect(surfaceHue(bare)).toBe(bare.neutral)
-    expect(surfaceTint(bare)).toBeCloseTo(0.02, 5)
-    expect(statusHues(bare)).toEqual(STATUS_HUES)
-    expect(DEFAULT_FONTS.sans).toContain('Inter')
+describe('extendRecipe', () => {
+  it('lays one theme’s choices over another’s, group by group', () => {
+    const extended = extendRecipe(full, { color: { primary: '#d9480f' } })
+
+    expect(extended.color.primary).toBe('#d9480f')
+    expect(extended.color.accent, 'what it did not name').toBe(full.color.accent)
+    expect(extended.size?.radius).toBe(full.size?.radius)
   })
 
-  it('answer what a recipe states where it states it', () => {
-    expect(chromaOf(full)).toBe(0.2)
-    expect(tintOf(full)).toBe(0.02)
-    expect(levelOf(full)).toBe('AA')
-    expect(surfaceHue(full)).toBe(40)
-    expect(surfaceTint(full)).toBe(0.05)
-    expect(statusHues(full)).toEqual(full.status)
+  it('merges a table entry by entry, so stating one step keeps the rest', () => {
+    const extended = extendRecipe(full, { effect: { shadow: { lg: [] } } })
+
+    expect(Object.keys(extended.effect?.shadow ?? {}).toSorted()).toEqual(['lg', 'md'])
+    expect(extended.effect?.shadow?.['md'], 'the step it did not name').toEqual(
+      full.effect?.shadow?.['md'],
+    )
   })
 
-  it('tint the surfaces from the greys when no surface tint is stated', () => {
-    expect(surfaceTint({ ...bare, neutralChroma: 0.02 })).toBeCloseTo(0.05, 5)
+  it('replaces a list whole, because a shadow’s layers are one composition', () => {
+    const layers = [{ fraction: 10, geometry: '0 1px' }]
+    const extended = extendRecipe(full, { effect: { shadow: { md: layers } } })
+
+    expect(extended.effect?.shadow?.['md']).toEqual(layers)
   })
 
-  it('fill in an outcome hue a recipe leaves out', () => {
-    expect(statusHues({ ...bare, status: { success: 209 } })).toEqual({
-      ...STATUS_HUES,
-      success: 209,
-    })
-  })
-})
+  it('reaches a step of a ladder without restating the other twenty-six', () => {
+    const extended = extendRecipe(full, { color: { dark: { page: 8 } } })
 
-describe('pageLightness', () => {
-  it('reads the ladder where a recipe names no page', () => {
-    expect(pageLightness(bare, 'light')).toBe(LIGHT.page)
-    expect(pageLightness(bare, 'dark')).toBe(DARK.page)
+    expect(extended.color.dark?.page).toBe(8)
+    expect(extended.color.dark?.overlayAlpha, 'the step it did not name').toBe(0.8)
   })
 
-  it('reads paper in light and ink in dark where a recipe names them', () => {
-    expect(pageLightness(full, 'light')).toBe(99)
-    expect(pageLightness(full, 'dark')).toBe(10)
+  it('holds the result to the schema, so extending cannot make an unbuildable theme', () => {
+    expect(() => extendRecipe(full, { color: { primary: 400 } })).toThrow(/color\.primary/u)
+    expect(() => extendRecipe(full, { size: { radius: 'wide' } })).toThrow(
+      /Extending the recipe gives no recipe/u,
+    )
+  })
+
+  it('extends a theme that states nothing but its colour', () => {
+    const extended = extendRecipe(bare, { motion: { speed: 2 } })
+
+    expect(extended.color.primary).toBe(258)
+    expect(extended.motion?.speed).toBe(2)
   })
 })

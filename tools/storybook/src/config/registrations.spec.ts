@@ -16,8 +16,8 @@ interface Package {
   stealth: unknown
 }
 
-/** Names the two artefacts every theme package exports. */
-const THEME_EXPORTS = { './scoped.css': './dist/scoped.css', './values': './dist/values.mjs' }
+/** Names what every theme package exports, as `core-theme` declares it. */
+const THEME_EXPORTS = { './*.css': './dist/*.css', './values': './dist/values.mjs' }
 
 /** What a design system registers, in the entry core-appearance names. */
 const DESIGN_SYSTEM: Package = {
@@ -92,20 +92,23 @@ describe('registrations', () => {
     scratch.remove()
   })
 
-  it("resolves a theme's table and its scoped stylesheet against the package that ships them", () => {
+  it('resolves every artefact the preview reads against the package that ships it', () => {
     const scratch = workspaceOf({ 'themes/kalon': theme('Kalon') })
 
     const { themes } = readingOf(scratch)
 
     expect(themes[0]?.values).toBe(scratch.path('themes/kalon/dist/values.mjs'))
     expect(themes[0]?.stylesheet).toBe(scratch.path('themes/kalon/dist/scoped.css'))
+    expect(themes[0]?.fonts, 'a theme that brings its own faces loads them itself').toBe(
+      scratch.path('themes/kalon/dist/fonts.css'),
+    )
     scratch.remove()
   })
 
   it('reads the default of an entry written with conditions, since the artefact is generated', () => {
     const scratch = workspaceOf({
       'themes/kalon': theme('Kalon', {
-        './scoped.css': './dist/scoped.css',
+        './*.css': './dist/*.css',
         './values': { default: './dist/values.mjs', 'ui-source': './src/values.ts' },
       }),
     })
@@ -114,17 +117,50 @@ describe('registrations', () => {
     scratch.remove()
   })
 
-  it('refuses a theme that exports no table or no scoped stylesheet, naming each entry', () => {
+  it('takes an exact entry over a pattern that would also match it', () => {
     const scratch = workspaceOf({
-      'themes/kalon': theme('Kalon', { './scoped.css': './dist/scoped.css' }),
+      'themes/kalon': theme('Kalon', {
+        './*.css': './dist/*.css',
+        './scoped.css': './dist/themed.css',
+        './values': './dist/values.mjs',
+      }),
+    })
+
+    expect(readingOf(scratch).themes[0]?.stylesheet).toBe(
+      scratch.path('themes/kalon/dist/themed.css'),
+    )
+    expect(readingOf(scratch).themes[0]?.fonts, 'and the pattern serves the rest').toBe(
+      scratch.path('themes/kalon/dist/fonts.css'),
+    )
+    scratch.remove()
+  })
+
+  it('refuses a theme that exports none of the artefacts the preview reads, naming each', () => {
+    const scratch = workspaceOf({
+      'themes/kalon': theme('Kalon', { './*.css': './dist/*.css' }),
       'themes/thesmos': { stealth: { theme: { title: 'Thesmos' } } },
     })
 
     expect(refusalsOf(scratch)).toEqual([
       '@t/themes-kalon.exports["./values"]: missing_export',
+      '@t/themes-thesmos.exports["./fonts.css"]: missing_export',
       '@t/themes-thesmos.exports["./scoped.css"]: missing_export',
       '@t/themes-thesmos.exports["./values"]: missing_export',
     ])
+    scratch.remove()
+  })
+
+  it('matches a pattern only past its own literal parts, the way Node resolves one', () => {
+    const scratch = workspaceOf({
+      'themes/kalon': theme('Kalon', { './*': './dist/*', './values': './dist/values.mjs' }),
+    })
+
+    const [kalon] = readingOf(scratch).themes
+
+    expect(kalon?.stylesheet, 'a bare star matches any subpath').toBe(
+      scratch.path('themes/kalon/dist/scoped.css'),
+    )
+    expect(kalon?.fonts).toBe(scratch.path('themes/kalon/dist/fonts.css'))
     scratch.remove()
   })
 
@@ -192,6 +228,7 @@ describe('registrations', () => {
 
     expect(refusalsOf(scratch)).toEqual([
       '@t/components-library.stealth.appearance.provider: one_provider',
+      '@t/themes-kalon.exports["./fonts.css"]: missing_export',
       '@t/themes-kalon.exports["./scoped.css"]: missing_export',
       '@t/themes-kalon.exports["./values"]: missing_export',
     ])

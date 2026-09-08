@@ -33,7 +33,7 @@ export interface Ladder {
   /**
    * Sets the accent surface.
    */
-  accent: number
+  accentLift: number
 
   /**
    * Sets the text on the accent surface.
@@ -43,12 +43,14 @@ export interface Ladder {
   /**
    * Sets the hairline between surfaces.
    */
-  border: number
+  borderLift: number
 
   /**
-   * Sets a card, one step off the page.
+   * Sets how far a card is lifted off the page, in points of lightness. It is a lift rather
+   * than a lightness so that a theme moving its page carries every surface with it; a theme
+   * that wants its cards flush with the page states 0.
    */
-  card: number
+  cardLift: number
 
   /**
    * Sets a chart series colour.
@@ -95,7 +97,7 @@ export interface Ladder {
   /**
    * Sets the muted surface, close to the page by definition.
    */
-  muted: number
+  mutedLift: number
 
   /**
    * Sets the text on the muted surface.
@@ -118,9 +120,11 @@ export interface Ladder {
   page: number
 
   /**
-   * Sets a popover, one step above a card in dark and level with it in light.
+   * Sets how far a popover is lifted off the page, in points of lightness. In dark it sits
+   * above a card, because a menu opened over one at the same lightness had only its hairline
+   * to show it was in front; in light both reach white and the shadow does that work.
    */
-  popover: number
+  popoverLift: number
 
   /**
    * Sets where the fill behind selected text starts.
@@ -144,19 +148,20 @@ export interface Ladder {
   shadowHighlightAlpha: number
 
   /**
-   * Sets the sidebar's surface.
+   * Sets how far the sidebar's accent sits from the page.
    */
-  sidebar: number
+  sidebarAccentLift: number
 
   /**
-   * Sets the sidebar's accent.
+   * Sets how far the sidebar's hairline sits from the page.
    */
-  sidebarAccent: number
+  sidebarBorderLift: number
 
   /**
-   * Sets the sidebar's hairline.
+   * Sets how far the sidebar's own plane sits from the page. A sidebar that inherits the
+   * page's lightness disappears into it, which is why it is a plane of its own at all.
    */
-  sidebarBorder: number
+  sidebarLift: number
 
   /**
    * Sets the text on the sidebar.
@@ -209,10 +214,10 @@ export interface Fills {
  * distance from the page.
  */
 export const LIGHT: Ladder = {
-  accent: 93,
+  accentLift: -4,
   accentText: 25,
-  border: 89,
-  card: 100,
+  borderLift: -8,
+  cardLift: 3,
   chart: 58,
   glassAlpha: 0.72,
   glassBorderAlpha: 0.45,
@@ -221,19 +226,19 @@ export const LIGHT: Ladder = {
   gradient: 60,
   highlight: 90,
   input: 80,
-  muted: 94,
+  mutedLift: -3,
   mutedText: 41,
   overlay: 15,
   overlayAlpha: 0.5,
   page: 97,
-  popover: 100,
+  popoverLift: 3,
   selection: 86,
   shadow: 12,
   shadowAlpha: 0.25,
   shadowHighlightAlpha: 0,
-  sidebar: 96,
-  sidebarAccent: 91,
-  sidebarBorder: 87,
+  sidebarAccentLift: -6,
+  sidebarBorderLift: -10,
+  sidebarLift: -1,
   sidebarText: 25,
   text: 20,
 }
@@ -242,10 +247,10 @@ export const LIGHT: Ladder = {
  * Sets the dark ladder.
  */
 export const DARK: Ladder = {
-  accent: 28,
+  accentLift: 15,
   accentText: 95,
-  border: 27,
-  card: 17,
+  borderLift: 14,
+  cardLift: 4,
   chart: 68,
   glassAlpha: 0.6,
   glassBorderAlpha: 0.28,
@@ -254,19 +259,19 @@ export const DARK: Ladder = {
   gradient: 68,
   highlight: 40,
   input: 40,
-  muted: 23,
+  mutedLift: 10,
   mutedText: 76,
   overlay: 3,
   overlayAlpha: 0.7,
   page: 13,
-  popover: 20,
+  popoverLift: 7,
   selection: 36,
   shadow: 4,
-  shadowAlpha: 0.6,
-  shadowHighlightAlpha: 0.12,
-  sidebar: 15,
-  sidebarAccent: 22,
-  sidebarBorder: 26,
+  shadowAlpha: 0.9,
+  shadowHighlightAlpha: 0.2,
+  sidebarAccentLift: 9,
+  sidebarBorderLift: 13,
+  sidebarLift: 2,
   sidebarText: 92,
   text: 96,
 }

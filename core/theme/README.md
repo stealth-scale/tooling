@@ -119,7 +119,11 @@ the durations and easings beside them.
 
 ## The palette
 
-A recipe states hues and a shape, and `buildPalette` turns it into every token in both modes.
+A recipe states colours and a shape, and `buildPalette` turns it into every token in both
+modes. Every surface is placed against the page rather than at a lightness of its own: a
+card, a popover, a muted panel, an accent, a sidebar and every hairline is a signed lift off
+`page`, so a theme that moves its paper or its ink carries all of them with it and a theme
+that wants its cards flush states `cardLift: 0`.
 Every fill is solved for contrast rather than set: at the same lightness a green is
 perceptibly lighter than a blue, so a fixed number clears 7:1 with white text for one theme
 and not for the next. The walk moves lightness until the ratio holds, which makes the ratio a

@@ -72,9 +72,12 @@ describe('the colour tokens', () => {
 })
 
 describe('the scalar tokens', () => {
-  it('ask a theme for one radius and two families, and nothing else', () => {
+  it('ask a theme for one radius and three families, and nothing else', () => {
     expect([...RADIUS_TOKENS]).toEqual(['radius'])
-    expect([...FONT_TOKENS]).toEqual(['font-sans', 'font-mono'])
+    expect(
+      [...FONT_TOKENS],
+      'a heading takes the display face, which falls back to the text family',
+    ).toEqual(['font-sans', 'font-mono', 'font-display'])
     expect(SCALAR_TOKENS).toEqual([...RADIUS_TOKENS, ...FONT_TOKENS])
   })
 })

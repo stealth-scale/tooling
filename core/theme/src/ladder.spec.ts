@@ -3,19 +3,40 @@ import { describe, expect, it } from 'vite-plus/test'
 import { DARK, DARK_FILLS, fillsFor, ladderFor, LIGHT, LIGHT_FILLS, RATIOS } from '#ladder.ts'
 
 describe('the ladders', () => {
-  it('climb away from the page in each mode, so card, popover and muted each step off it', () => {
-    expect(LIGHT.card).toBeGreaterThan(LIGHT.page)
-    expect(LIGHT.muted).toBeLessThan(LIGHT.page)
-    expect(LIGHT.input).toBeLessThan(LIGHT.border)
-    expect(DARK.card).toBeGreaterThan(DARK.page)
-    expect(DARK.popover).toBeGreaterThan(DARK.card)
-    expect(DARK.muted).toBeGreaterThan(DARK.popover)
-    expect(DARK.input).toBeGreaterThan(DARK.border)
+  it('lift a card off the page, and a popover further still in dark', () => {
+    expect(LIGHT.cardLift).toBeGreaterThan(0)
+    expect(DARK.cardLift).toBeGreaterThan(0)
+    expect(DARK.popoverLift).toBeGreaterThan(DARK.cardLift)
   })
 
-  it('put text on the far side of the page from the surfaces', () => {
-    expect(LIGHT.text).toBeLessThan(LIGHT.muted)
-    expect(DARK.text).toBeGreaterThan(DARK.muted)
+  it('sit a panel the other side of the page from a card, in both modes', () => {
+    expect(LIGHT.mutedLift, 'on paper a muted panel recedes while a card rises').toBeLessThan(0)
+    expect(
+      DARK.mutedLift,
+      'on a dark page both climb, and the panel climbs further',
+    ).toBeGreaterThan(DARK.cardLift)
+  })
+
+  it('state every surface as a lift, so moving the page carries all of them with it', () => {
+    for (const ladder of [LIGHT, DARK]) {
+      for (const lift of [
+        ladder.accentLift,
+        ladder.borderLift,
+        ladder.cardLift,
+        ladder.mutedLift,
+        ladder.popoverLift,
+        ladder.sidebarAccentLift,
+        ladder.sidebarBorderLift,
+        ladder.sidebarLift,
+      ]) {
+        expect(Math.abs(lift), 'a lift is a distance, not a lightness').toBeLessThan(40)
+      }
+    }
+  })
+
+  it('put text on the far side of the page from the panels', () => {
+    expect(LIGHT.text).toBeLessThan(LIGHT.page + LIGHT.mutedLift)
+    expect(DARK.text).toBeGreaterThan(DARK.page + DARK.mutedLift)
   })
 
   it('give the dark scrim and shadow more opacity, where a dark page swallows both', () => {

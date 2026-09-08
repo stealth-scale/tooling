@@ -6,8 +6,9 @@ import { fromPolar, inGamut } from '#convert.ts'
 import { FILL_PAIRS, OUTLINE_PAIRS, TEXT_PAIRS } from '#guarantees.ts'
 import { DARK, LIGHT, RATIOS } from '#ladder.ts'
 import { buildPalette } from '#palette.ts'
-import { type PaletteRecipe } from '#recipe.ts'
-import { COLOR_TOKENS } from '#tokens.ts'
+import { type Recipe } from '#recipe.ts'
+import { resolveRecipe } from '#resolve.ts'
+import { COLOR_TOKENS, type ThemeValues } from '#tokens.ts'
 
 /**
  * Reads the lightness an `oklch()` value states.
@@ -42,27 +43,29 @@ function hue(value: string): string {
 }
 
 /**
- * Holds a recipe that states only what it must.
+ * Solves the palette a recipe builds.
+ *
+ * @param {Recipe} recipe - The recipe to solve.
+ * @returns {ThemeValues} Every token, in both modes.
  */
-const bare: PaletteRecipe = {
-  accent: 200,
-  chart: [258, 152, 292, 45, 12],
-  neutral: 260,
-  primary: 258,
+function solve(recipe: Recipe): ThemeValues {
+  return buildPalette(resolveRecipe(recipe))
 }
 
 /**
- * Lists four hues far enough apart that any lightness bug shows up in at least one.
+ * Holds a recipe that states the four colours a theme used to have to state.
  */
-const RECIPES: readonly PaletteRecipe[] = [
-  { accent: 232, chart: [258, 190, 300, 45, 12], neutral: 262, primary: 258 },
-  { accent: 178, chart: [162, 196, 128, 250, 40], neutral: 168, primary: 162 },
-  { accent: 322, chart: [292, 322, 258, 350, 200], neutral: 298, primary: 292 },
-  { accent: 32, chart: [45, 25, 95, 200, 320], neutral: 72, primary: 45 },
-]
+const bare: Recipe = {
+  color: { accent: 200, chart: [258, 152, 292, 45, 12], neutral: 260, primary: 258 },
+}
+
+/**
+ * Lists four primaries far enough apart that any lightness bug shows up in at least one.
+ */
+const PRIMARIES: readonly number[] = [258, 162, 292, 45]
 
 describe('buildPalette', () => {
-  const values = buildPalette(bare)
+  const values = solve(bare)
 
   it('produces every token the contract requires, in both modes', () => {
     expect(() => {
@@ -78,7 +81,7 @@ describe('buildPalette', () => {
   })
 
   it('takes the outcome hues a recipe names, and the chart tones follow', () => {
-    const branded = buildPalette({ ...bare, status: { destructive: 351, success: 209 } })
+    const branded = solve({ color: { ...bare.color, status: { destructive: 351, success: 209 } } })
 
     expect(hue(branded.light.success)).toBe('209')
     expect(hue(branded.light.destructive)).toBe('351')
@@ -91,31 +94,59 @@ describe('buildPalette', () => {
   })
 
   it('takes its hues from the recipe, which is what makes two themes differ', () => {
-    const other = buildPalette({
-      accent: 25,
-      chart: [45, 25, 85, 150, 300],
-      neutral: 60,
-      primary: 45,
+    const other = solve({
+      color: { accent: 25, chart: [45, 25, 85, 150, 300], neutral: 60, primary: 45 },
     })
 
     expect(values.light.primary).not.toBe(other.light.primary)
   })
 
+  it('derives every other colour from the primary, so one colour is a theme', () => {
+    const alone = solve({ color: { primary: 258 } })
+
+    expect(hue(alone.light.primary), 'the one colour a theme states').toBe('258')
+    expect(hue(alone.light.accent), 'a neighbour, twenty-six degrees back').toBe('232')
+    expect(hue(alone.light.border), 'the greys take the primary at a hairline chroma').toBe('258')
+    expect(
+      [
+        hue(alone.light['chart-1']),
+        hue(alone.light['chart-2']),
+        hue(alone.light['chart-3']),
+        hue(alone.light['chart-4']),
+        hue(alone.light['chart-5']),
+      ],
+      'five hues spread evenly round the wheel',
+    ).toEqual(['258', '330', '42', '114', '186'])
+  })
+
+  it('takes the chroma a tone states, and the role’s own where it states none', () => {
+    const muted = solve({ color: { primary: { chroma: 0.05, hue: 258 } } })
+
+    expect(
+      Number(/^oklch\([\d.]+% ([\d.]+)/u.exec(muted.light.primary)?.[1]),
+      'the primary carries what its own tone asked for',
+    ).toBeLessThan(Number(/^oklch\([\d.]+% ([\d.]+)/u.exec(values.light.primary)?.[1]))
+  })
+
   it('takes the families, the radius, the page and the tints a recipe states', () => {
-    const stated = buildPalette({
-      ...bare,
-      chroma: 0.2,
-      fonts: { mono: 'Mono', sans: 'Sans' },
-      ink: 10,
-      neutralChroma: 0.02,
-      paper: 99,
-      radius: '1rem',
-      surfaceChroma: 0.05,
-      surfaceHue: 40,
+    const stated = solve({
+      color: {
+        ...bare.color,
+        dark: { page: 10 },
+        light: { page: 99 },
+        neutral: { chroma: 0.02, hue: 260 },
+        primary: { chroma: 0.2, hue: 258 },
+        surface: { chroma: 0.05, hue: 40 },
+      },
+      font: { mono: { family: 'Mono' }, sans: { family: 'Sans' } },
+      size: { radius: '1rem' },
     })
 
-    expect(stated.light['font-sans']).toBe('Sans')
-    expect(stated.light['font-mono']).toBe('Mono')
+    expect(stated.light['font-sans']).toContain("'Sans'")
+    expect(stated.light['font-mono']).toContain("'Mono'")
+    expect(stated.light['font-display'], 'a theme naming no display face draws in its sans').toBe(
+      stated.light['font-sans'],
+    )
     expect(stated.light.radius).toBe('1rem')
     expect(lightness(stated.light.background)).toBe(99)
     expect(lightness(stated.dark.background)).toBe(10)
@@ -123,8 +154,18 @@ describe('buildPalette', () => {
     expect(hue(stated.light.border), 'the greys keep the neutral').toBe('260')
   })
 
+  it('draws a heading in the display face a theme names', () => {
+    const stated = solve({
+      color: bare.color,
+      font: { display: { family: 'Display', source: './display.css' } },
+    })
+
+    expect(stated.light['font-display']).toContain("'Display'")
+    expect(stated.light['font-display']).not.toBe(stated.light['font-sans'])
+  })
+
   it('keeps the glass on the card, and the card no lighter than white, whatever the page', () => {
-    const stated = buildPalette({ ...bare, ink: 10, paper: 99 })
+    const stated = solve({ color: { ...bare.color, dark: { page: 10 }, light: { page: 99 } } })
 
     for (const mode of ['dark', 'light'] as const) {
       expect(lightness(stated[mode].glass), `${mode} glass`).toBe(lightness(stated[mode].card))
@@ -132,6 +173,18 @@ describe('buildPalette', () => {
     expect(lightness(stated.light.card), 'three steps above 99 stops at white').toBe(100)
     expect(lightness(stated.light.popover)).toBe(100)
     expect(lightness(stated.dark.card), 'four steps above the ink').toBe(14)
+  })
+
+  it('lays a token the theme states over the one it solved, and leaves the rest derived', () => {
+    const stated = solve({
+      color: { ...bare.color, stated: { light: { border: 'oklch(80% 0.02 262)' } } },
+    })
+
+    expect(stated.light.border, 'a brand owns this one').toBe('oklch(80% 0.02 262)')
+    expect(stated.dark.border, 'the mode it was not stated in').toBe(values.dark.border)
+    expect(stated.light.primary, 'everything else still follows the recipe').toBe(
+      values.light.primary,
+    )
   })
 
   it('puts the three gradient stops at one lightness, from the primary to the accent', () => {
@@ -145,7 +198,7 @@ describe('buildPalette', () => {
   })
 
   it('walks the gradient the short way round the wheel', () => {
-    const across = buildPalette({ ...bare, accent: 350, primary: 10 })
+    const across = solve({ color: { ...bare.color, accent: 350, primary: 10 } })
 
     expect(hue(across.light['gradient-2']), 'ten degrees back from 10, not 180 on').toBe('0')
   })
@@ -160,6 +213,16 @@ describe('buildPalette', () => {
     expect(hue(values.light.glow), 'thrown in the primary').toBe('258')
   })
 
+  it('takes a ladder step a theme states, and keeps the rest of the ladder', () => {
+    const flat = solve({
+      color: { ...bare.color, dark: { overlayAlpha: 0.85 }, light: { text: 30 } },
+    })
+
+    expect(lightness(flat.light.foreground), 'a softer ink on the page').toBe(30)
+    expect(flat.dark.overlay, 'a heavier scrim').toMatch(/\/ 0\.85\)$/u)
+    expect(lightness(flat.light.background), 'the page it never named').toBe(LIGHT.page)
+  })
+
   it('gives the scrim its opacity, so a dialog on a dark page still has one', () => {
     expect(values.light.overlay).toMatch(/\/ 0\.50\)$/u)
     expect(values.dark.overlay).toMatch(/\/ 0\.70\)$/u)
@@ -168,13 +231,13 @@ describe('buildPalette', () => {
   it('lays a hairline of light along a raised edge in dark, and nothing in light', () => {
     expect(values.light['shadow-highlight']).toBe('transparent')
     expect(values.dark['shadow-highlight']).toMatch(/^oklch\(98\.0%/u)
-    expect(values.dark.shadow, "the ink carries the largest step's opacity").toMatch(/\/ 0\.60\)$/u)
+    expect(values.dark.shadow, "the ink carries the largest step's opacity").toMatch(/\/ 0\.90\)$/u)
   })
 })
 
 describe('a generated palette', () => {
-  it.each(RECIPES)('writes every colour inside the sRGB gamut ($primary)', (recipe) => {
-    const palette = buildPalette(recipe)
+  it.each(PRIMARIES)('writes every colour inside the sRGB gamut (%i)', (primary) => {
+    const palette = solve({ color: { primary } })
 
     for (const mode of ['dark', 'light'] as const) {
       for (const token of COLOR_TOKENS) {
@@ -190,8 +253,8 @@ describe('a generated palette', () => {
     }
   })
 
-  it.each(RECIPES)('clears AAA on every text pair, in both modes (primary $primary)', (recipe) => {
-    const palette = buildPalette(recipe)
+  it.each(PRIMARIES)('clears AAA on every text pair, in both modes (%i)', (primary) => {
+    const palette = solve({ color: { primary } })
 
     for (const mode of ['dark', 'light'] as const) {
       for (const [fill, text] of TEXT_PAIRS) {
@@ -204,10 +267,10 @@ describe('a generated palette', () => {
     }
   })
 
-  it.each(RECIPES)(
-    "clears 3:1 on a field's outline and each focus ring, as WCAG 1.4.11 asks ($primary)",
-    (recipe) => {
-      const palette = buildPalette(recipe)
+  it.each(PRIMARIES)(
+    "clears 3:1 on a field's outline and each focus ring, as WCAG 1.4.11 asks (%i)",
+    (primary) => {
+      const palette = solve({ color: { primary } })
 
       for (const mode of ['dark', 'light'] as const) {
         for (const [on, edge] of OUTLINE_PAIRS) {
@@ -219,10 +282,23 @@ describe('a generated palette', () => {
       }
     },
   )
+
+  it('clears every guarantee for a primary a designer pasted as a hex', () => {
+    const palette = solve({ color: { contrast: 'AA', primary: '#2d5bd7' } })
+
+    for (const mode of ['dark', 'light'] as const) {
+      for (const [fill, text] of FILL_PAIRS) {
+        expect(
+          contrast(palette[mode][text], palette[mode][fill]),
+          `${mode} ${text} on ${fill}`,
+        ).toBeGreaterThanOrEqual(RATIOS.AA)
+      }
+    }
+  })
 })
 
 describe('a palette at AA', () => {
-  const palette = buildPalette({ ...bare, accent: 232, contrast: 'AA', neutral: 262 })
+  const palette = solve({ color: { ...bare.color, accent: 232, contrast: 'AA', neutral: 262 } })
 
   it('clears 4.5:1 on every fill and still 7:1 on every surface, in both modes', () => {
     for (const mode of ['dark', 'light'] as const) {
@@ -242,8 +318,19 @@ describe('a palette at AA', () => {
   })
 
   it('is brighter than the same recipe at AAA in light', () => {
-    const strict = buildPalette({ ...bare, accent: 232, neutral: 262 })
+    const strict = solve({ color: { ...bare.color, accent: 232, neutral: 262 } })
 
     expect(lightness(palette.light.primary)).toBeGreaterThan(lightness(strict.light.primary))
+  })
+
+  it('takes the lightness a theme states for a fill', () => {
+    const raised = solve({
+      color: { ...bare.color, contrast: 'AA', fills: { light: { key: 62 } } },
+    })
+
+    expect(
+      lightness(raised.light.primary),
+      'the walk starts higher, so it settles higher',
+    ).toBeGreaterThan(lightness(palette.light.primary))
   })
 })

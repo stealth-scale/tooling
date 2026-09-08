@@ -2,19 +2,32 @@ import { describe, expect, it } from 'vite-plus/test'
 
 import { assertComplete, assertReadable, completeTokens, isComplete } from '#assert.ts'
 import { buildPalette } from '#palette.ts'
-import { type PaletteRecipe } from '#recipe.ts'
+import { type Recipe } from '#recipe.ts'
+import { resolveRecipe } from '#resolve.ts'
 import { REQUIRED_TOKENS, type ThemeValues } from '#tokens.ts'
 
 /**
  * States a recipe to solve a palette from, so the guarantees are measured on values a builder
  * actually produced rather than on a table written to pass.
  */
-const RECIPE: PaletteRecipe = {
-  accent: 232,
-  chart: [258, 190, 300, 45, 12],
-  contrast: 'AA',
-  neutral: 262,
-  primary: 258,
+const RECIPE: Recipe = {
+  color: {
+    accent: 232,
+    chart: [258, 190, 300, 45, 12],
+    contrast: 'AA',
+    neutral: 262,
+    primary: 258,
+  },
+}
+
+/**
+ * Solves the palette a recipe builds, which is what the guarantees are measured on.
+ *
+ * @param {Recipe} recipe - The recipe to solve.
+ * @returns {ThemeValues} Every token, in both modes.
+ */
+function solve(recipe: Recipe): ThemeValues {
+  return buildPalette(resolveRecipe(recipe))
 }
 
 /**
@@ -84,12 +97,12 @@ describe('assertComplete', () => {
 describe('assertReadable', () => {
   it('passes a palette its own builder solved, in both modes', () => {
     expect(() => {
-      assertReadable(buildPalette(RECIPE), 'AA')
+      assertReadable(solve(RECIPE), 'AA')
     }).not.toThrow()
   })
 
   it('refuses a colour a theme stated that its own label cannot be read on', () => {
-    const solved = buildPalette(RECIPE)
+    const solved = solve(RECIPE)
     const stated = {
       ...solved,
       light: { ...solved.light, primary: solved.light['primary-foreground'] },
@@ -101,7 +114,7 @@ describe('assertReadable', () => {
   })
 
   it('holds a fill to the level the recipe asked for, and text to AAA regardless', () => {
-    const solved = buildPalette({ ...RECIPE, contrast: 'AA' })
+    const solved = solve(RECIPE)
 
     expect(() => {
       assertReadable(solved, 'AA')

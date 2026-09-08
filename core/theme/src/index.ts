@@ -1,19 +1,15 @@
 export { assertComplete, assertReadable, completeTokens, isComplete } from '#assert.ts'
 export { contrast, luminance } from '#color.ts'
-export { inGamut, type Lab, type Rgb, toGamut } from '#convert.ts'
+export { inGamut, type Lab, type Polar, type Rgb, toGamut, toPolar } from '#convert.ts'
 export {
   boxShadowOf,
-  emit,
-  emitDensities,
-  emitMotion,
-  emitScoped,
-  emitTailwind,
-  type EmittedTheme,
-  emitTheme,
+  type Densities,
+  densityBlocks,
+  densityDefaults,
   glowOf,
   radiusOf,
-  type StatedValues,
-} from '#emit.ts'
+} from '#css.ts'
+export { emit, emitScoped, type EmittedTheme, emitTheme } from '#emit.ts'
 export { FILL_PAIRS, OUTLINE_PAIRS, type Pair, TEXT_PAIRS } from '#guarantees.ts'
 export {
   type ContrastLevel,
@@ -33,16 +29,31 @@ export { NAMED } from '#named.ts'
 export { hex, parseColor } from '#notation.ts'
 export { buildPalette } from '#palette.ts'
 export {
-  DEFAULT_FONTS,
-  type FontFamilies,
-  type PaletteRecipe,
+  type ColorRecipe,
+  DEFAULT_FAMILIES,
+  type DensityRecipe,
+  type EffectRecipe,
+  extendRecipe,
+  type Family,
+  type FillsRecipe,
+  type FocusRecipe,
+  type FontRecipe,
+  type LayersRecipe,
+  type MotionRecipe,
+  type Recipe,
+  type RecipeOverrides,
   recipeSchema,
+  type SizeRecipe,
+  type StatedValues,
   STATUS_HUES,
   type StatusHues,
+  type TextRecipe,
 } from '#recipe.ts'
 export { THEME_CONTRIBUTION, THEME_KEY, type ThemeContribution } from '#registration.ts'
+export { type Resolved, type ResolvedColor, type ResolvedFont, resolveRecipe } from '#resolve.ts'
 export {
   BLUR,
+  bySize,
   CONTROL_SIZES,
   CONTROL_STEPS,
   controlHeights,
@@ -63,14 +74,17 @@ export {
   RADIUS,
   SHADOW,
   type ShadowLayer,
+  SIZE_STEPS,
   TARGET_SIZES,
   TEXT,
   TEXT_SHADOW,
   type TextStep,
   TRACKING,
 } from '#scales.ts'
+export { emitBase, emitDensities, emitFonts, emitIndex, emitMotion, emitTailwind } from '#shared.ts'
 export { oklch, solveContrast, type Start } from '#solve.ts'
 export { declarations } from '#stylesheet.ts'
+export { DEFAULT_TABLES, type Tables } from '#tables.ts'
 export {
   CHART_TOKENS,
   CODE_TOKENS,
@@ -95,3 +109,4 @@ export {
   type TokenName,
   type TypographyToken,
 } from '#tokens.ts'
+export { isColor, type Tone, type Toned, toneOf, type ToneParts } from '#tone.ts'

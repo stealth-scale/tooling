@@ -1,19 +1,10 @@
 import { describe, expect, it } from 'vite-plus/test'
 
-import {
-  boxShadowOf,
-  emit,
-  emitDensities,
-  emitMotion,
-  emitScoped,
-  emitTailwind,
-  emitTheme,
-  glowOf,
-  radiusOf,
-} from '#emit.ts'
-import { ANIMATION, KEYFRAMES } from '#motion.ts'
-import { CONTROL_SIZES, DENSITY, GLOW, OWNED_NAMESPACES, RADIUS, SHADOW, TEXT } from '#scales.ts'
+import { emit, emitScoped, emitTheme } from '#emit.ts'
+import { type Recipe } from '#recipe.ts'
+import { OWNED_NAMESPACES, RADIUS } from '#scales.ts'
 import { declarations } from '#stylesheet.ts'
+import { DEFAULT_TABLES, type Tables } from '#tables.ts'
 import { COLOR_TOKENS, REQUIRED_TOKENS, type ThemeValues } from '#tokens.ts'
 
 /**
@@ -35,16 +26,22 @@ function complete(): ThemeValues {
   return { dark: mode('dark'), light: mode('light') }
 }
 
+/**
+ * Holds a recipe that states one colour and nothing else.
+ */
+const RECIPE: Recipe = { color: { primary: 265 } }
+
 describe('emit', () => {
-  const css = emit(complete())
+  const css = emit(complete(), DEFAULT_TABLES)
   const layer = declarations(css, '@theme inline')
+  const root = declarations(css, ':root')
 
   it('declares the light values on :root and the dark values under .dark', () => {
-    expect(declarations(css, ':root')['background']).toBe('light-background')
+    expect(root['background']).toBe('light-background')
     expect(declarations(css, '.dark')['background']).toBe('dark-background')
   })
 
-  it('nulls every namespace it owns before it registers a step, so no default survives', () => {
+  it('nulls every namespace it owns before it names a step, so no default survives', () => {
     for (const namespace of OWNED_NAMESPACES) {
       expect(css).toContain(`--${namespace}-*: initial;`)
     }
@@ -56,47 +53,51 @@ describe('emit', () => {
     }
   })
 
-  it('registers the type scale with a line height beside each size', () => {
-    for (const [step, { lineHeight, size }] of Object.entries(TEXT)) {
-      expect(layer[`text-${step}`]).toBe(`${String(size)}rem`)
-      expect(layer[`text-${step}--line-height`]).toBe(
+  it('names every scale in the layer and carries every value on the theme itself', () => {
+    for (const [step, { lineHeight, size }] of Object.entries(DEFAULT_TABLES.text)) {
+      expect(layer[`text-${step}`], 'the layer names').toBe(`var(--text-${step})`)
+      expect(root[`text-${step}`], 'the theme carries').toBe(`${String(size)}rem`)
+      expect(root[`text-${step}--line-height`]).toBe(
         `calc(${String(lineHeight)} / ${String(size)})`,
       )
     }
-  })
-
-  it('derives every radius from the one the theme sets', () => {
-    for (const [step, factor] of Object.entries(RADIUS)) {
-      expect(layer[`radius-${step}`]).toBe(`calc(var(--radius) * ${String(factor)})`)
+    for (const step of Object.keys(DEFAULT_TABLES.duration)) {
+      expect(layer[`duration-${step}`]).toBe(`var(--duration-${step})`)
+      expect(root[`duration-${step}`]).toMatch(/^\d+ms$/u)
+    }
+    for (const step of Object.keys(DEFAULT_TABLES.animation)) {
+      expect(layer[`animate-${step}`]).toBe(`var(--animate-${step})`)
+      expect(root[`animate-${step}`]).toContain(step)
     }
   })
 
+  it('derives every radius from the one the theme sets, which a region can override alone', () => {
+    for (const [step, factor] of Object.entries(RADIUS)) {
+      expect(layer[`radius-${step}`]).toBe(`calc(var(--radius) * ${String(factor)})`)
+    }
+    expect(
+      root['radius-md'],
+      'a step no theme declares, since the layer computes it',
+    ).toBeUndefined()
+  })
+
   it("mixes every shadow from the theme's ink, with the raised edge's highlight under it", () => {
-    for (const step of Object.keys(SHADOW)) {
-      const shadow = layer[`shadow-${step}`] ?? ''
+    for (const step of Object.keys(DEFAULT_TABLES.shadow)) {
+      const shadow = root[`shadow-${step}`] ?? ''
 
       expect(shadow.startsWith('inset 0 1px 0 0 var(--shadow-highlight), ')).toBe(true)
       expect(shadow).toContain('color-mix(in oklch, var(--shadow)')
       expect(shadow, 'no shadow is black').not.toContain('rgb(0 0 0')
+      expect(layer[`shadow-${step}`]).toBe(`var(--shadow-${step})`)
     }
-    expect(layer['inset-shadow-xs']).toContain('var(--shadow)')
-    expect(layer['drop-shadow-md']).toContain('var(--shadow)')
-    expect(layer['text-shadow-sm']).toContain('var(--shadow)')
-  })
-
-  it('writes one step the way the stylesheet does, for a page that draws it by hand', () => {
-    expect(radiusOf(0.75)).toBe('calc(var(--radius) * 0.75)')
-    expect(boxShadowOf([{ fraction: 40, geometry: '0 1px 3px 0' }])).toBe(
-      'inset 0 1px 0 0 var(--shadow-highlight), 0 1px 3px 0 color-mix(in oklch, var(--shadow) 40%, transparent)',
-    )
-    expect(glowOf([{ fraction: 80, geometry: '0 0 12px -2px' }])).toBe(
-      '0 0 12px -2px color-mix(in oklch, var(--glow) 80%, transparent)',
-    )
+    expect(root['inset-shadow-xs']).toContain('var(--shadow)')
+    expect(root['drop-shadow-md']).toContain('var(--shadow)')
+    expect(root['text-shadow-sm']).toContain('var(--shadow)')
   })
 
   it('registers the glows under the shadow namespace, thrown in the glow colour', () => {
-    for (const step of Object.keys(GLOW)) {
-      const glow = layer[`shadow-glow-${step}`] ?? ''
+    for (const step of Object.keys(DEFAULT_TABLES.glow)) {
+      const glow = root[`shadow-glow-${step}`] ?? ''
 
       expect(glow, step).toContain('var(--glow)')
       expect(glow, 'not the shadow ink').not.toContain('var(--shadow)')
@@ -104,61 +105,122 @@ describe('emit', () => {
     }
   })
 
+  it('carries the one length a gap derives from, and how far a press gives', () => {
+    expect(layer['spacing']).toBe('var(--spacing)')
+    expect(root['spacing']).toBe('0.25rem')
+    expect(root['press-scale']).toBe('0.98')
+  })
+
+  it('points every control size at the density, so a region changes both at once', () => {
+    expect(layer['height-md']).toBe('var(--height-md)')
+    expect(layer['size-md'], 'a square control is as wide as it is tall').toBe('var(--height-md)')
+  })
+
   it('sets the transition defaults from its own durations and easings', () => {
     expect(layer['default-transition-duration']).toBe('var(--duration-normal)')
     expect(layer['default-transition-timing-function']).toBe('var(--ease-out)')
-    expect(layer['duration-normal']).toMatch(/^\d+ms$/u)
-    expect(layer['ease-spring']).toContain('cubic-bezier')
   })
 
-  it('writes none of the keyframes, variants or densities, which the design system authors', () => {
+  it('writes none of the keyframes, variants or densities, which its own stylesheets hold', () => {
     expect(css).not.toContain('@keyframes')
     expect(css).not.toContain('@custom-variant')
     expect(css).not.toContain('data-density')
     expect(css, 'a breakpoint is a layout decision').not.toContain('--breakpoint-')
   })
+
+  it('carries a step a theme added, which is what makes the layer follow the tables', () => {
+    const wider: Tables = {
+      ...DEFAULT_TABLES,
+      blur: { ...DEFAULT_TABLES.blur, huge: 96 },
+    }
+    const written = emit(complete(), wider)
+
+    expect(declarations(written, '@theme inline')['blur-huge']).toBe('var(--blur-huge)')
+    expect(declarations(written, ':root')['blur-huge']).toBe('96px')
+  })
 })
 
 describe('emitScoped', () => {
-  it('puts a theme behind its own attribute and no layer, which the document holds once', () => {
-    const css = emitScoped(complete(), 'probe')
+  const css = emitScoped(complete(), DEFAULT_TABLES, 'probe')
 
+  it('puts a theme behind its own attribute and no layer, which the document holds once', () => {
     expect(css).toContain("[data-theme='probe'] {")
     expect(css).toContain("[data-theme='probe'].dark,")
     expect(css).not.toContain('@theme')
     expect(declarations(css, "[data-theme='probe'] {")['radius']).toBe('light-radius')
   })
+
+  it('carries every scale behind the attribute, so switching a theme changes more than colour', () => {
+    const scoped = declarations(css, "[data-theme='probe'] {")
+
+    expect(scoped['duration-normal']).toBe('200ms')
+    expect(scoped['text-base']).toBe('1rem')
+    expect(scoped['shadow-md']).toContain('color-mix')
+  })
+
+  it('carries the densities too, on the theme itself and on a region below it', () => {
+    const scoped = declarations(css, "[data-theme='probe'] {")
+
+    expect(css).toContain("[data-theme='probe'][data-density='compact'],")
+    expect(css).toContain("[data-theme='probe'] [data-density='compact']")
+    expect(scoped['height-md'], 'the default, in the block the theme already opens').toBe('2.5rem')
+    expect(scoped['focus-width']).toBe('2px')
+    expect(declarations(css, "[data-theme='probe'][data-density='compact'],")['height-md']).toBe(
+      '2rem',
+    )
+  })
 })
 
-/**
- * Names a recipe with every required member and nothing else, so a case states only what it
- * is about.
- */
-const RECIPE = { accent: 250, chart: [10, 80, 150, 220, 290], neutral: 260, primary: 265 }
-
 describe('emitTheme', () => {
-  it('answers both stylesheets and the values a theme package ships', () => {
+  it('answers every stylesheet a theme package ships, and what it solved', () => {
     const emitted = emitTheme(RECIPE, 'base')
 
-    expect(Object.keys(emitted).toSorted()).toEqual(['root', 'scoped', 'values'])
+    expect(Object.keys(emitted).toSorted()).toEqual([
+      'base',
+      'density',
+      'fonts',
+      'index',
+      'motion',
+      'report',
+      'scoped',
+      'tables',
+      'tailwind',
+      'tokens',
+      'values',
+    ])
     expect(emitted.values.light['background'], 'the palette was solved').toBeDefined()
-    expect(emitted.values.dark['background']).toBeDefined()
+    expect(emitted.tables.duration['normal']).toBe(200)
   })
 
   it('scopes one stylesheet to the name a document writes, and roots the other', () => {
-    const { root, scoped } = emitTheme(RECIPE, 'thesmos')
+    const { scoped, tokens } = emitTheme(RECIPE, 'thesmos')
 
     expect(scoped).toContain("[data-theme='thesmos']")
-    expect(root, 'the one an app links claims the document').toContain(':root')
+    expect(tokens, 'the one an app links claims the document').toContain(':root')
   })
 
   it('solves the same palette every time, so a baseline does not move under a rebuild', () => {
-    expect(emitTheme(RECIPE, 'base').root).toBe(emitTheme(RECIPE, 'base').root)
+    expect(emitTheme(RECIPE, 'base').tokens).toBe(emitTheme(RECIPE, 'base').tokens)
+  })
+
+  it('carries what a theme states into the stylesheet it writes', () => {
+    const { tokens } = emitTheme({ ...RECIPE, motion: { speed: 2 } }, 'base')
+
+    expect(declarations(tokens, ':root')['duration-normal']).toBe('400ms')
+  })
+
+  it('reports how it read a colour a designer wrote out', () => {
+    const { report } = emitTheme({ color: { contrast: 'AA', primary: '#2d5bd7' } }, 'base')
+
+    expect(report[0]).toContain('primary #2d5bd7 is read as hue')
   })
 
   it('lays a stated colour over the solved one, and leaves the rest derived', () => {
     const solved = emitTheme(RECIPE, 'base')
-    const stated = emitTheme(RECIPE, 'base', { light: { border: 'oklch(80% 0.02 262)' } })
+    const stated = emitTheme(
+      { color: { ...RECIPE.color, stated: { light: { border: 'oklch(80% 0.02 262)' } } } },
+      'base',
+    )
 
     expect(stated.values.light['border'], 'a brand owns this one').toBe('oklch(80% 0.02 262)')
     expect(stated.values.dark['border'], 'the mode it was not stated in').toBe(
@@ -171,133 +233,22 @@ describe('emitTheme', () => {
 
   it('refuses a stated colour its own label cannot be read on', () => {
     const solved = emitTheme(RECIPE, 'base')
-    const unreadable = { light: { primary: solved.values.light['primary-foreground'] } }
+    const unreadable = {
+      color: {
+        ...RECIPE.color,
+        stated: { light: { primary: solved.values.light['primary-foreground'] } },
+      },
+    }
 
-    expect(() => emitTheme(RECIPE, 'base', unreadable)).toThrow(/primary-foreground on primary/u)
-  })
-
-  it('refuses a stated name that is no token, so a typo is not read as nothing', () => {
-    const typo = { light: Object.fromEntries([['primry', 'oklch(50% 0.2 258)']]) }
-
-    expect(() => emitTheme(RECIPE, 'base', typo), 'the type catches it too').toThrow(
-      /light\.primry/u,
-    )
+    expect(() => emitTheme(unreadable, 'base')).toThrow(/primary-foreground on primary/u)
   })
 
   it('refuses a recipe no palette builds from, naming the theme and the field', () => {
-    expect(() => emitTheme({ ...RECIPE, primary: 400 }, 'base')).toThrow(/base/u)
-    expect(() => emitTheme({ ...RECIPE, primary: 400 }, 'base')).toThrow(/primary/u)
+    expect(() => emitTheme({ color: { primary: 400 } }, 'base')).toThrow(/base/u)
+    expect(() => emitTheme({ color: { primary: 400 } }, 'base')).toThrow(/primary/u)
   })
 
-  it('refuses a recipe missing a member, rather than drawing something odd', () => {
-    expect(() => emitTheme({ accent: 250 }, 'base')).toThrow(/no palette builds from/u)
-  })
-})
-
-describe('emitDensities', () => {
-  it('gives a page that sets no attribute the default density', () => {
-    const css = emitDensities()
-    const root = declarations(css, ':root')
-
-    expect(root['height-md'], 'comfortable puts the default control at 40px').toBe('2.5rem')
-    expect(root['focus-width'], 'one width in every density').toBe('2px')
-  })
-
-  it('writes a block per density, so a region can be denser than the page around it', () => {
-    const css = emitDensities()
-
-    expect(declarations(css, "[data-density='compact'] {")['height-md']).toBe('2rem')
-    expect(declarations(css, "[data-density='touch'] {")['height-md']).toBe('2.75rem')
-    expect(declarations(css, "[data-density='comfortable'] {")['height-md']).toBe('2.5rem')
-  })
-
-  it('draws the ring flush where a density leaves no room outside a control', () => {
-    const css = emitDensities()
-
-    expect(declarations(css, "[data-density='compact'] {")['focus-offset']).toBe('0px')
-    expect(declarations(css, "[data-density='touch'] {")['focus-offset']).toBe('2px')
-  })
-
-  it('carries every step of every density, so no control size is left unset', () => {
-    const css = emitDensities()
-
-    for (const name of Object.keys(DENSITY)) {
-      const block = declarations(css, `[data-density='${name}'] {`)
-      expect(
-        CONTROL_SIZES.every((step) => block[`height-${step}`] !== undefined),
-        name,
-      ).toBe(true)
-    }
-  })
-})
-
-describe('emitTailwind', () => {
-  it('brings in the framework every stealth theme runs on, and its plugins', () => {
-    const css = emitTailwind()
-
-    expect(css).toContain(`@import 'tailwindcss';`)
-    expect(css).toContain(`@plugin '@tailwindcss/typography';`)
-  })
-
-  it('registers the plugins after the import that defines them, and before anything else', () => {
-    const lines = emitTailwind().trim().split('\n')
-    const lastImport = lines.findLastIndex((line) => line.startsWith('@import'))
-    const firstPlugin = lines.findIndex((line) => line.startsWith('@plugin'))
-
-    expect(lastImport, 'a CSS parser refuses an import that follows another at-rule').toBeLessThan(
-      firstPlugin,
-    )
-  })
-})
-
-describe('emitMotion', () => {
-  it('registers every animation as a step of the animate namespace', () => {
-    const css = emitMotion()
-
-    for (const [name, shorthand] of Object.entries(ANIMATION)) {
-      expect(css).toContain(`  --animate-${name}: ${shorthand};`)
-    }
-    expect(css, 'a pressed control gives by the scale the contract sets').toContain(
-      '--press-scale: 0.98;',
-    )
-  })
-
-  it('defines the keyframes those steps run, at every offset each names', () => {
-    const css = emitMotion()
-
-    for (const name of Object.keys(KEYFRAMES)) {
-      expect(css).toContain(`@keyframes ${name} {`)
-    }
-    expect(css, 'an offset naming two stops writes one rule').toContain(`  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }`)
-    expect(css, 'and an animation with one stop writes one').toContain(`@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}`)
-  })
-
-  it('stops motion for a person who asks, by the query and by the attribute', () => {
-    const css = emitMotion()
-
-    expect(css).toContain('@media (prefers-reduced-motion: reduce) {')
-    expect(css).toContain('[data-reduced-motion] *::after {')
-    expect(css, 'the press has to be flattened where it is declared').toContain('--press-scale: 1;')
-    expect(css, 'a spinner keeps turning, slowly').toContain(
-      "[data-reduced-motion] [data-slot='spinner'] {",
-    )
-  })
-
-  it('declares the press scale before the rule that flattens it', () => {
-    const css = emitMotion()
-
-    expect(
-      css.indexOf('--press-scale: 0.98;'),
-      'a rule that loads before the declaration it overrides does nothing',
-    ).toBeLessThan(css.indexOf('--press-scale: 1;'))
+  it('refuses a recipe with no colour at all, rather than drawing something odd', () => {
+    expect(() => emitTheme({}, 'base')).toThrow(/no palette builds from/u)
   })
 })

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vite-plus/test'
 
 import {
   BLUR,
+  bySize,
   CONTROL_SIZES,
   CONTROL_STEPS,
   controlHeights,
@@ -19,16 +20,12 @@ import {
   PERSPECTIVE,
   RADIUS,
   SHADOW,
+  SIZE_STEPS,
   TARGET_SIZES,
   TEXT,
   TEXT_SHADOW,
   TRACKING,
 } from '#scales.ts'
-
-/**
- * Lists the size steps Tailwind names, smallest first, where a namespace runs that far.
- */
-const SIZES = ['2xs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl', '4xl'] as const
 
 /**
  * Sets how many pixels one rem is, which is what a height is measured in.
@@ -54,9 +51,28 @@ function pixelsOf(name: string): number[] {
  * @param {readonly string[]} steps - The steps to sort.
  * @returns {string[]} The steps, smallest first.
  */
-function bySize(steps: readonly string[]): string[] {
-  return [...steps].toSorted((a, b) => SIZES.indexOf(a as never) - SIZES.indexOf(b as never))
+function sorted(steps: readonly string[]): string[] {
+  return bySize(Object.fromEntries(steps.map((step) => [step, 0]))).map(([step]) => step)
 }
+
+describe('bySize', () => {
+  it('orders a table the way a designer reads it rather than the way a dictionary does', () => {
+    expect(bySize({ '2xl': 0, md: 0, xs: 0 }).map(([step]) => step)).toEqual(['xs', 'md', '2xl'])
+    expect(SIZE_STEPS.indexOf('base'), 'the body step sits among the sizes').toBeGreaterThan(0)
+  })
+
+  it('leaves a table keyed by something other than a size as it was', () => {
+    expect(bySize({ in: 1, out: 2, spring: 3 })).toEqual([
+      ['in', 1],
+      ['out', 2],
+      ['spring', 3],
+    ])
+  })
+
+  it('puts a step it does not know after every step it does', () => {
+    expect(bySize({ loose: 0, md: 0, xs: 0 }).map(([step]) => step)).toEqual(['xs', 'md', 'loose'])
+  })
+})
 
 describe('the type scale', () => {
   it('runs every step Tailwind names, so no step falls through to a default', () => {
@@ -93,9 +109,9 @@ describe('the type scale', () => {
 describe('the radii', () => {
   it('are multiples of the one radius, with lg at exactly one', () => {
     expect(RADIUS['lg']).toBe(1)
-    expect(bySize(Object.keys(RADIUS))).toEqual(['xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl', '4xl'])
-    expect(bySize(Object.keys(RADIUS)).map((step) => RADIUS[step])).toEqual(
-      bySize(Object.keys(RADIUS))
+    expect(sorted(Object.keys(RADIUS))).toEqual(['xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl', '4xl'])
+    expect(sorted(Object.keys(RADIUS)).map((step) => RADIUS[step])).toEqual(
+      sorted(Object.keys(RADIUS))
         .map((step) => RADIUS[step])
         .toSorted((a, b) => (a ?? 0) - (b ?? 0)),
     )
@@ -104,10 +120,10 @@ describe('the radii', () => {
 
 describe('the shadows', () => {
   it("run Tailwind's steps for each kind of shadow", () => {
-    expect(bySize(Object.keys(SHADOW))).toEqual(['2xs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl'])
-    expect(bySize(Object.keys(INSET_SHADOW))).toEqual(['2xs', 'xs', 'sm'])
-    expect(bySize(Object.keys(DROP_SHADOW))).toEqual(['xs', 'sm', 'md', 'lg', 'xl', '2xl'])
-    expect(bySize(Object.keys(TEXT_SHADOW))).toEqual(['2xs', 'xs', 'sm', 'md', 'lg'])
+    expect(sorted(Object.keys(SHADOW))).toEqual(['2xs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl'])
+    expect(sorted(Object.keys(INSET_SHADOW))).toEqual(['2xs', 'xs', 'sm'])
+    expect(sorted(Object.keys(DROP_SHADOW))).toEqual(['xs', 'sm', 'md', 'lg', 'xl', '2xl'])
+    expect(sorted(Object.keys(TEXT_SHADOW))).toEqual(['2xs', 'xs', 'sm', 'md', 'lg'])
   })
 
   it('throw a glow with no offset, so it reads as light rather than as a shadow', () => {
@@ -135,7 +151,7 @@ describe('the shadows', () => {
 
 describe('the remaining scales', () => {
   it('run every step Tailwind names', () => {
-    expect(bySize(Object.keys(BLUR))).toEqual(['xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl'])
+    expect(sorted(Object.keys(BLUR))).toEqual(['xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl'])
     expect(Object.keys(TRACKING).toSorted()).toEqual(
       ['tighter', 'tight', 'normal', 'wide', 'wider', 'widest'].toSorted(),
     )

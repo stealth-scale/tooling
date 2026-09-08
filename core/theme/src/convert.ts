@@ -47,6 +47,26 @@ export interface Lab {
 }
 
 /**
+ * Carries a colour in a polar perceptual space, which is what Oklch is to Oklab.
+ */
+export interface Polar {
+  /**
+   * Carries how saturated the colour is.
+   */
+  chroma: number
+
+  /**
+   * Carries where on the wheel the colour sits, in degrees, 0 up to 360.
+   */
+  hue: number
+
+  /**
+   * Carries the lightness, in the space's own units.
+   */
+  lightness: number
+}
+
+/**
  * Sets the white point CIE Lab is measured against, which CSS fixes at D50.
  */
 const D50 = { x: 0.3457 / 0.3585, y: 1, z: (1 - 0.3457 - 0.3585) / 0.3585 }
@@ -117,6 +137,18 @@ export function decode(value: number): number {
 export function fromPolar(lightness: number, chroma: number, hue: number): Lab {
   const radians = (hue * Math.PI) / 180
   return { a: chroma * Math.cos(radians), b: chroma * Math.sin(radians), lightness }
+}
+
+/**
+ * Turns a rectangular colour into its polar form, which inverts `fromPolar`.
+ *
+ * @param {Lab} color - The colour, rectangular.
+ * @returns {Polar} The same colour: its lightness as given, its chroma, and its hue in
+ *     degrees from 0 up to 360. A grey has no hue and reads as 0.
+ */
+export function toPolar({ a, b, lightness }: Lab): Polar {
+  const degrees = (Math.atan2(b, a) * 180) / Math.PI
+  return { chroma: Math.hypot(a, b), hue: (degrees + 360) % 360, lightness }
 }
 
 /**

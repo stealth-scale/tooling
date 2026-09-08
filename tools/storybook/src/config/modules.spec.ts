@@ -13,6 +13,7 @@ const REGISTERED: Registrations = {
   },
   themes: [
     {
+      fonts: '/ws/themes/kalon/dist/fonts.css',
       name: 'kalon',
       package: '@t/themes-kalon',
       stylesheet: '/ws/themes/kalon/dist/scoped.css',
@@ -54,14 +55,16 @@ describe('virtualModules', () => {
     expect(plugin.load('react'), 'a module it never claimed').toBeUndefined()
   })
 
-  it('carries every theme solved, keyed by what a document writes', () => {
+  it('carries every theme solved and scaled, keyed by what a document writes', () => {
     const source = String(sourceOf(REGISTERED, MODULES.themes))
 
     expect(
       source,
       'by the path the reading resolved, so the root need not depend on the theme',
-    ).toContain(`import { values as values0 } from "/ws/themes/kalon/dist/values.mjs"`)
-    expect(source).toContain(`"kalon": { title: "Kalon", values: values0 }`)
+    ).toContain(
+      `import { tables as tables0, values as values0 } from "/ws/themes/kalon/dist/values.mjs"`,
+    )
+    expect(source).toContain(`"kalon": { tables: tables0, title: "Kalon", values: values0 }`)
     expect(
       source,
       'a theme solved its own palette, so nothing here reaches for the solver',
@@ -73,8 +76,9 @@ describe('virtualModules', () => {
 
     expect(
       source.trim().split('\n'),
-      "the design system's rules first, then each theme's tokens behind its own attribute",
+      "each theme's faces, then the design system's rules, then each theme's own tokens",
     ).toEqual([
+      `import "/ws/themes/kalon/dist/fonts.css"`,
       `import "/ws/foundations/theme/src/base.css"`,
       `import "/ws/components/library/src/keyframes.css"`,
       `import "/ws/themes/kalon/dist/scoped.css"`,

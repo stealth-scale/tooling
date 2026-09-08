@@ -49,24 +49,29 @@ function literal(value: unknown): string {
 /**
  * Writes the module holding every theme, solved.
  *
- * A theme solves its palette in its own build and exports the table at `./values`, so this
- * imports the result rather than carrying a recipe the browser would have to solve. No
- * consumer ships the solver, every one reads the same table, and a recipe that cannot be
- * drawn has already failed its own package's build. The table is imported by the absolute
- * path the reading resolved, because a bare name in a module the plugin serves is resolved
- * from the repository's root, and the root depends on no theme.
+ * A theme solves its palette in its own build and exports the result at `./values`, so this
+ * imports it rather than carrying a recipe the browser would have to solve. No consumer ships
+ * the solver, every one reads the same table, and a recipe that cannot be drawn has already
+ * failed its own package's build. The table is imported by the absolute path the reading
+ * resolved, because a bare name in a module the plugin serves is resolved from the
+ * repository's root, and the root depends on no theme.
+ *
+ * The scales come across beside the tokens, so a page that draws what a theme states, its
+ * durations, its shadows or its type scale, reads them as data rather than parsing the
+ * stylesheet it just wrote.
  *
  * @param {Registrations} registered - The reading of the workspace.
  * @returns {string} The module's source.
  */
 function themesModule(registered: Registrations): string {
   const imports = registered.themes.map(
-    (theme, index) => `import { values as values${String(index)} } from ${literal(theme.values)}`,
-  )
-  const entries = registered.themes.map(
     (theme, index) =>
-      `  ${literal(theme.name)}: { title: ${literal(theme.title)}, values: values${String(index)} },`,
+      `import { tables as tables${String(index)}, values as values${String(index)} } from ${literal(theme.values)}`,
   )
+  const entries = registered.themes.map((theme, index) => {
+    const held = `tables: tables${String(index)}, title: ${literal(theme.title)}, values: values${String(index)}`
+    return `  ${literal(theme.name)}: { ${held} },`
+  })
 
   return [...imports, '', 'export const themes = {', ...entries, '}', ''].join('\n')
 }
@@ -81,7 +86,8 @@ function themesModule(registered: Registrations): string {
  *
  * Every registered theme is loaded, not only the one a toolbar is on, so switching a theme
  * changes an attribute rather than fetching a stylesheet, and a page drawing two themes at
- * once has both.
+ * once has both. Each theme's font files come first, since a face has to be there before the
+ * theme that names it is drawn in.
  *
  * @param {Registrations} registered - The reading of the workspace.
  * @returns {string} The module's source. Where no package registers a provider it draws the
@@ -89,6 +95,7 @@ function themesModule(registered: Registrations): string {
  */
 function providerModule(registered: Registrations): string {
   const { provider, stylesheets } = registered.appearance
+  const faces = registered.themes.map((theme) => `import ${literal(theme.fonts)}`)
   const sheets = stylesheets.map((sheet) => `import ${literal(sheet)}`)
   const themes = registered.themes.map((theme) => `import ${literal(theme.stylesheet)}`)
   const wraps =
@@ -96,7 +103,7 @@ function providerModule(registered: Registrations): string {
       ? 'export default ({ children }) => children'
       : `export { default } from ${literal(provider)}`
 
-  return `${[...sheets, ...themes, wraps].join('\n')}\n`
+  return `${[...faces, ...sheets, ...themes, wraps].join('\n')}\n`
 }
 
 /**
