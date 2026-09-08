@@ -9,8 +9,7 @@
     "directory": "themes/base"
   },
   "files": [
-    "dist",
-    "src/*.css"
+    "dist"
   ],
   "type": "module",
   "sideEffects": false,
@@ -23,28 +22,53 @@
       "default": "./dist/index.mjs"
     },
     "./package.json": "./package.json",
-    "./scoped.css": "./src/scoped.gen.css",
-    "./tokens.css": "./src/tokens.gen.css"
+    "./base.css": "./dist/base.css",
+    "./density.css": "./dist/density.css",
+    "./index.css": "./dist/index.css",
+    "./scoped.css": "./dist/scoped.css",
+    "./tailwind.css": "./dist/tailwind.css",
+    "./tokens.css": "./dist/tokens.css",
+    "./values": "./dist/values.mjs"
   },
   "publishConfig": {
     "exports": {
       ".": "./dist/index.mjs",
       "./package.json": "./package.json",
-      "./scoped.css": "./src/scoped.gen.css",
-      "./tokens.css": "./src/tokens.gen.css"
+      "./base.css": "./dist/base.css",
+      "./density.css": "./dist/density.css",
+      "./index.css": "./dist/index.css",
+      "./scoped.css": "./dist/scoped.css",
+      "./tailwind.css": "./dist/tailwind.css",
+      "./tokens.css": "./dist/tokens.css",
+      "./values": "./dist/values.mjs"
     },
     "access": "public"
   },
   "scripts": {
-    "build": "bun emit.ts && vp pack src/index.ts"
+    "build": "vp pack src/index.ts"
   },
   "dependencies": {
-    "@stealthscale/core-theme": "workspace:^"
+    "@fontsource-variable/inter": "catalog:",
+    "@fontsource-variable/jetbrains-mono": "catalog:",
+    "@stealthscale/core-theme": "workspace:^",
+    "@tailwindcss/typography": "catalog:",
+    "tailwindcss": "catalog:",
+    "tw-animate-css": "catalog:"
   },
   "devDependencies": {
     "@stealthscale/tool-config": "workspace:^"
   },
   "stealth": {
+    "appearance": {
+      "densities": [
+        "comfortable",
+        "compact",
+        "touch"
+      ],
+      "stylesheets": [
+        "./dist/index.css"
+      ]
+    },
     "theme": {
       "title": "Base"
     }

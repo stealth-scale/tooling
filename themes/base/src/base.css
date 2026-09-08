@@ -1,0 +1,331 @@
+/*
+ * What every stealth stylesheet is, before any theme's tokens: the fonts, the variants a
+ * component styles on, the motion vocabulary and the base layer.
+ *
+ * This is the half of a theme that no table computes. `core-theme` solves a palette, writes
+ * the custom properties and writes the stylesheet that pulls Tailwind in and composes this
+ * with them; everything here is authored, the same whatever the palette, and a theme that
+ * wants this base imports it before its own tokens. That is what makes a theme extend this
+ * one rather than restate it.
+ *
+ * The families are here because a theme picks them. Tailwind and its plugins are not: which
+ * Tailwind a theme runs on is the toolchain's decision, and the generated stylesheet states
+ * it once for every theme.
+ *
+ * It names no sources. What Tailwind scans is the importing stylesheet's business: an app
+ * imports each package's own stylesheet, which scans that package's `dist`. A path written
+ * here would be read relative to this file wherever it is installed, and a path that does not
+ * exist is scanned at its nearest existing parent, which in a consumer is node_modules itself.
+ */
+@import '@fontsource-variable/inter/wght.css';
+@import '@fontsource-variable/jetbrains-mono/wght.css';
+
+/*
+ * Base UI's state attributes, as Tailwind variants.
+ *
+ * Base UI writes a boolean state as an attribute that is present or absent, `data-open`,
+ * `data-checked`, `data-disabled`, and writes orientation with a value:
+ * `data-orientation="horizontal"`. Tailwind's own `data-*:` variant matches presence, so
+ * `data-open:` works on its own while `data-horizontal:` matches nothing and a separator
+ * styled with it draws no line. The boolean ones are restated with a guard against a literal
+ * "false", which is what React writes for a boolean passed straight into a `data-*` prop.
+ *
+ * Adapted from shadcn's `tailwind.css`. Its Radix `data-state` branches are left out, since
+ * nothing here renders Radix.
+ */
+@custom-variant dark (&:where(.dark, .dark *));
+@custom-variant data-active (&:where([data-active]:not([data-active='false'])));
+@custom-variant data-checked (&:where([data-checked]:not([data-checked='false'])));
+@custom-variant data-closed (&:where([data-closed]:not([data-closed='false'])));
+@custom-variant data-disabled (&:where([data-disabled]:not([data-disabled='false'])));
+@custom-variant data-open (&:where([data-open]:not([data-open='false'])));
+@custom-variant data-selected (&:where([data-selected]:not([data-selected='false'])));
+@custom-variant data-unchecked (&:where([data-unchecked]:not([data-unchecked='false'])));
+@custom-variant data-horizontal (&:where([data-orientation='horizontal']));
+@custom-variant data-vertical (&:where([data-orientation='vertical']));
+
+/*
+ * The motion vocabulary, and how far a pressed control gives.
+ *
+ * `core-theme` owns the durations and the easings, because a theme may move faster or slower
+ * than another. Which animations exist is not a theme's decision: a component names
+ * `animate-fade-in` and every theme has to have one, so the set is authored here and each
+ * entry reads the theme's own duration and easing.
+ *
+ * Each carries its fill mode, which is not decoration. An entrance without `backwards` shows
+ * one frame at full opacity before it starts, and an exit without `forwards` snaps back to
+ * visible the instant it ends. Both read as a blip rather than as motion.
+ */
+@theme {
+  --press-scale: 0.98;
+
+  --animate-fade-in: fade-in var(--duration-normal) var(--ease-out) backwards;
+  --animate-fade-out: fade-out var(--duration-fast) var(--ease-in) forwards;
+  --animate-zoom-in: zoom-in var(--duration-normal) var(--ease-out) backwards;
+  --animate-zoom-out: zoom-out var(--duration-fast) var(--ease-in) forwards;
+  --animate-slide-in-from-top: slide-in-from-top var(--duration-normal) var(--ease-out) backwards;
+  --animate-slide-in-from-bottom: slide-in-from-bottom var(--duration-normal) var(--ease-out)
+    backwards;
+  --animate-slide-in-from-left: slide-in-from-left var(--duration-normal) var(--ease-out) backwards;
+  --animate-slide-in-from-right: slide-in-from-right var(--duration-normal) var(--ease-out)
+    backwards;
+  --animate-slide-out-to-top: slide-out-to-top var(--duration-fast) var(--ease-in) forwards;
+  --animate-slide-out-to-bottom: slide-out-to-bottom var(--duration-fast) var(--ease-in) forwards;
+  --animate-collapse-down: collapse-down var(--duration-normal) var(--ease-out) forwards;
+  --animate-collapse-up: collapse-up var(--duration-normal) var(--ease-in) forwards;
+  --animate-spin: spin 1s linear infinite;
+  --animate-pulse: pulse 2s var(--ease-in-out) infinite;
+  --animate-ping: ping 1s var(--ease-out) infinite;
+  --animate-shimmer: shimmer 1.6s linear infinite;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes zoom-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes zoom-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+@keyframes slide-in-from-top {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-from-bottom {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-from-left {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-from-right {
+  from {
+    opacity: 0;
+    transform: translateX(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-out-to-top {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes slide-out-to-bottom {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes ping {
+  75%,
+  100% {
+    opacity: 0;
+    transform: scale(2);
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: -200% 0;
+  }
+  to {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes collapse-down {
+  from {
+    height: 0;
+    opacity: 0;
+  }
+  to {
+    height: var(--collapsible-panel-height, auto);
+    opacity: 1;
+  }
+}
+
+@keyframes collapse-up {
+  from {
+    height: var(--collapsible-panel-height, auto);
+    opacity: 1;
+  }
+  to {
+    height: 0;
+    opacity: 0;
+  }
+}
+@layer base {
+  /*
+   * What a page is, before a single component renders: the theme's surface, its
+   * text colour, its font. Without this the tokens exist and nothing reads them,
+   * which looks exactly like a theme that does not work.
+   */
+  html {
+    color-scheme: light dark;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* A border with no colour is black; every component assumes the token. */
+  *,
+  *::before,
+  *::after {
+    border-color: var(--border);
+  }
+
+  /* Focus is a system decision, not a component one — and its geometry is the
+     density's, so the browser's own ring and a recipe's agree. */
+  :focus-visible {
+    outline: var(--focus-width) solid var(--ring);
+    outline-offset: var(--focus-offset);
+  }
+
+  ::selection {
+    background-color: color-mix(in oklch, var(--primary) 30%, transparent);
+  }
+
+  code,
+  kbd,
+  pre,
+  samp {
+    font-family: var(--font-mono);
+  }
+}
+
+/*
+ * Reduced motion, forced by an attribute as well as by the media query, so the
+ * path can be reviewed on demand rather than only on a machine configured for
+ * it. `0.01ms` rather than `0s`: an animation still fires `animationstart` and
+ * `animationend`, so component code that waits for one before unmounting still
+ * completes instead of hanging open.
+ */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --press-scale: 1;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-delay: 0s !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-delay: 0s !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+[data-reduced-motion],
+[data-reduced-motion] *,
+[data-reduced-motion] *::before,
+[data-reduced-motion] *::after {
+  animation-delay: 0s !important;
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-delay: 0s !important;
+  transition-duration: 0.01ms !important;
+}
+
+/* The spinner keeps a perceivable, slower rotation either way: a frozen loading
+   indicator is information loss, not calm. */
+@media (prefers-reduced-motion: reduce) {
+  [data-slot='spinner'] {
+    animation-duration: 2s !important;
+    animation-iteration-count: infinite !important;
+  }
+}
+
+[data-reduced-motion] [data-slot='spinner'] {
+  animation-duration: 2s !important;
+  animation-iteration-count: infinite !important;
+}
