@@ -1,12 +1,12 @@
 /**
  * @fileoverview Reads a BCP-47 language tag with the engine's own ECMA-402 implementation:
  * canonicalising it, taking it apart, and walking it from most specific to least. Nothing
- * here carries locale data — `Intl` already has it, including the likely subtags a
- * `zh` to `zh-Hans-CN` widening needs.
+ * here carries locale data. `Intl` already has it, including the likely subtags a `zh` to
+ * `zh-Hans-CN` widening needs.
  */
 
 /**
- * A BCP-47 language tag, canonical: `nl`, `en-GB`, `zh-Hant-TW`.
+ * Names a canonical BCP-47 language tag: `nl`, `en-GB`, `zh-Hant-TW`.
  *
  * It is a string rather than a class so a tag can be a catalogue key, a URL segment and a
  * `lang` attribute without unwrapping.
@@ -14,21 +14,21 @@
 export type Tag = string
 
 /**
- * The parts of a tag a caller reaches for.
+ * Describes the parts of a tag a caller reaches for.
  */
 export interface Parts {
   /**
-   * The primary language: `nl`, `en`, `zh`.
+   * Names the primary language: `nl`, `en`, `zh`.
    */
   language: string
 
   /**
-   * The region, where the tag names one: `GB`, `TW`.
+   * Names the region, where the tag names one: `GB`, `TW`.
    */
   region: string | undefined
 
   /**
-   * The script, where the tag names one: `Hant`.
+   * Names the script, where the tag names one: `Hant`.
    */
   script: string | undefined
 }

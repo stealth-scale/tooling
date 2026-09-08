@@ -1,13 +1,13 @@
 /**
  * @fileoverview Picks the locale to answer in: reads what a request asked for, in the order
  * it asked, and matches it against what a catalogue actually ships. The matcher is ECMA-402's
- * lookup algorithm — truncate the requested tag until it names something available.
+ * lookup algorithm: it truncates the requested tag until it names something available.
  */
 
 import { canonical, chain, type Tag, widenedChain } from './tags.ts'
 
 /**
- * What a catalogue ships, keyed by canonical tag and holding the spelling the catalogue used.
+ * Names what a catalogue ships, keyed by canonical tag and holding the spelling it used.
  *
  * Read-only because a match reads it and never adds to it, and named because three functions
  * take one and `ReadonlyMap<Tag, Tag>` says less at each of them.
@@ -15,17 +15,17 @@ import { canonical, chain, type Tag, widenedChain } from './tags.ts'
 type Offers = ReadonlyMap<Tag, Tag>
 
 /**
- * One entry of an `Accept-Language` header: a tag and how much the client wants it.
+ * Describes one entry of an `Accept-Language` header: a tag and how much the client wants it.
  */
 export interface Preference {
   /**
-   * How much the client wants this tag, above 0 and up to 1. A header that names no quality
-   * means 1, and one that names 0 refuses the tag, which `preferences` drops.
+   * Carries how much the client wants this tag, above 0 and up to 1. A header that names no
+   * quality means 1, and one that names 0 refuses the tag, which `preferences` drops.
    */
   quality: number
 
   /**
-   * The canonical tag the client asked for.
+   * Names the canonical tag the client asked for.
    */
   tag: Tag
 }
@@ -136,8 +136,8 @@ function widenedOffers(offered: Offers): Map<Tag, Tag> {
  *
  * @param {readonly string[]} requested - The tags asked for, most wanted first.
  * @param {Offers} offered - The offers to match against.
- * @param {boolean} widen - Whether to widen each requested tag before walking it, which is
- *     what the second pass does when truncation alone found nothing.
+ * @param {boolean} widen - Widens each requested tag before walking it. The second pass
+ *     sets it when truncation alone found nothing.
  * @returns {Tag | undefined} The offer as the catalogue wrote it, or `undefined` when none
  *     of the requested tags names one.
  */
