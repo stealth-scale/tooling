@@ -53,15 +53,39 @@ function pageOf(recipe: PaletteRecipe, which: ThemeMode): string {
 }
 
 /**
- * Writes the card's colour, which a field's outline is solved against.
+ * Lifts a surface off the page by some steps of lightness, and no further than white.
+ *
+ * @param {PaletteRecipe} recipe - The theme's recipe.
+ * @param {ThemeMode} which - The mode.
+ * @param {number} steps - How far above the page the surface sits.
+ * @returns {number} The surface's lightness, 0 to 100.
+ */
+function raised(recipe: PaletteRecipe, which: ThemeMode, steps: number): number {
+  return Math.min(100, pageLightness(recipe, which) + steps)
+}
+
+/**
+ * Reads the card's lightness: one step off the page, and a longer step in dark, where a
+ * small one is harder to see.
+ *
+ * @param {PaletteRecipe} recipe - The theme's recipe.
+ * @param {ThemeMode} which - The mode.
+ * @returns {number} The card's lightness, 0 to 100.
+ */
+function cardLightness(recipe: PaletteRecipe, which: ThemeMode): number {
+  return raised(recipe, which, which === 'dark' ? 4 : 3)
+}
+
+/**
+ * Writes the card's colour, which a field's outline is solved against and the glass is built
+ * on.
  *
  * @param {PaletteRecipe} recipe - The theme's recipe.
  * @param {ThemeMode} which - The mode.
  * @returns {string} The card as `oklch()`.
  */
 function cardOf(recipe: PaletteRecipe, which: ThemeMode): string {
-  const step = pageLightness(recipe, which) + (which === 'dark' ? 4 : 3)
-  return oklch(step, surfaceTint(recipe) * 0.8, surfaceHue(recipe))
+  return oklch(cardLightness(recipe, which), surfaceTint(recipe) * 0.8, surfaceHue(recipe))
 }
 
 /**
@@ -113,7 +137,7 @@ function surfaces(recipe: PaletteRecipe, which: ThemeMode): Record<string, strin
   const tint = surfaceTint(recipe)
   const ladder = ladderFor(which)
   const page = pageLightness(recipe, which)
-  const lift = which === 'dark' ? page + 7 : page + 3
+  const lift = raised(recipe, which, which === 'dark' ? 7 : 3)
   return {
     background: oklch(page, tint, neutral),
     card: cardOf(recipe, which),
@@ -323,7 +347,8 @@ function chartAndSidebar(recipe: PaletteRecipe, which: ThemeMode): Record<string
  * still has a scrim. Selected and highlighted text is still text, so each carries a
  * foreground solved to AAA against its fill. The shadow ink carries the opacity of the
  * largest step, and every step takes a share of it in the stylesheet; the highlight along a
- * raised edge is transparent in light, where the shadow does that work.
+ * raised edge is transparent in light, where the shadow does that work. The glass is the card
+ * at the alpha the mode allows, so it lifts off whatever page the recipe named.
  *
  * @param {PaletteRecipe} recipe - The theme's recipe.
  * @param {ThemeMode} which - The mode.
@@ -335,7 +360,7 @@ function effects(recipe: PaletteRecipe, which: ThemeMode): Record<string, string
   const hues = statusHues(recipe)
   const selection = oklch(ladder.selection, chromaOf(recipe) * 0.5, primary)
   const highlight = oklch(ladder.highlight, 0.12, hues.warning)
-  const card = which === 'dark' ? ladder.page + 4 : ladder.page + 3
+  const card = cardLightness(recipe, which)
   return {
     glass: oklch(card, surfaceTint(recipe) * 0.8, surfaceHue(recipe), ladder.glassAlpha),
     'glass-border': oklch(ladder.text, tintOf(recipe), neutral, ladder.glassBorderAlpha),

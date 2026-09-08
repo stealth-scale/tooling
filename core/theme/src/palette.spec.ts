@@ -153,6 +153,17 @@ describe('buildPalette', () => {
     expect(hue(stated.light.border), 'the greys keep the neutral').toBe('260')
   })
 
+  it('keeps the glass on the card, and the card no lighter than white, whatever the page', () => {
+    const stated = buildPalette({ ...bare, ink: 10, paper: 99 })
+
+    for (const mode of ['dark', 'light'] as const) {
+      expect(lightness(stated[mode].glass), `${mode} glass`).toBe(lightness(stated[mode].card))
+    }
+    expect(lightness(stated.light.card), 'three steps above 99 stops at white').toBe(100)
+    expect(lightness(stated.light.popover)).toBe(100)
+    expect(lightness(stated.dark.card), 'four steps above the ink').toBe(14)
+  })
+
   it('gives the scrim its opacity, so a dialog on a dark page still has one', () => {
     expect(values.light.overlay).toMatch(/\/ 0\.50\)$/u)
     expect(values.dark.overlay).toMatch(/\/ 0\.70\)$/u)
