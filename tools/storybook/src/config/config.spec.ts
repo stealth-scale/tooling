@@ -238,6 +238,7 @@ describe('storybookConfig', () => {
       .viteFinal as unknown as (config: Record<string, unknown>) => {
       plugins: { name?: string }[]
       resolve: { conditions: string[] }
+      server: { watch: { ignored: string[] } }
     }
 
     const vite = final({ plugins: [{ name: 'storybook:its-own' }] })
@@ -249,6 +250,10 @@ describe('storybookConfig', () => {
     expect(vite.plugins[0]?.name).toBe('storybook:its-own')
     expect(vite.resolve.conditions[0], "a story reads a package's source").toBe(CONDITION)
     expect(final({}).plugins, 'a configuration carrying no plugins of its own').not.toHaveLength(0)
+    expect(
+      vite.server.watch.ignored,
+      'a coverage report is thousands of files, and each one would reload the page',
+    ).toContain('**/coverage/**')
     scratch.remove()
   })
 
