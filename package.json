@@ -57,7 +57,6 @@
   "devDependencies": {
     "@arethetypeswrong/core": "catalog:",
     "@changesets/cli": "catalog:",
-    "@stealthscale/theme-base": "workspace:^",
     "@stealthscale/tool-cli": "workspace:^",
     "@stealthscale/tool-storybook": "workspace:^",
     "@storybook/addon-a11y": "catalog:",

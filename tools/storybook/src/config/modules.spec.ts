@@ -15,7 +15,9 @@ const REGISTERED: Registrations = {
     {
       name: 'kalon',
       package: '@t/themes-kalon',
+      stylesheet: '/ws/themes/kalon/dist/scoped.css',
       title: 'Kalon',
+      values: '/ws/themes/kalon/dist/values.mjs',
     },
   ],
 }
@@ -55,7 +57,10 @@ describe('virtualModules', () => {
   it('carries every theme solved, keyed by what a document writes', () => {
     const source = String(sourceOf(REGISTERED, MODULES.themes))
 
-    expect(source).toContain(`import { values as values0 } from "@t/themes-kalon/values"`)
+    expect(
+      source,
+      'by the path the reading resolved, so the root need not depend on the theme',
+    ).toContain(`import { values as values0 } from "/ws/themes/kalon/dist/values.mjs"`)
     expect(source).toContain(`"kalon": { title: "Kalon", values: values0 }`)
     expect(
       source,
@@ -72,7 +77,7 @@ describe('virtualModules', () => {
     ).toEqual([
       `import "/ws/foundations/theme/src/base.css"`,
       `import "/ws/components/library/src/keyframes.css"`,
-      `import "@t/themes-kalon/scoped.css"`,
+      `import "/ws/themes/kalon/dist/scoped.css"`,
       `export { default } from "/ws/foundations/theme/src/provider.tsx"`,
     ])
   })
@@ -83,7 +88,7 @@ describe('virtualModules', () => {
     expect(source, 'the scoped stylesheet, not the one that claims the document').not.toContain(
       'index.css',
     )
-    expect(source).toContain('@t/themes-kalon/scoped.css')
+    expect(source).toContain('/ws/themes/kalon/dist/scoped.css')
   })
 
   it('draws the story and nothing around it where no package registers a provider', () => {

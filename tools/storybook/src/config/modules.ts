@@ -52,15 +52,16 @@ function literal(value: unknown): string {
  * A theme solves its palette in its own build and exports the table at `./values`, so this
  * imports the result rather than carrying a recipe the browser would have to solve. No
  * consumer ships the solver, every one reads the same table, and a recipe that cannot be
- * drawn has already failed its own package's build.
+ * drawn has already failed its own package's build. The table is imported by the absolute
+ * path the reading resolved, because a bare name in a module the plugin serves is resolved
+ * from the repository's root, and the root depends on no theme.
  *
  * @param {Registrations} registered - The reading of the workspace.
  * @returns {string} The module's source.
  */
 function themesModule(registered: Registrations): string {
   const imports = registered.themes.map(
-    (theme, index) =>
-      `import { values as values${String(index)} } from ${literal(`${theme.package}/values`)}`,
+    (theme, index) => `import { values as values${String(index)} } from ${literal(theme.values)}`,
   )
   const entries = registered.themes.map(
     (theme, index) =>
@@ -89,9 +90,7 @@ function themesModule(registered: Registrations): string {
 function providerModule(registered: Registrations): string {
   const { provider, stylesheets } = registered.appearance
   const sheets = stylesheets.map((sheet) => `import ${literal(sheet)}`)
-  const themes = registered.themes.map(
-    (theme) => `import ${literal(`${theme.package}/scoped.css`)}`,
-  )
+  const themes = registered.themes.map((theme) => `import ${literal(theme.stylesheet)}`)
   const wraps =
     provider === undefined
       ? 'export default ({ children }) => children'

@@ -16,7 +16,15 @@ import {
 } from '@stealthscale/core-appearance'
 import { type Logger, SILENT } from '@stealthscale/core-logging'
 import { refused, type Result, succeeded } from '@stealthscale/core-result'
-import { type FieldIssue } from '@stealthscale/core-schema'
+import {
+  type FieldIssue,
+  looseObject,
+  record,
+  safeParse,
+  string,
+  union,
+  unknown,
+} from '@stealthscale/core-schema'
 import { THEME_CONTRIBUTION, THEME_KEY, type ThemeContribution } from '@stealthscale/core-theme'
 import { contributions, type Registered, workspaceManifests } from '@stealthscale/tool-workspace'
 
@@ -25,6 +33,22 @@ import { contributions, type Registered, workspaceManifests } from '@stealthscal
  * package that wrote it.
  */
 type Refusals = readonly FieldIssue[]
+
+/**
+ * Names the two entries a theme package exports and the preview imports: the stylesheet that
+ * declares its tokens behind its attribute, and the module holding its solved table.
+ */
+const THEME_ARTEFACTS = { stylesheet: './scoped.css', values: './values' } as const
+
+/**
+ * Accepts an `exports` map in the shape a manifest writes it.
+ */
+const EXPORTS = record(string(), unknown())
+
+/**
+ * Accepts one entry of an `exports` map: a path, or a conditions object naming a `default`.
+ */
+const TARGET = union([string(), looseObject({ default: string() })])
 
 /**
  * Describes one theme a workspace holds.
@@ -42,9 +66,21 @@ export interface ThemeRegistration {
   package: string
 
   /**
+   * Names the stylesheet that declares the theme's tokens behind its `data-theme` attribute,
+   * absolute. It is what the package exports at `./scoped.css`.
+   */
+  stylesheet: string
+
+  /**
    * Carries the name a person picks the theme by.
    */
   title: string
+
+  /**
+   * Names the module whose `values` export is the solved table, absolute. It is what the
+   * package exports at `./values`.
+   */
+  values: string
 }
 
 /**
@@ -181,20 +217,76 @@ function providerOf(
 }
 
 /**
- * Turns a theme's entry into its registration.
+ * Reads where one entry of an `exports` map points, relative to the package.
+ *
+ * The map is read rather than the package resolved by name, because a bare import in a
+ * module the plugin serves is resolved from the repository's root, and the root depends on
+ * no theme. A conditions object gives its `default`: the artefact is generated, so no
+ * condition points anywhere else.
+ *
+ * @param {unknown} exports - The manifest's `exports` field, as written.
+ * @param {string} entry - The entry to read: `./values`.
+ * @returns {string | undefined} The path the entry names, or nothing where the map has no
+ *     such entry or the entry names no path.
+ */
+function exportTarget(exports: unknown, entry: string): string | undefined {
+  const map = safeParse(EXPORTS, exports)
+  if (!map.ok) return undefined
+
+  const target = safeParse(TARGET, map.value[entry])
+  if (!target.ok) return undefined
+  return typeof target.value === 'string' ? target.value : target.value.default
+}
+
+/**
+ * Reports a theme that exports no entry the preview needs.
+ *
+ * @param {string} name - The package.
+ * @param {string} entry - The entry it does not export: `./values`.
+ * @returns {FieldIssue} The refusal, pointing at the package's exports map.
+ */
+function missingArtefact(name: string, entry: string): FieldIssue {
+  return {
+    code: 'missing_export',
+    params: { entry },
+    path: `${name}.exports["${entry}"]`,
+    reason: `A theme exports its ${entry} entry`,
+  }
+}
+
+/**
+ * Turns a theme's entry into its registration, with both artefacts resolved against the
+ * package that ships them.
  *
  * @param {Registered<ThemeContribution>} registered - The package's theme entry.
  * @param {Logger} log - Where the reading reports what it found.
- * @returns {ThemeRegistration} The theme, named after the directory that holds it.
+ * @returns {Result<ThemeRegistration, Refusals>} The theme, named after the directory that
+ *     holds it, or one refusal per artefact the package does not export.
  */
 function themeOf(
   { manifest, value }: Registered<ThemeContribution>,
   log: Logger,
-): ThemeRegistration {
+): Result<ThemeRegistration, Refusals> {
   const name = basename(manifest.directory)
-  log.info('registered a theme', { name, package: manifest.name })
+  const stylesheet = exportTarget(manifest.exports, THEME_ARTEFACTS.stylesheet)
+  const values = exportTarget(manifest.exports, THEME_ARTEFACTS.values)
 
-  return { name, package: manifest.name, title: value.title }
+  if (stylesheet === undefined || values === undefined) {
+    return refused(
+      Object.values(THEME_ARTEFACTS)
+        .filter((entry) => exportTarget(manifest.exports, entry) === undefined)
+        .map((entry) => missingArtefact(manifest.name, entry)),
+    )
+  }
+
+  log.info('registered a theme', { name, package: manifest.name })
+  return succeeded({
+    name,
+    package: manifest.name,
+    stylesheet: resolve(manifest.directory, stylesheet),
+    title: value.title,
+    values: resolve(manifest.directory, values),
+  })
 }
 
 /**
@@ -203,7 +295,8 @@ function themeOf(
  * One reading answers the whole configuration, so nothing keeps a second list of the themes,
  * the stylesheets or what a toolbar offers. One reading reports every malformed field in
  * every package, because somebody fixing manifests wants the whole list. The one-provider
- * rule reads the entries, so it runs once every entry is well formed.
+ * rule and the artefacts a theme exports are read off the entries, so both run once every
+ * entry is well formed, and together.
  *
  * @param {string} root - The workspace root, absolute.
  * @param {Logger} [log] - Where the reading reports each registration. Default: `SILENT`,
@@ -223,7 +316,15 @@ export function registrations(root: string, log: Logger = SILENT): Result<Regist
   }
 
   const provider = providerOf(appearance.value, log)
-  if (!provider.ok) return refused(provider.failure)
+  const registered: ThemeRegistration[] = []
+  const refusals: FieldIssue[] = []
+  for (const theme of themes.value) {
+    const read = themeOf(theme, log)
+    if (read.ok) registered.push(read.value)
+    else refusals.push(...read.failure)
+  }
+  if (!provider.ok) return refused([...provider.failure, ...refusals])
+  if (refusals.length > 0) return refused(refusals)
 
   return succeeded({
     appearance: {
@@ -232,7 +333,7 @@ export function registrations(root: string, log: Logger = SILENT): Result<Regist
       provider: provider.value,
       stylesheets: stylesheetsOf(appearance.value),
     },
-    themes: themes.value.map((theme) => themeOf(theme, log)),
+    themes: registered,
   })
 }
 
