@@ -32,6 +32,22 @@ export const HAIRLINE = '1px solid var(--border)'
 export const CORNER = 'var(--radius)'
 
 /**
+ * Sets the button a block gives a reader to run a specimen with. It is drawn in the theme's
+ * secondary, because the thing being demonstrated is what the page is for.
+ */
+export const BUTTON: CSSProperties = {
+  background: 'var(--secondary)',
+  border: HAIRLINE,
+  borderRadius: CORNER,
+  color: 'var(--secondary-foreground)',
+  cursor: 'pointer',
+  font: 'inherit',
+  fontSize: '0.8125rem',
+  justifySelf: 'start',
+  padding: '0.5rem 1rem',
+}
+
+/**
  * Sets the badge a block prints a measurement in.
  *
  * The badge restates the page's own surface and ink rather than inheriting the specimen's, so
