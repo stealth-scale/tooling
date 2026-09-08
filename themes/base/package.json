@@ -12,7 +12,9 @@
     "dist"
   ],
   "type": "module",
-  "sideEffects": false,
+  "sideEffects": [
+    "**/*.css"
+  ],
   "imports": {
     "#*": "./src/*"
   },
