@@ -1,11 +1,11 @@
 /**
- * @fileoverview The contract a library logs through, so a package can report what it did
+ * @fileoverview Holds the contract a library logs through, so a package reports what it did
  * without choosing where the words go. A deployment binds one implementation once; every
  * library above it takes a `Logger` and never imports a sink.
  */
 
 /**
- * How much a record matters, from the most detailed to the most serious.
+ * Names how much a record matters, from the most detailed to the most serious.
  *
  * The five are pino's and the console's, which is what lets an implementation of {@link
  * Logger} be either without a shim.
@@ -13,7 +13,7 @@
 export type Level = 'debug' | 'error' | 'info' | 'trace' | 'warn'
 
 /**
- * Every level, from the most detailed to the most serious.
+ * Lists every level, from the most detailed to the most serious.
  *
  * The order is the contract `atLeast` compares on; a caller that renders a selector reads it
  * rather than writing the list again.
@@ -21,7 +21,7 @@ export type Level = 'debug' | 'error' | 'info' | 'trace' | 'warn'
 export const LEVELS: readonly Level[] = ['trace', 'debug', 'info', 'warn', 'error']
 
 /**
- * What a record carries beside its message: the values a reader needs to act on it.
+ * Names what a record carries beside its message: the values a reader needs to act on it.
  *
  * A field holds data, never a sentence. The message says what happened; the fields say which
  * package, which request, which row.
@@ -38,7 +38,7 @@ export type Fields = Readonly<Record<string, unknown>>
 export type Write = (message: string, fields?: Fields) => void
 
 /**
- * What a library logs through.
+ * Describes what a library logs through.
  *
  * Structural on purpose: pino's logger and a console wrapper both satisfy it without being
  * told about it, so binding one is an assignment rather than an adapter. A library takes this
@@ -82,7 +82,7 @@ export interface Logger {
 }
 
 /**
- * Whether a record at one level is serious enough for a threshold.
+ * Returns `true` when a record's level is serious enough for a threshold.
  *
  * @param {Level} level - The record's level.
  * @param {Level} threshold - The least serious level being kept.
@@ -93,7 +93,7 @@ export function atLeast(level: Level, threshold: Level): boolean {
 }
 
 /**
- * A logger that writes nothing.
+ * Holds a logger that writes nothing.
  *
  * It is the default a library takes when a caller passes none, so nothing has to guard a
  * logger against being absent. It is a constant rather than a builder because it holds no

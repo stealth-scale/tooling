@@ -1,40 +1,40 @@
 /**
- * @fileoverview A logger that keeps what it was told, so a specification can assert on what a
- * package reported rather than on what it printed. It is the one implementation this package
- * ships; a deployment binds a real sink.
+ * @fileoverview Holds a logger that keeps what it was told, so a specification asserts on
+ * what a package reported rather than on what it printed. It is the one implementation this
+ * package ships; a deployment binds a real sink.
  */
 
 import { atLeast, type Fields, type Level, type Logger } from './logger.ts'
 
 /**
- * One record a {@link RecordingLogger} kept.
+ * Describes one record a {@link RecordingLogger} kept.
  */
 export interface LogRecord {
   /**
-   * The fields the record carried, a child's fields included.
+   * Carries the fields the record was written with, a child's fields included.
    */
   fields: Fields
 
   /**
-   * How serious the record was.
+   * Names how serious the record was.
    */
   level: Level
 
   /**
-   * What the caller said happened.
+   * Carries what the caller said happened.
    */
   message: string
 }
 
 /**
- * A logger that keeps its records instead of writing them.
+ * Describes a logger that keeps its records instead of writing them.
  *
  * A specification asserts on `records`, which is what lets a test say "it warned about the
  * held-back version" without capturing output or matching a printed line.
  */
 export interface RecordingLogger extends Logger {
   /**
-   * The records at one level, for a specification that cares about only those.
+   * Reads the records at one level, for a specification that cares about only those.
    *
    * @param {Level} level - The level to keep.
    * @returns {LogRecord[]} The records at exactly that level, in order.
@@ -42,7 +42,7 @@ export interface RecordingLogger extends Logger {
   at: (level: Level) => LogRecord[]
 
   /**
-   * Every record kept, in the order it was written, a child's records included.
+   * Lists every record kept, in the order it was written, a child's records included.
    */
   readonly records: readonly LogRecord[]
 }
