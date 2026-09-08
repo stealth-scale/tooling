@@ -64,7 +64,8 @@ export interface TestOptions {
  * Two environments, split by what the specification is: a `.tsx` specification renders and
  * needs a document, a `.ts` specification does not and runs faster without one. The extension
  * is the honest signal — the tree a package sits in is not. Coverage is on by default,
- * because a floor nobody measures is a number in a config file.
+ * because a floor nobody measures is a number in a config file. Each file clears the floor
+ * on its own, so a well covered module cannot lift a bare one over the line.
  *
  * The timeout is longer than the five seconds Testing Library waits for an element, so a
  * query that never matches reports what it looked for instead of the test timing out on top

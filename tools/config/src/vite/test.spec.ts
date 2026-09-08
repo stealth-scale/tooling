@@ -40,11 +40,14 @@ describe('testConfig', () => {
     expect(projects[1]?.test?.environment, 'a .spec.tsx renders').toBe('jsdom')
   })
 
-  it('holds every package to a floor nobody has to remember to measure', () => {
+  it('holds every file to a floor nobody has to remember to measure', () => {
     const { coverage } = testConfig()
 
     expect(coverage?.enabled, 'on by default').toBe(true)
-    expect(coverage?.thresholds).toEqual({ 100: true })
+    expect(coverage?.thresholds, 'per file, so a covered module cannot carry a bare one').toEqual({
+      100: true,
+      perFile: true,
+    })
   })
 
   it('never counts what a person did not write, or what is data for a story', () => {
