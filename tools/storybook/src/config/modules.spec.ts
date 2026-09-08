@@ -55,7 +55,7 @@ describe('virtualModules', () => {
   it('carries every theme solved, keyed by what a document writes', () => {
     const source = String(sourceOf(REGISTERED, MODULES.themes))
 
-    expect(source).toContain(`import { values as values0 } from "@t/themes-kalon"`)
+    expect(source).toContain(`import { values as values0 } from "@t/themes-kalon/values"`)
     expect(source).toContain(`"kalon": { title: "Kalon", values: values0 }`)
     expect(
       source,

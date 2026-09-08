@@ -49,8 +49,8 @@ function literal(value: unknown): string {
 /**
  * Writes the module holding every theme, solved.
  *
- * A theme solves its palette in its own build and exports the table, so this imports the
- * result by package name rather than carrying a recipe the browser would have to solve. No
+ * A theme solves its palette in its own build and exports the table at `./values`, so this
+ * imports the result rather than carrying a recipe the browser would have to solve. No
  * consumer ships the solver, every one reads the same table, and a recipe that cannot be
  * drawn has already failed its own package's build.
  *
@@ -59,7 +59,8 @@ function literal(value: unknown): string {
  */
 function themesModule(registered: Registrations): string {
   const imports = registered.themes.map(
-    (theme, index) => `import { values as values${String(index)} } from ${literal(theme.package)}`,
+    (theme, index) =>
+      `import { values as values${String(index)} } from ${literal(`${theme.package}/values`)}`,
   )
   const entries = registered.themes.map(
     (theme, index) =>
