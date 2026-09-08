@@ -1,7 +1,7 @@
 {
   "name": "@stealthscale/tool-cli",
   "version": "0.0.0",
-  "description": "The stealth command: create, dev, messages, derive, smoke and release.",
+  "description": "Ships the stealth command, and publishes a workspace's public packages in dependency order.",
   "license": "MIT",
   "repository": {
     "type": "git",

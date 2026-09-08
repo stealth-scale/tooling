@@ -25,18 +25,16 @@ export default defineConfig({
 A replaced block is replaced whole rather than merged, which is why each builder returns a
 complete block and takes options instead of a patch.
 
-| Builder            | Configures                                                           |
-| ------------------ | -------------------------------------------------------------------- |
-| `formatConfig`     | `fmt` — width, quotes, what a build wrote                            |
-| `lintConfig`       | `lint` — the rules, the plugins, which globs render or run in Node   |
-| `packConfig`       | `pack` — the declaration build, attw and publint, static exports     |
-| `testConfig`       | `test` — the projects, the coverage floor                            |
-| `runConfig`        | `run` — the task graph and what `ci` does                            |
-| `stagedConfig`     | `staged` — the pre-commit pass                                       |
-| `sourceConditions` | `resolve.conditions` — the source condition ahead of Vite's defaults |
-
-Source is grouped by domain: `src/vite/` is the toolchain configuration above; the guards and
-the taxonomy derived from the tree are subpath entries of their own.
+| Builder                  | Configures                                                                     |
+| ------------------------ | ------------------------------------------------------------------------------ |
+| `formatConfig`           | `fmt` — width, quotes, what a build wrote                                      |
+| `lintConfig`             | `lint` — the rules, the plugins, which globs render or run in Node             |
+| `packConfig`             | `pack` — the declaration build, attw and publint, static exports               |
+| `testConfig`             | `test` — the projects, the coverage floor                                      |
+| `runConfig`              | `run` — the task graph and what `ci` does                                      |
+| `stagedConfig`           | `staged` — the pre-commit pass                                                 |
+| `sourceConditions`       | `resolve.conditions` — the source condition ahead of Vite's defaults           |
+| `serverSourceConditions` | `ssr.resolve.conditions` — the same condition for the resolver Node runs under |
 
 ## The tsconfigs
 

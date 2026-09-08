@@ -2,7 +2,7 @@
   "name": "@stealthscale/tooling",
   "version": "0.0.0",
   "private": true,
-  "description": "How a stealth repository is built: the schema library, the toolchain preset, the stealth command and the test helpers.",
+  "description": "Holds the core libraries every stealth tier stands on, and the toolchain that builds, checks, tests and releases a repository.",
   "workspaces": {
     "packages": [
       "core/*",

@@ -4,12 +4,16 @@ How a stealth repository is built. Read this if you are setting one up.
 
 `core/` is what every tier stands on. `tools/` is what builds, checks, tests and releases.
 
-| Package                          | Kind    | What it is                                               |
-| -------------------------------- | ------- | -------------------------------------------------------- |
-| [`core/schema`](core/schema)     | library | validation and parsing; owns valibot                     |
-| [`tools/config`](tools/config)   | kit     | the toolchain config, the tsconfig bases, and the guards |
-| [`tools/cli`](tools/cli)         | cli     | the `stealth` bin                                        |
-| [`tools/testing`](tools/testing) | kit     | the spec helpers every tier shares                       |
+| Package                          | Kind    | What it is                                            |
+| -------------------------------- | ------- | ----------------------------------------------------- |
+| [`core/env`](core/env)           | library | the environment as a value; layered `.env` files      |
+| [`core/locale`](core/locale)     | library | which locale to answer in; BCP-47 and ECMA-402 lookup |
+| [`core/logging`](core/logging)   | library | the contract a library logs through                   |
+| [`core/result`](core/result)     | library | success or refusal as a value, rather than a throw    |
+| [`core/schema`](core/schema)     | library | validation and parsing; owns valibot                  |
+| [`tools/cli`](tools/cli)         | cli     | the `stealth` bin                                     |
+| [`tools/config`](tools/config)   | kit     | the toolchain config and the tsconfig bases           |
+| [`tools/testing`](tools/testing) | kit     | the scratch workspace a spec reads a tree from        |
 
 A package's name is its group's word in the singular, then its path below it, dashes for
 slashes: `core/schema` is `@stealthscale/core-schema`, `tools/config` is

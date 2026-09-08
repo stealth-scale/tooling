@@ -1,7 +1,7 @@
 {
   "name": "@stealthscale/tool-testing",
   "version": "0.0.0",
-  "description": "The specification helpers every stealth tier shares: scratch workspaces, matchers and fixtures.",
+  "description": "Builds the scratch workspace a specification reads a tree from, and writes the manifests in it.",
   "license": "MIT",
   "repository": {
     "type": "git",
