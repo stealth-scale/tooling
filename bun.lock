@@ -19,6 +19,7 @@
         "typescript": "catalog:",
         "vite": "catalog:",
         "vite-plus": "catalog:",
+        "vitest": "catalog:",
       },
     },
     "core/appearance": {
@@ -204,6 +205,7 @@
     "valibot": "^1.4.2",
     "vite": "npm:@voidzero-dev/vite-plus-core@0.3.0",
     "vite-plus": "0.3.0",
+    "vitest": "4.1.11",
   },
   "packages": {
     "@adobe/css-tools": ["@adobe/css-tools@4.5.0", "", {}, "sha512-6OzddxPio9UiWTCemp4N8cYLV2ZN1ncRnV1cVGtve7dhPOtRkleRyx32GQCYSwDYgaHU3USMm84tNsvKzRCa1Q=="],
