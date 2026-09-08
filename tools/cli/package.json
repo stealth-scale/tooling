@@ -9,7 +9,7 @@
     "directory": "tools/cli"
   },
   "bin": {
-    "stealth": "./dist/bin/stealth.mjs"
+    "stealth": "./src/bin/stealth.ts"
   },
   "files": [
     "dist"
@@ -21,18 +21,32 @@
       "stealth-source": "./src/index.ts",
       "default": "./dist/index.mjs"
     },
+    "./bin/stealth": {
+      "stealth-source": "./src/bin/stealth.ts",
+      "default": "./dist/bin/stealth.mjs"
+    },
     "./package.json": "./package.json"
   },
   "publishConfig": {
+    "bin": {
+      "stealth": "./dist/bin/stealth.mjs"
+    },
+    "exports": {
+      ".": "./dist/index.mjs",
+      "./bin/stealth": "./dist/bin/stealth.mjs",
+      "./package.json": "./package.json"
+    },
     "access": "public"
   },
   "scripts": {
     "build": "vp pack src/index.ts src/bin/stealth.ts"
   },
   "dependencies": {
-    "@stealthscale/core-schema": "workspace:^"
+    "@stealthscale/core-schema": "workspace:^",
+    "citty": "catalog:"
   },
   "devDependencies": {
-    "@stealthscale/tool-config": "workspace:^"
+    "@stealthscale/tool-config": "workspace:^",
+    "@stealthscale/tool-testing": "workspace:^"
   }
 }

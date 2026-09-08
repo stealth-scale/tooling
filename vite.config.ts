@@ -3,7 +3,7 @@ import { defineConfig } from 'vite-plus'
 // By relative path, not by name: the source condition that resolves a workspace package to
 // its source is set by the config being loaded, so this one file cannot use it. Every other
 // repository imports the same builders as `@stealthscale/tool-config`.
-import { lintConfig, stealthDefaults } from './tools/config/src/index.ts'
+import { lintConfig, stealthDefaults, testConfig } from './tools/config/src/index.ts'
 
 /**
  * The workspace, configured once.
@@ -27,4 +27,8 @@ export default defineConfig({
       },
     ],
   }),
+
+  // The `stealth` bin hands its command to citty and decides nothing, so there is nothing in
+  // it to specify; the command it starts is specified in full beside it.
+  test: testConfig({ uncovered: ['tools/cli/src/bin/**'] }),
 })

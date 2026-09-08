@@ -14,6 +14,11 @@ A **cli**: it ships the `stealth` bin.
 The generators, the codegen and the publish harness are modules of this package, not
 packages of their own.
 
+The command tree is [citty](https://github.com/unjs/citty): a subcommand is one object with
+its arguments typed from their declarations, and it is imported when a run asks for it, so
+`stealth --help` loads nothing else. Commander and cac both hand a command's options to its
+callback as `any`, which is the one place a typo in an option name would otherwise be caught.
+
 `stealth create` writes the files itself and validates options with
 [`@stealthscale/core-schema`](../../core/schema). There is no bingo and no zod: bingo brings
 fourteen dependencies, prompts and repository creation for a job that is writing files, and
