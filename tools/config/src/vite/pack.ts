@@ -45,6 +45,37 @@ interface PackedPackage {
 const ROOT_STYLESHEET = /^[\w-]+\.css$/u
 
 /**
+ * Describes one file, or one pattern of files, the pack step carries into the built package.
+ */
+export interface CopyEntry {
+  /**
+   * Names the source path or the glob, relative to the package.
+   */
+  from: string
+
+  /**
+   * Names where it lands. Default: the directory the build writes to.
+   */
+  to?: string
+}
+
+/**
+ * Describes the points in a pack a package may take part in.
+ *
+ * A package that writes an artefact of its own writes it here rather than from a script
+ * beside the build. The task runner caches a script by its inputs and knows nothing about
+ * what it wrote, so a second run replays the log and leaves the directory empty; a hook is
+ * part of the build the runner is already tracking.
+ */
+export interface PackHooks {
+  /**
+   * Runs after the output directory is emptied and before the bundler starts, which is where
+   * a package writes anything the pack step then has to see.
+   */
+  'build:before'?: () => Promise<void> | void
+}
+
+/**
  * Describes what a repository or a package may change about how its libraries are packed.
  */
 export interface PackOptions {
@@ -55,6 +86,19 @@ export interface PackOptions {
    * only where the package is named for its command.
    */
   bin?: Readonly<Record<string, string>> | undefined
+
+  /**
+   * Lists files to copy into the built package, each an entry of `{ from, to }`. A stylesheet
+   * a person wrote is source rather than something a build produces, so the pack step carries
+   * it across rather than a script beside it doing so.
+   */
+  copy?: readonly CopyEntry[] | undefined
+
+  /**
+   * Takes part in the pack itself, for a package that writes an artefact of its own.
+   * `PackHooks` documents each point.
+   */
+  hooks?: PackHooks | undefined
 
   /**
    * Lists what the bundler leaves as an import rather than resolving it, such as a virtual
@@ -115,10 +159,12 @@ export function stylesheetExports(files: readonly string[] = []): Record<string,
  * @returns {PackBlock} The `pack` block, ready to hand to `defineConfig`.
  */
 export function packConfig(options: Readonly<PackOptions>): PackBlock {
-  const { bin, neverBundle, sourceCondition, staticExports } = options
+  const { bin, copy, hooks, neverBundle, sourceCondition, staticExports } = options
 
   return {
     attw: { excludeEntrypoints: [/\.css$/u], profile: 'esm-only' },
+    ...(copy === undefined ? {} : { copy: [...copy] }),
+    ...(hooks === undefined ? {} : { hooks: { ...hooks } }),
     ...(neverBundle === undefined ? {} : { deps: { neverBundle: [...neverBundle] } }),
     dts: { tsgo: true },
     exports: {

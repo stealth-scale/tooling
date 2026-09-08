@@ -88,6 +88,30 @@ describe('packConfig', () => {
     ).toBeUndefined()
   })
 
+  it('carries a file a person wrote into the built package, where one names it', () => {
+    const sheets = [{ from: 'src/*.css', to: 'dist' }]
+
+    expect(packConfig({ copy: sheets, sourceCondition: CONDITION })).toMatchObject({ copy: sheets })
+    expect(
+      packConfig({ sourceCondition: CONDITION }),
+      'a package that names none ships only what the build wrote',
+    ).not.toHaveProperty('copy')
+  })
+
+  it('takes part in the pack itself, for a package that writes an artefact of its own', () => {
+    const hooks = {
+      'build:before': (): void => {
+        // A package writes its own artefacts here; this one writes nothing.
+      },
+    }
+
+    expect(packConfig({ hooks, sourceCondition: CONDITION })).toMatchObject({ hooks })
+    expect(
+      packConfig({ sourceCondition: CONDITION }),
+      'a package that writes nothing of its own takes no part',
+    ).not.toHaveProperty('hooks')
+  })
+
   it('leaves what a plugin supplies at run time as an import, where a package names it', () => {
     const virtual = /^virtual:stealth\//u
 

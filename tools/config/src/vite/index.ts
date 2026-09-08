@@ -4,7 +4,13 @@ export { formatConfig, type FormatOptions } from './format.ts'
 export { GENERATED, generatedGlobs } from './generated.ts'
 export { MARKUP_RULES, SAFETY_RULES, SIZE_RULES, sortRules, STYLE_RULES } from './lint-rules.ts'
 export { type Layer, lintConfig, type LintOptions } from './lint.ts'
-export { packConfig, type PackOptions, stylesheetExports } from './pack.ts'
+export {
+  type CopyEntry,
+  packConfig,
+  type PackHooks,
+  type PackOptions,
+  stylesheetExports,
+} from './pack.ts'
 export { runConfig, type RunOptions } from './run.ts'
 export { serverSourceConditions, sourceConditions } from './source.ts'
 export { stagedConfig, type StagedOptions } from './staged.ts'
