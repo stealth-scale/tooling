@@ -44,8 +44,8 @@
     "vite-plus": "catalog:"
   },
   "peerDependencies": {
-    "eslint-plugin-jsdoc": "^64.3.4",
-    "eslint-plugin-perfectionist": "^5.11.0",
-    "vite-plus": "^0.3.0"
+    "eslint-plugin-jsdoc": "catalog:",
+    "eslint-plugin-perfectionist": "catalog:",
+    "vite-plus": "catalog:"
   }
 }
