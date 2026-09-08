@@ -6,15 +6,15 @@ import { defineConfig } from 'vite-plus'
 import { lintConfig, stealthDefaults, testConfig } from './tools/config/src/index.ts'
 
 /**
- * The workspace, configured once.
+ * Configures this workspace once, at its root.
  *
- * Everything true of every stealth repository is `stealthDefaults`. What is true only of this
- * one is a block replaced beside it, built by that block's own function.
+ * `stealthDefaults` carries everything true of every stealth repository. A block replaced
+ * beside it, built by that block's own function, carries what is true only of this one.
  */
 export default defineConfig({
   ...stealthDefaults,
 
-  // Nothing here renders, so no `web` globs and no jsdom project — the defaults already leave
+  // Nothing here renders, so no `web` globs and no jsdom project; the defaults already leave
   // both out. `tools/` is where the console is the interface rather than a leftover.
   lint: lintConfig({
     layers: [
