@@ -1,0 +1,61 @@
+import { describe, expect, it } from 'vite-plus/test'
+
+import * as theme from '#index.ts'
+
+describe('the package barrel', () => {
+  it('exports the contract, the scales, the builder, the emitter and the colour maths', () => {
+    expect(Object.keys(theme).toSorted()).toEqual(
+      [
+        'BLUR',
+        'CHART_TOKENS',
+        'CODE_TOKENS',
+        'COLOR_TOKENS',
+        'DARK',
+        'DARK_FILLS',
+        'DEFAULT_FONTS',
+        'DROP_SHADOW',
+        'DURATION',
+        'EASE',
+        'EFFECT_TOKENS',
+        'EMPHASIS_TOKENS',
+        'FONT_TOKENS',
+        'FONT_WEIGHT',
+        'INSET_SHADOW',
+        'LEADING',
+        'LIGHT',
+        'LIGHT_FILLS',
+        'MODES',
+        'OUTLINE_TOKENS',
+        'OWNED_NAMESPACES',
+        'RADIUS',
+        'RADIUS_TOKENS',
+        'RATIOS',
+        'REQUIRED_TOKENS',
+        'SCALAR_TOKENS',
+        'SHADOW',
+        'SHADOW_TOKENS',
+        'SIDEBAR_TOKENS',
+        'STATUS_HUES',
+        'STATUS_TOKENS',
+        'SURFACE_TOKENS',
+        'TEXT',
+        'TEXT_SHADOW',
+        'TRACKING',
+        'assertComplete',
+        'buildPalette',
+        'completeTokens',
+        'contrast',
+        'declarations',
+        'emit',
+        'emitScoped',
+        'fillsFor',
+        'isComplete',
+        'ladderFor',
+        'luminance',
+        'oklch',
+        'parseColor',
+        'solveContrast',
+      ].toSorted(),
+    )
+  })
+})
