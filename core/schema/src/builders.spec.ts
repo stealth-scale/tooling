@@ -23,6 +23,7 @@ describe('the builders', () => {
       'check',
       'custom',
       'email',
+      'exactOptional',
       'getMetadata',
       'integer',
       'isoDate',

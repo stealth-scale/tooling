@@ -15,6 +15,7 @@ describe('the package barrel', () => {
       'custom',
       'day',
       'email',
+      'exactOptional',
       'existsOnTheCalendar',
       'fieldIssuesOf',
       'getMetadata',

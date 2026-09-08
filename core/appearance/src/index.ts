@@ -14,3 +14,8 @@ export {
   type MediaQueryAnswer,
 } from './defaults.ts'
 export { applyToDocument, ATTRIBUTES, MODE_CLASS, readFromDocument, type Root } from './document.ts'
+export {
+  APPEARANCE_CONTRIBUTION,
+  APPEARANCE_KEY,
+  type AppearanceContribution,
+} from './registration.ts'

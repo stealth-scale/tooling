@@ -4,6 +4,7 @@ export {
   check,
   custom,
   email,
+  exactOptional,
   getMetadata,
   type Infer,
   type InputOf,

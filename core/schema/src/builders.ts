@@ -11,6 +11,7 @@ export {
   check,
   custom,
   email,
+  exactOptional,
   getMetadata,
   integer,
   isoDate,

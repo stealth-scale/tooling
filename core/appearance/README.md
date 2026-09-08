@@ -37,6 +37,31 @@ catalogue write the document with it, and a spec holds the stylesheet to it.
 or a mode the product does not offer, or a locale that is no tag, with codes a catalogue
 translates.
 
+## What a design system contributes
+
+A host and a catalogue need the same three things before the first pixel: the provider to
+render, the stylesheets to load before any theme, and the densities on offer. The package
+that has them says so in its manifest, under the `stealth` field the toolchain reads:
+
+```json
+{
+  "name": "@acme/foundation-theme",
+  "stealth": {
+    "appearance": {
+      "densities": ["comfortable", "compact"],
+      "provider": "./src/provider.tsx",
+      "stylesheets": ["./src/base.css"]
+    }
+  }
+}
+```
+
+`APPEARANCE_KEY` names that entry and `APPEARANCE_CONTRIBUTION` is the schema it is held to.
+Every member is optional, because a package contributes what it has: one registers the
+provider and the base stylesheet, another adds a stylesheet of its own and nothing else. The
+densities are what an `Offered` is built from, alongside the themes and the locales a
+workspace registers elsewhere.
+
 ## Install
 
 ```sh
