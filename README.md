@@ -4,16 +4,19 @@ How a stealth repository is built. Read this if you are setting one up.
 
 `core/` is what every tier stands on. `tools/` is what builds, checks, tests and releases.
 
-| Package                          | Kind    | What it is                                            |
-| -------------------------------- | ------- | ----------------------------------------------------- |
-| [`core/env`](core/env)           | library | the environment as a value; layered `.env` files      |
-| [`core/locale`](core/locale)     | library | which locale to answer in; BCP-47 and ECMA-402 lookup |
-| [`core/logging`](core/logging)   | library | the contract a library logs through                   |
-| [`core/result`](core/result)     | library | success or refusal as a value, rather than a throw    |
-| [`core/schema`](core/schema)     | library | validation and parsing; owns valibot                  |
-| [`tools/cli`](tools/cli)         | cli     | the `stealth` bin                                     |
-| [`tools/config`](tools/config)   | kit     | the toolchain config and the tsconfig bases           |
-| [`tools/testing`](tools/testing) | kit     | the scratch workspace a spec reads a tree from        |
+| Package                              | Kind    | What it is                                                |
+| ------------------------------------ | ------- | --------------------------------------------------------- |
+| [`core/appearance`](core/appearance) | library | how a product is drawn for one person, as one value       |
+| [`core/env`](core/env)               | library | the environment as a value; layered `.env` files          |
+| [`core/locale`](core/locale)         | library | which locale to answer in; BCP-47 and ECMA-402 lookup     |
+| [`core/logging`](core/logging)       | library | the contract a library logs through                       |
+| [`core/result`](core/result)         | library | success or refusal as a value, rather than a throw        |
+| [`core/schema`](core/schema)         | library | validation and parsing; owns valibot                      |
+| [`core/theme`](core/theme)           | library | the theme contract, the palette solver and the stylesheet |
+| [`tools/cli`](tools/cli)             | cli     | the `stealth` bin                                         |
+| [`tools/config`](tools/config)       | kit     | the toolchain config and the tsconfig bases               |
+| [`tools/fixtures`](tools/fixtures)   | kit     | seeded sample values, the same every run, in any locale   |
+| [`tools/testing`](tools/testing)     | kit     | the scratch workspace a spec reads a tree from            |
 
 A package's name is its group's word in the singular, then its path below it, dashes for
 slashes: `core/schema` is `@stealthscale/core-schema`, `tools/config` is
