@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vite-plus/test'
 
 import { emit, emitScoped } from '#emit.ts'
-import { OWNED_NAMESPACES, RADIUS, SHADOW, TEXT } from '#scales.ts'
+import { GLOW, OWNED_NAMESPACES, RADIUS, SHADOW, TEXT } from '#scales.ts'
 import { declarations } from '#stylesheet.ts'
 import { COLOR_TOKENS, REQUIRED_TOKENS, type ThemeValues } from '#tokens.ts'
 
@@ -62,6 +62,16 @@ describe('emit', () => {
     expect(layer['inset-shadow-xs']).toContain('var(--shadow)')
     expect(layer['drop-shadow-md']).toContain('var(--shadow)')
     expect(layer['text-shadow-sm']).toContain('var(--shadow)')
+  })
+
+  it('registers the glows under the shadow namespace, thrown in the glow colour', () => {
+    for (const step of Object.keys(GLOW)) {
+      const glow = layer[`shadow-glow-${step}`] ?? ''
+
+      expect(glow, step).toContain('var(--glow)')
+      expect(glow, 'not the shadow ink').not.toContain('var(--shadow)')
+      expect(glow, 'a glow has no raised edge').not.toContain('--shadow-highlight')
+    }
   })
 
   it('sets the transition defaults from its own durations and easings', () => {

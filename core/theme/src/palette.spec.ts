@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vite-plus/test'
 import { assertComplete } from '#assert.ts'
 import { contrast } from '#color.ts'
 import { fromPolar, inGamut } from '#convert.ts'
+import { DARK, LIGHT } from '#ladder.ts'
 import { buildPalette } from '#palette.ts'
 import { type PaletteRecipe } from '#recipe.ts'
 import { CODE_TOKENS, COLOR_TOKENS, type TokenName } from '#tokens.ts'
@@ -24,15 +25,9 @@ function channels(value: string): [number, number, number] | undefined {
   return match === null ? undefined : [Number(match[1]) / 100, Number(match[2]), Number(match[3])]
 }
 
-/** The hue an `oklch(L% C H)` value states, as written. */
+/** The hue an `oklch(L% C H)` value states, as written, with or without an alpha. */
 function hue(value: string): string {
-  return (
-    value
-      .replace(/\s*\/.*$/u, '')
-      .slice(0, -1)
-      .split(' ')
-      .at(-1) ?? ''
-  )
+  return /^oklch\([\d.]+% [\d.]+ (-?[\d.]+)/u.exec(value)?.[1] ?? ''
 }
 
 /** A recipe that states only what it must. */
@@ -162,6 +157,32 @@ describe('buildPalette', () => {
     expect(lightness(stated.light.card), 'three steps above 99 stops at white').toBe(100)
     expect(lightness(stated.light.popover)).toBe(100)
     expect(lightness(stated.dark.card), 'four steps above the ink').toBe(14)
+  })
+
+  it('puts the three gradient stops at one lightness, from the primary to the accent', () => {
+    const stops = ['gradient-1', 'gradient-2', 'gradient-3'] as const
+    const lightnesses = stops.map((stop) => lightness(values.light[stop]))
+
+    expect(new Set(lightnesses).size, 'one lightness, or the band is a fade').toBe(1)
+    expect(hue(values.light['gradient-1']), 'the primary').toBe('258')
+    expect(hue(values.light['gradient-2']), 'halfway between').toBe('229')
+    expect(hue(values.light['gradient-3']), 'the accent').toBe('200')
+  })
+
+  it('walks the gradient the short way round the wheel', () => {
+    const across = buildPalette({ ...bare, accent: 350, primary: 10 })
+
+    expect(hue(across.light['gradient-2']), 'ten degrees back from 10, not 180 on').toBe('0')
+  })
+
+  it('gives the glass, its border and the glow the alpha their mode names', () => {
+    expect(values.light.glass).toMatch(new RegExp(`/ ${LIGHT.glassAlpha.toFixed(2)}\\)$`, 'u'))
+    expect(values.dark.glass).toMatch(new RegExp(`/ ${DARK.glassAlpha.toFixed(2)}\\)$`, 'u'))
+    expect(values.light['glass-border']).toContain(`/ ${LIGHT.glassBorderAlpha.toFixed(2)})`)
+    expect(values.dark['glass-border']).toContain(`/ ${DARK.glassBorderAlpha.toFixed(2)})`)
+    expect(values.light.glow).toContain(`/ ${LIGHT.glowAlpha.toFixed(2)})`)
+    expect(values.dark.glow).toContain(`/ ${DARK.glowAlpha.toFixed(2)})`)
+    expect(hue(values.light.glow), 'thrown in the primary').toBe('258')
   })
 
   it('gives the scrim its opacity, so a dialog on a dark page still has one', () => {
