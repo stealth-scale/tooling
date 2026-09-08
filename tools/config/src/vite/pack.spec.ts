@@ -18,7 +18,11 @@ type Derive = (
  * @param exports - What `packConfig` put in its `exports` field.
  * @returns The options, with the two fields this spec reads.
  */
-function asExports(exports: unknown): { customExports?: unknown; devExports?: unknown } {
+function asExports(exports: unknown): {
+  bin?: unknown
+  customExports?: unknown
+  devExports?: unknown
+} {
   return exports ?? {}
 }
 
@@ -65,6 +69,16 @@ describe('packConfig', () => {
     const derive = asExports(packConfig().exports).customExports as Derive
 
     expect(derive({ '.': './dist/index.mjs' }, { pkg: {} })).toEqual({ '.': './dist/index.mjs' })
+  })
+
+  it('names the commands a package installs, and leaves the naming alone when it names none', () => {
+    const bin = { stealth: './src/bin/stealth.ts' }
+
+    expect(asExports(packConfig({ bin }).exports).bin).toEqual(bin)
+    expect(
+      asExports(packConfig().exports).bin,
+      'the pack step then names the command after the package',
+    ).toBeUndefined()
   })
 
   it('takes a package at its word, so a file no build writes survives the rewrite', () => {

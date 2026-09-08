@@ -45,6 +45,14 @@ const ROOT_STYLESHEET = /^[\w-]+\.css$/u
  */
 export interface PackOptions {
   /**
+   * Each command the package installs mapped to the source file that runs it. The pack step
+   * writes both forms of `bin` from this: the source path for the workspace, and the built
+   * path for the tarball. Left out, it names one command after the package, which is right
+   * only where the package is named for its command.
+   */
+  bin?: Readonly<Record<string, string>> | undefined
+
+  /**
    * Export paths mapped to the static files that serve them, for what a package ships but a
    * build does not write — a stylesheet, a tsconfig. The pack step rewrites `exports` from
    * what it built, so anything not built is dropped unless it is named here. Given, these
@@ -88,12 +96,14 @@ export function stylesheetExports(files: readonly string[] = []): Record<string,
  * @returns {PackBlock} The `pack` block, ready to hand to `defineConfig`.
  */
 export function packConfig(options: Readonly<PackOptions> = {}): PackBlock {
-  const { staticExports } = options
+  const { bin, staticExports } = options
 
   return {
     attw: { excludeEntrypoints: [/\.css$/u], profile: 'esm-only' },
     dts: { tsgo: true },
     exports: {
+      ...(bin === undefined ? {} : { bin: { ...bin } }),
+
       // tsdown's option, which vite-plus passes through without re-exporting its type, so
       // the callback's parameters are annotated rather than inferred.
       customExports: staticExports
