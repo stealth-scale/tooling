@@ -43,10 +43,17 @@ describe('runConfig', () => {
   it("serves and builds a Storybook on Storybook's own defaults, and builds it in ci last", () => {
     const { tasks } = runConfig({ storybook: true })
 
-    expect(commandOf(tasks, 'storybook')).toEqual(['storybook dev'])
+    expect(commandOf(tasks, 'storybook').at(-1)).toBe('storybook dev')
     expect(tasks?.['storybook']).toMatchObject({ cache: false })
-    expect(commandOf(tasks, 'storybook:build')).toEqual(['storybook build'])
+    expect(commandOf(tasks, 'storybook:build').at(-1)).toBe('storybook build')
     expect(commandOf(tasks, 'ci').at(-1)).toBe('vp run storybook:build')
+  })
+
+  it('packs every package before Storybook starts, since it loads what each one packed', () => {
+    const { tasks } = runConfig({ storybook: true })
+
+    expect(commandOf(tasks, 'storybook')[0]).toBe('vp run -r build')
+    expect(commandOf(tasks, 'storybook:build')[0]).toBe('vp run -r build')
   })
 
   it("keeps the Storybook build's own output out of its cache key", () => {

@@ -44,6 +44,15 @@ const STORYBOOK_BUILD_TASK = 'storybook:build'
 const STORYBOOK_OUTPUT = 'storybook-static/**'
 
 /**
+ * Names the command that packs every package, which both Storybook tasks run first.
+ *
+ * Storybook loads the kit and every theme by package name in Node, where the repository's
+ * source condition is off, so it reads what each package packed. A fresh checkout has packed
+ * nothing. The build is cached per package, so it costs nothing when nothing changed.
+ */
+const BUILD_COMMAND = 'vp run -r build'
+
+/**
  * Holds the two tasks a repository with a Storybook runs.
  *
  * Storybook's own defaults name the configuration directory, the port and the output
@@ -53,11 +62,11 @@ const STORYBOOK_OUTPUT = 'storybook-static/**'
  */
 const STORYBOOK_TASKS: RunBlock['tasks'] = {
   [STORYBOOK_BUILD_TASK]: {
-    command: 'storybook build',
+    command: [BUILD_COMMAND, 'storybook build'],
     input: [{ auto: true }, `!${STORYBOOK_OUTPUT}`],
     output: [STORYBOOK_OUTPUT],
   },
-  [STORYBOOK_TASK]: { cache: false, command: 'storybook dev' },
+  [STORYBOOK_TASK]: { cache: false, command: [BUILD_COMMAND, 'storybook dev'] },
 }
 
 /**
