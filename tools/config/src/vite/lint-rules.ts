@@ -70,6 +70,7 @@ export const STYLE_RULES: Rules = {
   'method-signature-style': 'error',
   'no-default-export': 'error',
   'no-inferrable-types': 'error',
+  'no-relative-parent-imports': 'error',
   'prefer-string-raw': 'error',
 }
 
@@ -136,7 +137,13 @@ export function sortRules(internalScope: string): Rules {
       'error',
       {
         customGroups: [{ elementNamePattern: ['^react$', '^react-dom'], groupName: 'react' }],
-        groups: ['react', ['builtin', 'external'], 'internal', ['parent', 'sibling', 'index']],
+        groups: [
+          'react',
+          ['builtin', 'external'],
+          'internal',
+          'subpath',
+          ['parent', 'sibling', 'index'],
+        ],
         internalPattern: [internalScope],
         newlinesBetween: 1,
         type: 'alphabetical',

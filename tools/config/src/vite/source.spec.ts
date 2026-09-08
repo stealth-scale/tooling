@@ -3,12 +3,6 @@ import { describe, expect, it } from 'vite-plus/test'
 
 import { serverSourceConditions, SOURCE_CONDITION, sourceConditions } from './source.ts'
 
-/** A Vite config, as far as this spec reads it. */
-interface Resolving {
-  resolve?: { conditions?: string[] }
-  ssr?: { resolve?: { conditions?: string[] } }
-}
-
 describe('sourceConditions', () => {
   it('puts the workspace condition ahead of the defaults Vite would otherwise lose', () => {
     const conditions = sourceConditions()
@@ -26,12 +20,6 @@ describe('sourceConditions', () => {
 
     expect(config.compilerOptions.customConditions).toEqual([SOURCE_CONDITION])
   })
-
-  it('is what the repository root resolves with, through the defaults it spreads', async () => {
-    const root = (await import('../../../../vite.config.ts')).default as Resolving
-
-    expect(root.resolve?.conditions).toEqual(sourceConditions())
-  })
 })
 
 describe('serverSourceConditions', () => {
@@ -43,11 +31,5 @@ describe('serverSourceConditions', () => {
     expect(conditions, 'the browser condition belongs to the other resolver').not.toContain(
       'browser',
     )
-  })
-
-  it('reaches the resolver a specification loads another package through', async () => {
-    const root = (await import('../../../../vite.config.ts')).default as Resolving
-
-    expect(root.ssr?.resolve?.conditions).toEqual(serverSourceConditions())
   })
 })

@@ -8,7 +8,7 @@ import {
   workspaceFiles,
 } from '@stealthscale/tool-testing'
 
-import { type Answer } from '../shell/shell.fixtures.ts'
+import { type Answer } from '#shell/shell.fixtures.ts'
 
 /**
  * Names the registry the fixture shell's npm is configured for.

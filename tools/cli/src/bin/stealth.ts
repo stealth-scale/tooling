@@ -6,6 +6,6 @@
 
 import { runMain } from 'citty'
 
-import { stealth } from '../cli.ts'
+import { stealth } from '#cli.ts'
 
 await runMain(stealth)

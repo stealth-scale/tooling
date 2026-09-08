@@ -2,8 +2,9 @@ import { describe, expect, it } from 'vite-plus/test'
 
 import { packageFiles, scratchWorkspace } from '@stealthscale/tool-testing'
 
-import { recordingShell } from '../shell/shell.fixtures.ts'
-import { type Manifest } from '../workspace/manifests.ts'
+import { recordingShell } from '#shell/shell.fixtures.ts'
+import { type Manifest } from '#workspace/manifests.ts'
+
 import { missingFiles, pack, publishTarball } from './packages.ts'
 
 /** A manifest with the fields that matter here. */

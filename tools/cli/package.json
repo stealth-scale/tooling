@@ -16,6 +16,9 @@
   ],
   "type": "module",
   "sideEffects": false,
+  "imports": {
+    "#*": "./src/*"
+  },
   "exports": {
     ".": {
       "stealth-source": "./src/index.ts",

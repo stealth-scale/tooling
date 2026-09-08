@@ -3,7 +3,8 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
-import { type RecordedCommand, recordingShell } from '../shell/shell.fixtures.ts'
+import { type RecordedCommand, recordingShell } from '#shell/shell.fixtures.ts'
+
 import { releaseCommand, releaseCommandWith, type ReleaseDeps } from './command.ts'
 import { CONFIGURED_REGISTRY, packing, registryWith, releaseWorkspace } from './release.fixtures.ts'
 

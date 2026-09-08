@@ -2,7 +2,8 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vite-plus/test'
 
-import { recordingShell } from '../shell/shell.fixtures.ts'
+import { recordingShell } from '#shell/shell.fixtures.ts'
+
 import {
   CONFIGURED_REGISTRY,
   packing,

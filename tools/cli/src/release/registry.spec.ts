@@ -1,7 +1,8 @@
 import { describe, expect, it, vi } from 'vite-plus/test'
 
-import { recordingShell } from '../shell/shell.fixtures.ts'
-import { type Manifest } from '../workspace/manifests.ts'
+import { recordingShell } from '#shell/shell.fixtures.ts'
+import { type Manifest } from '#workspace/manifests.ts'
+
 import { configuredRegistry, registryHasVersion, withTrailingSlash } from './registry.ts'
 import { registryWith } from './release.fixtures.ts'
 
