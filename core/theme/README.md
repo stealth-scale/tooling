@@ -90,10 +90,12 @@ They agree with the standards' own reference values, and the specification holds
 those: `#777777` on white measures 4.48 and fails AA, `oklch(62.8% 0.2577 29.23)` reads back
 as pure red, and each sRGB primary round-trips from the Lab the standard gives for it.
 
-A wide-gamut space such as `display-p3` is refused rather than clipped, because a ratio
-measured on a clipped colour describes something the page does not show. `transparent` is
-refused for the same reason, and `contrast` answers 0 for anything unreadable, so a caller
-tells "unreadable" from "not measured".
+A perceptual notation outside the gamut is mapped into it the way CSS Color 4 specifies, with
+its chroma reduced until the display shows it, so the ratio is measured on the colour the
+standard says the page shows. A wide-gamut space such as `display-p3` is refused outright,
+because sRGB cannot hold it.
+`transparent` is refused because it has no colour to measure, and `contrast` answers 0 for
+anything unreadable, so a caller tells "unreadable" from "not measured".
 
 ## Install
 

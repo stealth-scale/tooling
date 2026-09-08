@@ -1,7 +1,9 @@
 /**
  * @fileoverview Converts the colour spaces CSS writes into sRGB, which is the space WCAG
  * measures contrast in. Every notation this package reads lands here, so a colour is
- * converted once and compared once however it was written.
+ * converted once and compared once however it was written. A colour outside the display's
+ * gamut is mapped into it the way CSS Color 4 maps it, by reducing its chroma, so what is
+ * measured is what the standard says is shown.
  */
 
 /**
@@ -61,6 +63,17 @@ const TOLERANCE = 0.000_001
  * stylesheet can say.
  */
 const CHROMA_STEP = 0.0005
+
+/**
+ * Sets the difference in Oklab under which two colours read as one, which is where CSS
+ * Color 4's gamut mapping settles for the clipped colour rather than searching on.
+ */
+const JND = 0.02
+
+/**
+ * Sets how close CSS Color 4's gamut mapping bisects the chroma before it stops.
+ */
+const EPSILON = 0.0001
 
 /**
  * Clamps a channel to the unit interval.
@@ -127,26 +140,76 @@ export function oklabToLinear({ a, b, lightness }: Lab): Rgb {
 }
 
 /**
- * Converts Oklab to sRGB through linear sRGB, clamping what the display cannot show.
+ * Converts linear sRGB to Oklab. The matrices are Björn Ottosson's, and they invert
+ * `oklabToLinear`.
  *
- * @param {Lab} color - The colour in Oklab, its lightness 0 to 1.
- * @returns {Rgb} The same colour in sRGB.
+ * @param {Rgb} color - The colour in linear sRGB, clamped or not.
+ * @returns {Lab} The same colour in Oklab, its lightness 0 to 1.
  */
-export function oklabToRgb(color: Lab): Rgb {
-  const { b, g, r } = oklabToLinear(color)
-  return { b: encode(b), g: encode(g), r: encode(r) }
+export function linearToOklab({ b, g, r }: Rgb): Lab {
+  const l = Math.cbrt(0.412_221_470_8 * r + 0.536_332_536_3 * g + 0.051_445_992_9 * b)
+  const m = Math.cbrt(0.211_903_498_2 * r + 0.680_699_545_1 * g + 0.107_396_956_6 * b)
+  const s = Math.cbrt(0.088_302_461_9 * r + 0.281_718_837_6 * g + 0.629_978_700_5 * b)
+
+  return {
+    a: 1.977_998_495_1 * l - 2.428_592_205 * m + 0.450_593_709_9 * s,
+    b: 0.025_904_037_1 * l + 0.782_771_766_2 * m - 0.808_675_766 * s,
+    lightness: 0.210_454_255_3 * l + 0.793_617_785 * m - 0.004_072_046_8 * s,
+  }
 }
 
 /**
- * Returns `true` when the display shows the colour as written: every linear channel sits
- * between 0 and 1, so `encode` clamps nothing.
+ * Returns `true` when the display shows a linear colour as it is: every channel sits between
+ * 0 and 1, so `encode` clamps nothing.
+ *
+ * @param {Rgb} linear - The colour in linear sRGB, unclamped.
+ * @returns {boolean} `true` for a colour inside the sRGB gamut.
+ */
+function inGamutLinear({ b, g, r }: Rgb): boolean {
+  return [r, g, b].every((channel) => channel >= -TOLERANCE && channel <= 1 + TOLERANCE)
+}
+
+/**
+ * Returns `true` when the display shows the colour as written.
  *
  * @param {Lab} color - The colour in Oklab, its lightness 0 to 1.
  * @returns {boolean} `true` for a colour inside the sRGB gamut.
  */
 export function inGamut(color: Lab): boolean {
-  const { b, g, r } = oklabToLinear(color)
-  return [r, g, b].every((channel) => channel >= -TOLERANCE && channel <= 1 + TOLERANCE)
+  return inGamutLinear(oklabToLinear(color))
+}
+
+/**
+ * Encodes a linear colour for the display.
+ *
+ * @param {Rgb} linear - The colour in linear sRGB, inside the gamut.
+ * @returns {Rgb} The same colour as sRGB encodes it.
+ */
+function encoded({ b, g, r }: Rgb): Rgb {
+  return { b: encode(b), g: encode(g), r: encode(r) }
+}
+
+/**
+ * Converts Oklab to sRGB, mapping what the display cannot show into its gamut the way CSS
+ * Color 4 does, by reducing the chroma.
+ *
+ * @param {Lab} color - The colour in Oklab, its lightness 0 to 1.
+ * @returns {Rgb} The colour the display shows for it, in sRGB.
+ */
+export function oklabToRgb(color: Lab): Rgb {
+  return encoded(oklabToLinear(mapToGamut(color)))
+}
+
+/**
+ * Encodes a linear colour for the display, mapping one the display cannot show into its
+ * gamut first, so a `lab()` or `lch()` colour is read as CSS Color 4 renders it.
+ *
+ * @param {Rgb} linear - The colour in linear sRGB, unclamped.
+ * @returns {Rgb} The colour the display shows for it, in sRGB.
+ */
+function shown(linear: Rgb): Rgb {
+  if (inGamutLinear(linear)) return encoded(linear)
+  return encoded(oklabToLinear(mapToGamut(linearToOklab(linear))))
 }
 
 /**
@@ -178,6 +241,68 @@ export function toGamut(lightness: number, chroma: number, hue: number): number 
 }
 
 /**
+ * Measures how far apart two colours are in Oklab, which is the distance CSS Color 4 calls
+ * deltaEOK.
+ *
+ * @param {Lab} one - A colour in Oklab.
+ * @param {Lab} other - Another colour in Oklab.
+ * @returns {number} The Euclidean distance between them.
+ */
+function deltaEOK(one: Lab, other: Lab): number {
+  return Math.hypot(one.lightness - other.lightness, one.a - other.a, one.b - other.b)
+}
+
+/**
+ * Clips a colour into the sRGB gamut channel by channel, and reads the result back in Oklab.
+ *
+ * @param {Lab} color - The colour in Oklab, its lightness 0 to 1.
+ * @returns {Lab} The clipped colour in Oklab.
+ */
+function clippedOf(color: Lab): Lab {
+  const { b, g, r } = oklabToLinear(color)
+  return linearToOklab({ b: unit(b), g: unit(g), r: unit(r) })
+}
+
+/**
+ * Maps a colour into the sRGB gamut the way CSS Color 4 does: the chroma is bisected down,
+ * with the lightness and the hue held, until the display shows the colour or until clipping
+ * it moves it by less than a just-noticeable difference, at which point the clipped colour
+ * is the answer.
+ *
+ * @param {Lab} color - The colour in Oklab, its lightness 0 to 1.
+ * @returns {Lab} The same colour when the display shows it, white or black beyond the ends of
+ *     the lightness axis, and otherwise the colour the standard's mapping arrives at.
+ */
+export function mapToGamut(color: Lab): Lab {
+  if (inGamut(color)) return color
+  if (color.lightness >= 1) return { a: 0, b: 0, lightness: 1 }
+  if (color.lightness <= 0) return { a: 0, b: 0, lightness: 0 }
+  const hue = (Math.atan2(color.b, color.a) * 180) / Math.PI
+  let least = 0
+  let most = Math.hypot(color.a, color.b)
+  let leastInside = true
+  let current = color
+  while (most - least > EPSILON) {
+    const chroma = (least + most) / 2
+    current = fromPolar(color.lightness, chroma, hue)
+    if (leastInside && inGamut(current)) {
+      least = chroma
+      continue
+    }
+    const clipped = clippedOf(current)
+    const distance = deltaEOK(clipped, current)
+    if (distance >= JND) {
+      most = chroma
+      continue
+    }
+    if (JND - distance < EPSILON) return clipped
+    leastInside = false
+    least = chroma
+  }
+  return clippedOf(current)
+}
+
+/**
  * Inverts the CIE Lab transfer function for one axis.
  *
  * @param {number} value - The axis as Lab encodes it.
@@ -188,23 +313,36 @@ function fromLabAxis(value: number): number {
 }
 
 /**
- * Converts CIE Lab to sRGB through XYZ at D50, which is the white point CSS fixes for
- * `lab()` and `lch()`. The Bradford-adapted matrix is the one CSS Color 4 publishes.
+ * Converts CIE Lab to linear sRGB through XYZ at D50, which is the white point CSS fixes for
+ * `lab()` and `lch()`, without clamping. The Bradford-adapted matrix is the one CSS Color 4
+ * publishes.
  *
  * @param {Lab} color - The colour in CIE Lab, its lightness 0 to 100.
- * @returns {Rgb} The same colour in sRGB.
+ * @returns {Rgb} The same colour in linear sRGB. A channel outside 0 to 1 is a colour the
+ *     display cannot show as written.
  */
-export function labToRgb({ a, b, lightness }: Lab): Rgb {
+function labToLinear({ a, b, lightness }: Lab): Rgb {
   const f = (lightness + 16) / 116
   const x = fromLabAxis(f + a / 500) * D50.x
   const y = fromLabAxis(f) * D50.y
   const z = fromLabAxis(f - b / 200) * D50.z
 
   return {
-    b: encode(0.071_945_3 * x - 0.228_991_4 * y + 1.405_242_7 * z),
-    g: encode(-0.978_768_4 * x + 1.916_141_5 * y + 0.033_454_0 * z),
-    r: encode(3.133_856_1 * x - 1.616_866_7 * y - 0.490_614_6 * z),
+    b: 0.071_945_3 * x - 0.228_991_4 * y + 1.405_242_7 * z,
+    g: -0.978_768_4 * x + 1.916_141_5 * y + 0.033_454_0 * z,
+    r: 3.133_856_1 * x - 1.616_866_7 * y - 0.490_614_6 * z,
   }
+}
+
+/**
+ * Converts CIE Lab to sRGB, mapping what the display cannot show into its gamut the way CSS
+ * Color 4 does, by reducing the chroma.
+ *
+ * @param {Lab} color - The colour in CIE Lab, its lightness 0 to 100.
+ * @returns {Rgb} The colour the display shows for it, in sRGB.
+ */
+export function labToRgb(color: Lab): Rgb {
+  return shown(labToLinear(color))
 }
 
 /**

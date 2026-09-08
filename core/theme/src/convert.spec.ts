@@ -8,7 +8,10 @@ import {
   hslToRgb,
   hwbToRgb,
   inGamut,
+  type Lab,
   labToRgb,
+  linearToOklab,
+  mapToGamut,
   oklabToLinear,
   oklabToRgb,
   type Rgb,
@@ -68,11 +71,58 @@ describe('oklabToRgb', () => {
     expect(grey.g).toBeCloseTo(grey.b, 4)
   })
 
-  it('clamps what the linear conversion leaves outside the display', () => {
+  it('maps what the display cannot show toward grey, as the standard does', () => {
     const blue = fromPolar(0.75, 0.17, 258)
+    const linear = oklabToLinear(blue)
 
-    expect(oklabToLinear(blue).b).toBeGreaterThan(1)
-    expect(oklabToRgb(blue).b).toBe(1)
+    expect(linear.b).toBeGreaterThan(1)
+    expect(bytes(oklabToRgb(blue)), 'clipping would give 101,174,255').toBe('111,174,255')
+    expect(oklabToRgb(blue).r, 'less chroma is more red in a blue').toBeGreaterThan(
+      encode(linear.r),
+    )
+  })
+})
+
+describe('linearToOklab', () => {
+  it('inverts oklabToLinear', () => {
+    for (const [lightness, chroma, hue] of [
+      [0.45, 0.17, 258],
+      [0.75, 0.17, 258],
+      [0.3, 0.1, 150],
+    ] as const) {
+      const color = fromPolar(lightness, chroma, hue)
+      const back = linearToOklab(oklabToLinear(color))
+
+      expect(back.lightness).toBeCloseTo(color.lightness, 6)
+      expect(back.a).toBeCloseTo(color.a, 6)
+      expect(back.b).toBeCloseTo(color.b, 6)
+    }
+  })
+
+  it('agrees with the OKLCH reference: sRGB red has the lightness 0.628', () => {
+    expect(linearToOklab({ b: 0, g: 0, r: 1 }).lightness).toBeCloseTo(0.628, 3)
+  })
+})
+
+describe('mapToGamut', () => {
+  it('leaves a colour the display shows alone', () => {
+    const grey = { a: 0, b: 0, lightness: 0.5 }
+
+    expect(mapToGamut(grey)).toBe(grey)
+  })
+
+  it('brings the chroma down and moves the lightness by less than a person notices', () => {
+    const blue = fromPolar(0.75, 0.17, 258)
+    const mapped = mapToGamut(blue)
+
+    expect(inGamut(mapped)).toBe(true)
+    expect(Math.hypot(mapped.a, mapped.b)).toBeLessThan(0.17)
+    expect(Math.abs(mapped.lightness - blue.lightness)).toBeLessThan(0.02)
+  })
+
+  it('sends a colour beyond either end of the lightness axis to white or black', () => {
+    expect(mapToGamut({ a: 0.1, b: 0, lightness: 1.02 })).toEqual({ a: 0, b: 0, lightness: 1 })
+    expect(mapToGamut({ a: 0.1, b: 0, lightness: -0.02 })).toEqual({ a: 0, b: 0, lightness: 0 })
   })
 })
 
@@ -115,10 +165,31 @@ describe('labToRgb', () => {
     expect(bytes(labToRgb({ a: 0, b: 0, lightness: 100 }))).toBe('255,255,255')
   })
 
-  it('reproduces each sRGB primary from the Lab the standard gives for it', () => {
-    expect(bytes(labToRgb({ a: 80.8124, b: 69.8851, lightness: 54.2905 }))).toBe('255,0,0')
-    expect(bytes(labToRgb({ a: -79.2873, b: 80.9902, lightness: 87.8181 }))).toBe('0,255,0')
-    expect(bytes(labToRgb({ a: 68.2986, b: -112.0294, lightness: 29.5683 }))).toBe('0,0,255')
+  it('reproduces each sRGB primary from the Lab the standard gives for it, within a step', () => {
+    // The reference is rounded to four decimals, which puts a primary a hair outside the
+    // gamut, so a channel may land one step of 255 off after the mapping.
+    const primaries: readonly (readonly [Lab, Rgb])[] = [
+      [
+        { a: 80.8124, b: 69.8851, lightness: 54.2905 },
+        { b: 0, g: 0, r: 1 },
+      ],
+      [
+        { a: -79.2873, b: 80.9902, lightness: 87.8181 },
+        { b: 0, g: 1, r: 0 },
+      ],
+      [
+        { a: 68.2986, b: -112.0294, lightness: 29.5683 },
+        { b: 1, g: 0, r: 0 },
+      ],
+    ]
+
+    for (const [lab, primary] of primaries) {
+      const shown = labToRgb(lab)
+
+      for (const channel of ['r', 'g', 'b'] as const) {
+        expect(Math.abs(shown[channel] - primary[channel]) * 255, channel).toBeLessThan(1)
+      }
+    }
   })
 
   it('leaves a colour with no chroma neutral, which a mistyped matrix row would tint', () => {
@@ -127,6 +198,13 @@ describe('labToRgb', () => {
     expect(bytes(grey)).toBe('119,119,119')
     expect(grey.r).toBeCloseTo(grey.g, 3)
     expect(grey.g).toBeCloseTo(grey.b, 3)
+  })
+
+  it('maps a lab colour the display cannot show into its gamut, as the standard does', () => {
+    expect(
+      bytes(labToRgb({ a: 80, b: -100, lightness: 50 })),
+      'clipping would give 165,40,255',
+    ).toBe('159,77,255')
   })
 })
 

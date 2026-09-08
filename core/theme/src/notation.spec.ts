@@ -109,11 +109,12 @@ describe('the perceptual notations', () => {
     expect(polar?.b).toBeCloseTo(Number(cartesian?.b), 2)
   })
 
-  it('clamps a colour the display cannot show, so a channel never leaves 0 to 1', () => {
-    const pale = parseColor('oklch(97% 0.02 260)')
-
-    expect(pale?.b).toBe(1)
-    expect(bytes(pale)).toBe('237,246,255')
+  it('maps a colour the display cannot show into its gamut, as the standard does', () => {
+    expect(bytes(parseColor('oklch(75% 0.17 258)')), 'clipping gives 101,174,255').toBe(
+      '111,174,255',
+    )
+    expect(bytes(parseColor('lch(50% 100 300)')), 'clipping gives 123,88,255').toBe('123,90,255')
+    expect(bytes(parseColor('oklch(97% 0.02 260)')), 'barely outside').toBe('237,246,255')
   })
 })
 
