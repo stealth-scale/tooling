@@ -19,8 +19,8 @@ export const THEME_KEY = 'theme'
  * The value written to the document's theme attribute is not here: it is the basename of the
  * package's directory, so two themes cannot claim one name and no package repeats where it
  * already is. The recipe is not here either. A theme solves its palette in its own build and
- * exports the result at `./index.css`, `./catalogue.css` and its barrel, so a consumer reads
- * an artefact rather than reaching into the package for a module to evaluate.
+ * exports the result at `./index.css`, `./scoped.css` and `./values`, so a consumer reads an
+ * artefact rather than reaching into the package for a module to evaluate.
  */
 export interface ThemeContribution {
   /**

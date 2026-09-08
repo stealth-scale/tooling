@@ -24,22 +24,25 @@ One file configures Storybook:
 // .storybook/main.ts
 import { storybookConfig } from '@stealthscale/tool-storybook/config'
 
-export default storybookConfig()
+export default storybookConfig({ sourceCondition: 'ui-source' })
 ```
 
-Two lines in the root config run it. The tasks serve and build Storybook, and the project
-plays every story in Chromium as part of `vp test`:
+The condition is the repository's own, the one its root config names, because Storybook
+assembles a Vite configuration that inherits nothing from the repository's. Two lines in the
+root config run it. The tasks serve and build Storybook, and the project plays every story in
+Chromium as part of `vp test`:
 
 ```ts
 export default defineConfig({
-  ...stealthDefaults,
+  ...stealthDefaults({ sourceCondition: 'ui-source' }),
   run: runConfig({ storybook: true }),
   test: testConfig({ dom: true, projects: [storiesProject()] }),
 })
 ```
 
 `vp run storybook` serves it and `vp run storybook:build` writes `storybook-static/`, which
-`ci` does after the specifications pass.
+`ci` does after the specifications pass. Both build the workspace first, because Storybook
+loads this kit and every theme from what each package packed.
 
 ## What a repository never states
 
@@ -66,9 +69,11 @@ export default defineConfig({
 
 A theme registers itself under `stealth.theme`, and a design system registers what everything
 draws with under `stealth.appearance`. The kit reads both and carries them into the browser as
-modules it answers itself: every theme's recipe, solved where the story runs; the provider that
+modules it answers itself: every theme's solved table and its scoped stylesheet, read from
+the artefacts the theme package exports at `./values` and `./scoped.css`; the provider that
 wraps every story; the stylesheets that come before any theme; and what each toolbar may
-offer.
+offer. Every path is resolved against the package that registered it, so nothing at the
+repository's root has to depend on a theme.
 
 The six toolbars are `core-appearance`'s six values, so what a person picks in Storybook is
 exactly what a host would put on the document. A toolbar that would offer one choice is not

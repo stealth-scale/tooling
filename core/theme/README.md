@@ -4,25 +4,74 @@ A **library**: every tier that renders installs it, and Storybook and the genera
 read it.
 
 The package defines the tokens a theme must set, solves a palette that clears WCAG contrast,
-and writes the stylesheet a theme ships. It holds no theme, no font and no CSS framework.
-The themes, the fonts and the base stylesheet belong to the design system, which depends on
-this package and adds them.
+and writes everything a theme package ships: its tokens, the densities, the motion
+vocabulary and the Tailwind stack every stealth theme runs on. It holds no theme and no font.
+A theme is a package that states a recipe and calls `writeTheme` from its pack hook;
+`themes/base` is the first, and it holds the authored base every other theme extends.
 
 ```ts
-import { writeFileSync } from 'node:fs'
+// themes/acme/vite.config.ts
+import { defineConfig } from 'vite-plus'
 
-import { assertComplete, buildPalette, emit } from '@stealthscale/core-theme'
+import { writeTheme } from '@stealthscale/core-theme/write'
+import { packConfig } from '@stealthscale/tool-config'
 
-const values = buildPalette({
-  accent: 200,
-  chart: [258, 152, 292, 45, 12],
-  neutral: 260,
-  primary: 258,
+import { recipe } from './src/recipe.ts'
+
+export default defineConfig({
+  pack: packConfig({
+    hooks: {
+      'build:before': () =>
+        writeTheme(recipe, import.meta.url, { base: '@stealthscale/theme-base' }),
+    },
+    sourceCondition: 'acme-source',
+    staticExports: {
+      './index.css': './dist/index.css',
+      './scoped.css': './dist/scoped.css',
+      './tokens.css': './dist/tokens.css',
+      './values': './dist/values.mjs',
+    },
+  }),
 })
-
-assertComplete(values)
-writeFileSync('src/index.gen.css', emit(values))
 ```
+
+## What a theme ships
+
+`writeTheme` reads the theme's name from its package directory, holds the recipe to its
+schema, solves the palette and writes five files into `dist/`: `tokens.css` with the light
+values on `:root` and the dark ones under `.dark`, `scoped.css` with the same values behind
+`[data-theme]` for a page drawing several themes, `values.mjs` with the solved table and its
+declaration, and `index.css`, which imports the base package's Tailwind stack, base,
+densities and motion before the theme's own tokens. `emitTheme` answers the same three
+things without touching the disk, for a specification or a build that reads the palette
+back.
+
+The parts every theme shares are written by the base theme alone, from `emitTailwind`,
+`emitDensities` and `emitMotion`, and a theme extending it imports them from there rather
+than restating them.
+
+## Densities
+
+A density is one length: the height of the default control. Every step derives from it four
+pixels apart, `xs` and `sm` below and `lg` above, the way every radius derives from one
+`--radius`. `compact` puts the default at 32 pixels, `comfortable` at 40 and `touch` at 44,
+and a specification holds every control in every density to WCAG's 24 pixel minimum and the
+touch density to the 44 pixel enhanced target from its default step up. The focus ring is two
+pixels wide in every density, the perimeter the enhanced focus criterion asks for, and the
+density decides only whether there is room to draw it outside the control.
+
+`emitDensities` writes each density behind its `data-density` attribute, with the default on
+`:root` as well, and the theme layer registers every step as `h-md`, `min-h-md` and `size-md`
+utilities that follow the density of the region an element sits in.
+
+## Motion
+
+Which animations exist is a contract a component writes against, so `ANIMATION` names the
+sixteen, `KEYFRAMES` holds what each runs, and every one-shot is built from the theme's own
+durations and easings. `emitMotion` writes them as a stylesheet of their own, because a
+keyframe cannot sit inside the theme layer, together with what a person asking for reduced
+motion is held to: every animation and transition cut to a hundredth of a millisecond, so a
+component waiting on `animationend` still hears it, and a spinner slowed rather than frozen.
 
 ## The contract
 
@@ -171,7 +220,7 @@ A package says it is a theme in its manifest, under the `stealth` field the tool
 ```json
 {
   "name": "@acme/theme-thesmos",
-  "stealth": { "theme": { "recipe": "./src/recipe.ts", "title": "Thesmos" } }
+  "stealth": { "theme": { "title": "Thesmos" } }
 }
 ```
 
@@ -179,7 +228,9 @@ A package says it is a theme in its manifest, under the `stealth` field the tool
 toolchain finds every theme in a workspace by reading the manifests. Adding a theme is adding
 a package, and no file anywhere lists the themes. The value written to the document's theme
 attribute is the basename of the package's directory, which is why it is not declared here:
-two themes cannot claim one name.
+two themes cannot claim one name. The recipe is not declared either. A consumer reads the
+artefacts the package exports at `./values` and `./scoped.css`, never a module it would have
+to evaluate.
 
 ## Install
 

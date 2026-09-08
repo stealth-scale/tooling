@@ -8,19 +8,25 @@ what CI does. It ships the tsconfig bases beside them.
 
 ## The root config composes it
 
-`stealthDefaults` is every block at its shared value. Spread it, then replace the blocks this
-repository configures by calling that block's own builder:
+`stealthDefaults` builds every block at its shared value. Spread it, then replace the blocks
+this repository configures by calling that block's own builder:
 
 ```ts
 import { defineConfig } from 'vite-plus'
 import { lintConfig, stealthDefaults, testConfig } from '@stealthscale/tool-config'
 
 export default defineConfig({
-  ...stealthDefaults,
+  ...stealthDefaults({ sourceCondition: 'ui-source' }),
   lint: lintConfig({ web: ['components/**'] }),
   test: testConfig({ dom: true }),
 })
 ```
+
+The source condition is named after the repository, `ui-source` in ui and `tooling-source`
+here, never one name every repository shares. A repository turns its condition on for
+everything it resolves, installed packages included, so a shared name would send a published
+package to a `src` directory its tarball does not carry. The one name reaches both resolvers
+and the pack step, which writes it into every exports map.
 
 A replaced block is replaced whole rather than merged, which is why each builder returns a
 complete block and takes options instead of a patch.
@@ -39,12 +45,23 @@ complete block and takes options instead of a patch.
 ## The tsconfigs
 
 ```jsonc
-{ "extends": "@stealthscale/tool-config/tsconfig/base.json", "include": ["src"] }
+// tsconfig.base.json, once at the repository root
+{
+  "extends": "@stealthscale/tool-config/tsconfig/base.json",
+  "compilerOptions": { "customConditions": ["ui-source"] },
+}
 ```
 
-`base.json` is what every package compiles under, including the `customConditions` that make
-the type checker read a workspace package's source exactly as the bundler does. `react.json`
-adds the document and the automatic JSX runtime. A package extending either declares this
+```jsonc
+// a package's tsconfig.json
+{ "extends": "../../tsconfig.base.json", "include": ["src"] }
+```
+
+`base.json` is what every package compiles under. A repository extends it once, in a
+`tsconfig.base.json` of its own that names the repository's source condition, so the type
+checker reads a workspace package's source exactly as the bundler does; every package extends
+that. `react.json` adds the document and the automatic JSX runtime, and a repository that
+renders extends it the same way beside the first. A package extending either declares this
 package as a devDependency, which is what puts it on disk.
 
 ## Install
