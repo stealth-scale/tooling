@@ -1,12 +1,34 @@
 import { describe, expect, it } from 'vite-plus/test'
 
-import { emitTheme } from '@stealthscale/core-theme'
+import { emitTheme, LIGHT } from '@stealthscale/core-theme'
 
 import { recipe } from './recipe.ts'
 
 describe('the base recipe', () => {
   it('builds a palette with every token set in both modes', () => {
     expect(() => emitTheme(recipe, 'base')).not.toThrow()
+  })
+
+  it('states every member a recipe takes, since a theme is written by reading this one', () => {
+    expect(
+      Object.keys(recipe).toSorted((one, other) => one.localeCompare(other)),
+      'a member left out is a member the next theme author never learns about',
+    ).toEqual([
+      'accent',
+      'chart',
+      'chroma',
+      'contrast',
+      'fonts',
+      'ink',
+      'neutral',
+      'neutralChroma',
+      'paper',
+      'primary',
+      'radius',
+      'status',
+      'surfaceChroma',
+      'surfaceHue',
+    ])
   })
 
   it('spreads its chart hues far enough apart to tell one series from another', () => {
@@ -25,7 +47,9 @@ describe('the base recipe', () => {
     expect(recipe.surfaceChroma ?? 0).toBeLessThan(recipe.neutralChroma ?? 0)
   })
 
-  it('takes the ladder page rather than pinning one, or it draws white on white', () => {
-    expect(recipe.paper).toBeUndefined()
+  it('writes the ladder’s own page rather than a whiter one, or it draws white on white', () => {
+    expect(recipe.paper, 'pinned at 99 nothing tells a card from the page under it').toBe(
+      LIGHT.page,
+    )
   })
 })
