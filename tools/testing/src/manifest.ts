@@ -4,19 +4,19 @@
  * reads as the tree it describes.
  */
 
-import type { ScratchFiles } from './scratch.ts'
+import { type ScratchFiles } from './scratch.ts'
 
 /**
  * Holds the fields of a scratch manifest. Beyond the name, a field is whatever the
  * specification needs the code under test to read.
  */
 export interface ManifestFields {
-  readonly [field: string]: unknown
-
   /**
    * Names the package.
    */
   readonly name: string
+
+  readonly [field: string]: unknown
 }
 
 /**

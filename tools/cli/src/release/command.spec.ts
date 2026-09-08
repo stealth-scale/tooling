@@ -3,12 +3,21 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
-import { recordingShell } from '../shell/shell.fixtures.ts'
+import { type RecordedCommand, recordingShell } from '../shell/shell.fixtures.ts'
 import { releaseCommand, releaseCommandWith, type ReleaseDeps } from './command.ts'
 import { CONFIGURED_REGISTRY, packing, registryWith, releaseWorkspace } from './release.fixtures.ts'
 
 /** The command, its dependencies, and what it wrote. */
-function commandFor(cwd: string, versions: Record<string, string[]> = {}, changesets?: string) {
+function commandFor(
+  cwd: string,
+  versions: Record<string, string[]> = {},
+  changesets?: string,
+): {
+  asked: RecordedCommand[]
+  command: ReturnType<typeof releaseCommandWith>
+  deps: ReleaseDeps
+  written: string[]
+} {
   const fake = recordingShell(packing)
   const written: string[] = []
   const deps: ReleaseDeps = {

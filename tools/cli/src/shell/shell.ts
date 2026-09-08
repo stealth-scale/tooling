@@ -69,7 +69,7 @@ export interface StartedProcess {
    *
    * @returns {Promise<void>} Resolves after the exit.
    */
-  stop(): Promise<void>
+  stop: () => Promise<void>
 }
 
 /**
@@ -81,7 +81,7 @@ export interface Shell {
    *
    * @returns {Promise<number>} A port that was free when asked.
    */
-  freePort(): Promise<number>
+  freePort: () => Promise<number>
 
   /**
    * Runs a command to completion and returns what it wrote. A non-zero exit does not throw.
@@ -91,7 +91,7 @@ export interface Shell {
    * @param {RunOptions} options - The working directory and the environment.
    * @returns {Promise<CommandOutcome>} The exit code and both streams.
    */
-  run(file: string, args: readonly string[], options: RunOptions): Promise<CommandOutcome>
+  run: (file: string, args: readonly string[], options: RunOptions) => Promise<CommandOutcome>
 
   /**
    * Starts a long-lived process. Its output goes to the log file.
@@ -101,7 +101,7 @@ export interface Shell {
    * @param {StartOptions} options - The working directory, the environment and the log file.
    * @returns {StartedProcess} The process, with its pid and a way to stop it.
    */
-  start(file: string, args: readonly string[], options: StartOptions): StartedProcess
+  start: (file: string, args: readonly string[], options: StartOptions) => StartedProcess
 }
 
 /**

@@ -1,4 +1,4 @@
-import type { CommandOutcome, Shell } from './shell.ts'
+import { type CommandOutcome, type Shell } from './shell.ts'
 
 /**
  * Describes one command a recording shell was asked to run.
@@ -54,29 +54,46 @@ export interface RecordingShell {
  * Builds a shell for a specification: `run` answers from `answer`, `start` returns a process
  * with a fixed pid, and `freePort` always hands out `port`.
  *
- * @param {Answer} [answer] - What a command gets back. Default: success with no output.
+ * @param {Answer} [answer] - The answer a command gets back. Default: success with no output.
  * @param {number} [port] - The one free port. Default: 4999.
  * @returns {RecordingShell} The shell and the record of what it was asked.
  */
 export function recordingShell(answer: Answer = () => ({}), port = 4999): RecordingShell {
-  const state: RecordingShell = { asked: [], shell: {} as Shell, started: [], stopped: 0 }
-  state.shell = {
+  const asked: RecordedCommand[] = []
+  const started: string[] = []
+  let stopped = 0
+
+  const shell: Shell = {
     freePort: () => Promise.resolve(port),
     run: (file, args, options) => {
       const command = [file, ...args].join(' ')
-      state.asked.push({ command, cwd: options.cwd, env: options.env })
+      asked.push({ command, cwd: options.cwd, env: options.env })
       return Promise.resolve({ code: 0, stderr: '', stdout: '', ...answer(command, options.cwd) })
     },
     start: (file, args) => {
-      state.started.push([file, ...args].join(' '))
+      started.push([file, ...args].join(' '))
       return {
         pid: 4242,
         stop: () => {
-          state.stopped += 1
+          stopped += 1
           return Promise.resolve()
         },
       }
     },
   }
-  return state
+
+  return {
+    asked,
+    shell,
+    started,
+
+    /**
+     * Counts how many started processes were stopped.
+     *
+     * @returns {number} The count as it stands.
+     */
+    get stopped() {
+      return stopped
+    },
+  }
 }

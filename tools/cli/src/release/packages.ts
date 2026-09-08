@@ -10,8 +10,8 @@ import { existsSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 
 import { failed, lastLines, passed, type Step } from '../report/report.ts'
-import type { CommandOutcome, Shell } from '../shell/shell.ts'
-import type { Manifest } from '../workspace/manifests.ts'
+import { type CommandOutcome, type Shell } from '../shell/shell.ts'
+import { type Manifest } from '../workspace/manifests.ts'
 
 /**
  * Describes a package that was packed, and where its tarball is.

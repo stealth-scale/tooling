@@ -8,7 +8,7 @@ import {
   workspaceFiles,
 } from '@stealthscale/tool-testing'
 
-import type { Answer } from '../shell/shell.fixtures.ts'
+import { type Answer } from '../shell/shell.fixtures.ts'
 
 /**
  * Names the registry the fixture shell's npm is configured for.
@@ -21,16 +21,25 @@ export const CONFIGURED_REGISTRY = 'http://127.0.0.1:1'
 export const THEME_REGISTRY = 'http://127.0.0.1:2'
 
 /**
+ * Holds the manifest fields a built package is written with.
+ */
+interface BuiltFields {
+  /**
+   * Names the package.
+   */
+  name: string
+
+  readonly [field: string]: unknown
+}
+
+/**
  * Writes a built package: its manifest, and the `dist` its files name.
  *
  * @param {string} directory - The package's directory, relative to the workspace root.
- * @param {Record<string, unknown> & { name: string }} fields - The manifest's fields.
+ * @param {BuiltFields} fields - The manifest's fields.
  * @returns {ScratchFiles} The files to write.
  */
-export function built(
-  directory: string,
-  fields: Record<string, unknown> & { name: string },
-): ScratchFiles {
+export function built(directory: string, fields: BuiltFields): ScratchFiles {
   return packageFiles(
     directory,
     { files: ['dist'], publishConfig: { access: 'public' }, version: '0.1.0', ...fields },
@@ -102,7 +111,7 @@ export function registryWith(versions: Record<string, string[]>): typeof fetch {
  *
  * @param {string} command - The command line asked.
  * @param {string} cwd - The directory it was asked in.
- * @returns {ReturnType<Answer>} What that command wrote, and how it exited.
+ * @returns {ReturnType<Answer>} The output that command wrote, and how it exited.
  */
 export const packing: Answer = (command, cwd) => {
   if (command.startsWith('bun pm pack')) return { stdout: `${cwd.split('/').at(-1)}.tgz\n` }
