@@ -15,6 +15,7 @@ Start with the question you arrived with.
 | Configure a repository's toolchain                        | [`@stealthscale/tool-config`](../tools/config/README.md)        |
 | Build sample values for a specification or a story        | [`@stealthscale/tool-fixtures`](../tools/fixtures/README.md)    |
 | Build a scratch workspace for a specification             | [`@stealthscale/tool-testing`](../tools/testing/README.md)      |
+| Read what a workspace holds off its manifests             | [`@stealthscale/tool-workspace`](../tools/workspace/README.md)  |
 | Follow the conventions every stealth repository shares    | [docs.stealthscale.io](https://docs.stealthscale.io)            |
 | Build, check and land a change here                       | [Contributing](../CONTRIBUTING.md)                              |
 

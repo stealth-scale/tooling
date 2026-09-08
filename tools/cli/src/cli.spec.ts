@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vite-plus/test'
 
+import { type Manifest, packageRoot, readManifest } from '@stealthscale/tool-workspace'
+
 import { commandMeta, stealth } from './cli.ts'
 import { releaseCommand } from './release/command.ts'
-import { type Manifest, packageRoot, readManifest } from './workspace/manifests.ts'
 
 /** This package's own manifest, which the command reads itself off. */
 const SELF = readManifest(packageRoot(import.meta.dirname))

@@ -1,7 +1,7 @@
 /**
  * @fileoverview What the `stealth` command is made of, for a tool that runs a piece of it
- * rather than the bin: the command tree, the release harness, and the shell, report and
- * workspace readers the commands are built on.
+ * rather than the bin: the command tree, the release harness, and the shell and the report
+ * the commands are built on. A workspace is read through `@stealthscale/tool-workspace`.
  */
 
 export { commandMeta, stealth } from './cli.ts'
@@ -34,14 +34,3 @@ export {
   type StartedProcess,
   type StartOptions,
 } from './shell/shell.ts'
-export {
-  type Closure,
-  dependencyClosure,
-  expandWorkspacePattern,
-  type Manifest,
-  packageRoot,
-  readManifest,
-  workspaceManifests,
-  workspacePatterns,
-  workspaceRoot,
-} from './workspace/manifests.ts'

@@ -9,9 +9,10 @@ import { mkdtempSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
+import { workspaceRoot } from '@stealthscale/tool-workspace'
+
 import { failures, render } from '#report/report.ts'
 import { type Shell, shell } from '#shell/shell.ts'
-import { workspaceRoot } from '#workspace/manifests.ts'
 
 import { release } from './release.ts'
 

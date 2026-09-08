@@ -5,9 +5,10 @@
 
 import { mkdirSync } from 'node:fs'
 
+import { dependencyClosure, type Manifest, workspaceManifests } from '@stealthscale/tool-workspace'
+
 import { failed, lastLines, passed, type Report, type Step } from '#report/report.ts'
 import { type Shell } from '#shell/shell.ts'
-import { dependencyClosure, type Manifest, workspaceManifests } from '#workspace/manifests.ts'
 
 import { type TagEvent, tagEvent, writeTagEvents } from './changesets.ts'
 import { missingFiles, pack, type PublishOptions, publishTarball } from './packages.ts'

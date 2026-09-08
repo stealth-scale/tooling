@@ -19,7 +19,7 @@ import {
 } from './manifests.ts'
 
 /** This repository, whose manifests the real-tree cases read. */
-const HERE = join(import.meta.dirname, '..', '..', '..', '..')
+const HERE = join(import.meta.dirname, '..', '..', '..')
 
 describe('manifests', () => {
   let workspace: ScratchWorkspace
@@ -74,7 +74,7 @@ describe('manifests', () => {
     it('finds the nearest manifest above a directory, whether or not it names workspaces', () => {
       expect(packageRoot(workspace.path('packages/a'))).toBe(workspace.path('packages/a'))
       expect(packageRoot(workspace.path('packages/no-manifest'))).toBe(workspace.root)
-      expect(packageRoot(import.meta.dirname)).toBe(join(HERE, 'tools', 'cli'))
+      expect(packageRoot(import.meta.dirname)).toBe(join(HERE, 'tools', 'workspace'))
     })
 
     it('throws when no directory above it holds one', () => {
@@ -128,6 +128,7 @@ describe('manifests', () => {
         access: 'public',
         bin: { 'b-tool': './dist/b.mjs' },
         build: undefined,
+        contributions: undefined,
         dependencies: { '@t/a': 'workspace:^', react: '^19' },
         description: 'The second package.',
         directory: workspace.path('packages/b'),
@@ -158,6 +159,21 @@ describe('manifests', () => {
       })
       expect(readManifest(scoped.root).bin).toEqual({ tool: './cli.mjs' })
       scoped.remove()
+    })
+
+    it('carries the stealth field as written, whatever shape it has', () => {
+      const registering = scratchWorkspace({
+        'package.json':
+          '{ "name": "@t/thesmos", "version": "1.0.0", "stealth": { "theme": { "title": "Thesmos" } } }',
+      })
+
+      expect(readManifest(registering.root).contributions).toEqual({ theme: { title: 'Thesmos' } })
+
+      registering.write({
+        'package.json': '{ "name": "@t/thesmos", "version": "1.0.0", "stealth": 5 }',
+      })
+      expect(readManifest(registering.root).contributions).toBe(5)
+      registering.remove()
     })
 
     it('refuses a manifest with no name or no version', () => {
@@ -191,7 +207,9 @@ describe('manifests', () => {
     it('lists this repository, and every package in it carries a version', () => {
       const manifests = workspaceManifests(HERE)
 
-      expect(manifests.map((manifest) => manifest.name)).toContain('@stealthscale/tool-cli')
+      expect(manifests.map((manifest) => manifest.directory)).toContain(
+        packageRoot(import.meta.dirname),
+      )
       expect(manifests.every((manifest) => manifest.version !== '')).toBe(true)
     })
   })

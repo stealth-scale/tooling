@@ -6,7 +6,7 @@
 
 import { type CommandDef, type CommandMeta, defineCommand } from 'citty'
 
-import { type Manifest, packageRoot, readManifest } from './workspace/manifests.ts'
+import { type Manifest, packageRoot, readManifest } from '@stealthscale/tool-workspace'
 
 /**
  * Reads what a command calls itself off the manifest of the package that ships it, so the

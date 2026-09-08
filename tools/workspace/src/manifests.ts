@@ -1,6 +1,8 @@
 /**
  * @fileoverview Reads the manifests of a workspace: which packages the root names, what each
- * declares, and the order their dependencies put them in.
+ * declares, and the order their dependencies put them in. The `stealth` field comes back
+ * unread: this reader carries what a package registers with the toolchain without knowing
+ * what any of it means, and the consumer that owns those words holds the field to a schema.
  */
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
@@ -16,6 +18,7 @@ import {
   safeParse,
   string,
   union,
+  unknown,
 } from '@stealthscale/core-schema'
 
 /**
@@ -38,6 +41,13 @@ export interface Manifest {
    * Carries the `build` script, when the package has one.
    */
   build: string | undefined
+
+  /**
+   * Carries the `stealth` field as it is written, unread. It is what the package registers
+   * with the toolchain, and the consumer that owns those words parses it. `undefined` means
+   * the package registers nothing.
+   */
+  contributions: unknown
 
   /**
    * Maps each dependency to its range. A tarball's manifest makes a consumer install these.
@@ -118,6 +128,7 @@ const RAW_MANIFEST = looseObject({
   private: optional(boolean()),
   publishConfig: optional(PUBLISH_CONFIG),
   scripts: optional(record(string(), string())),
+  stealth: optional(unknown()),
   version: optional(string()),
   workspaces: optional(WORKSPACES),
 })
@@ -262,6 +273,7 @@ export function readManifest(directory: string): Manifest {
     access: raw.publishConfig?.access,
     bin: binOf(raw.name, raw.bin),
     build: raw.scripts?.['build'],
+    contributions: raw.stealth,
     dependencies: raw.dependencies ?? {},
     description: raw.description,
     directory,

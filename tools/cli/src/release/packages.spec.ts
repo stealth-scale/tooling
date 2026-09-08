@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vite-plus/test'
 
 import { packageFiles, scratchWorkspace } from '@stealthscale/tool-testing'
+import { type Manifest } from '@stealthscale/tool-workspace'
 
 import { recordingShell } from '#shell/shell.fixtures.ts'
-import { type Manifest } from '#workspace/manifests.ts'
 
 import { missingFiles, pack, publishTarball } from './packages.ts'
 
@@ -13,6 +13,7 @@ function manifest(name: string, fields: Partial<Manifest> = {}): Manifest {
     access: 'public',
     bin: {},
     build: 'vp pack',
+    contributions: undefined,
     dependencies: {},
     description: undefined,
     directory: `/ws/${name.replace('@t/', '')}`,

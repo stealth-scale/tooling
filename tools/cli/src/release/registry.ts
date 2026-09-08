@@ -4,10 +4,10 @@
  */
 
 import { looseObject, optional, parse, record, string, unknown } from '@stealthscale/core-schema'
+import { type Manifest } from '@stealthscale/tool-workspace'
 
 import { lastLines } from '#report/report.ts'
 import { type Shell } from '#shell/shell.ts'
-import { type Manifest } from '#workspace/manifests.ts'
 
 /**
  * Accepts the document a registry answers for a package, in the one field the tool reads.

@@ -2,8 +2,7 @@ import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vite-plus/test'
 
 import { scratchWorkspace } from '@stealthscale/tool-testing'
-
-import { type Manifest } from '#workspace/manifests.ts'
+import { type Manifest } from '@stealthscale/tool-workspace'
 
 import { tagEvent, writeTagEvents } from './changesets.ts'
 

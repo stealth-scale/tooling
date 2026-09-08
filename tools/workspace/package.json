@@ -1,15 +1,12 @@
 {
-  "name": "@stealthscale/tool-cli",
+  "name": "@stealthscale/tool-workspace",
   "version": "0.0.0",
-  "description": "Ships the stealth command, and publishes a workspace's public packages in dependency order.",
+  "description": "Reads a workspace off its manifests: which packages the root names, what each declares, and the order their dependencies put them in.",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/stealth-scale/tooling.git",
-    "directory": "tools/cli"
-  },
-  "bin": {
-    "stealth": "./src/bin/stealth.ts"
+    "directory": "tools/workspace"
   },
   "files": [
     "dist"
@@ -24,30 +21,20 @@
       "stealth-source": "./src/index.ts",
       "default": "./dist/index.mjs"
     },
-    "./bin/stealth": {
-      "stealth-source": "./src/bin/stealth.ts",
-      "default": "./dist/bin/stealth.mjs"
-    },
     "./package.json": "./package.json"
   },
   "publishConfig": {
-    "bin": {
-      "stealth": "./dist/bin/stealth.mjs"
-    },
     "exports": {
       ".": "./dist/index.mjs",
-      "./bin/stealth": "./dist/bin/stealth.mjs",
       "./package.json": "./package.json"
     },
     "access": "public"
   },
   "scripts": {
-    "build": "vp pack src/index.ts src/bin/stealth.ts"
+    "build": "vp pack src/index.ts"
   },
   "dependencies": {
-    "@stealthscale/core-schema": "workspace:^",
-    "@stealthscale/tool-workspace": "workspace:^",
-    "citty": "catalog:"
+    "@stealthscale/core-schema": "workspace:^"
   },
   "devDependencies": {
     "@stealthscale/tool-config": "workspace:^",

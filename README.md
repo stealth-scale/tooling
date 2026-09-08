@@ -17,6 +17,7 @@ How a stealth repository is built. Read this if you are setting one up.
 | [`tools/config`](tools/config)       | kit     | the toolchain config and the tsconfig bases               |
 | [`tools/fixtures`](tools/fixtures)   | kit     | seeded sample values, the same every run, in any locale   |
 | [`tools/testing`](tools/testing)     | kit     | the scratch workspace a spec reads a tree from            |
+| [`tools/workspace`](tools/workspace) | kit     | what a workspace holds, read off its manifests            |
 
 A package's name is its group's word in the singular, then its path below it, dashes for
 slashes: `core/schema` is `@stealthscale/core-schema`, `tools/config` is

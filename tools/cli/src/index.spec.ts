@@ -7,17 +7,13 @@ describe('index', () => {
     expect(Object.keys(index).toSorted()).toEqual([
       'commandMeta',
       'configuredRegistry',
-      'dependencyClosure',
-      'expandWorkspacePattern',
       'failed',
       'failures',
       'lastLines',
       'missingFiles',
       'pack',
-      'packageRoot',
       'passed',
       'publishTarball',
-      'readManifest',
       'registryHasVersion',
       'release',
       'releaseCommand',
@@ -28,9 +24,6 @@ describe('index', () => {
       'stealth',
       'tagEvent',
       'withTrailingSlash',
-      'workspaceManifests',
-      'workspacePatterns',
-      'workspaceRoot',
       'writeTagEvents',
     ])
   })

@@ -86,6 +86,7 @@
       },
       "dependencies": {
         "@stealthscale/core-schema": "workspace:^",
+        "@stealthscale/tool-workspace": "workspace:^",
         "citty": "catalog:",
       },
       "devDependencies": {
@@ -147,6 +148,17 @@
       "version": "0.0.0",
       "devDependencies": {
         "@stealthscale/tool-config": "workspace:^",
+      },
+    },
+    "tools/workspace": {
+      "name": "@stealthscale/tool-workspace",
+      "version": "0.0.0",
+      "dependencies": {
+        "@stealthscale/core-schema": "workspace:^",
+      },
+      "devDependencies": {
+        "@stealthscale/tool-config": "workspace:^",
+        "@stealthscale/tool-testing": "workspace:^",
       },
     },
   },
@@ -633,6 +645,8 @@
     "@stealthscale/tool-storybook": ["@stealthscale/tool-storybook@workspace:tools/storybook"],
 
     "@stealthscale/tool-testing": ["@stealthscale/tool-testing@workspace:tools/testing"],
+
+    "@stealthscale/tool-workspace": ["@stealthscale/tool-workspace@workspace:tools/workspace"],
 
     "@storybook/builder-vite": ["@storybook/builder-vite@10.6.0", "", { "dependencies": { "ts-dedent": "^2.0.0" }, "peerDependencies": { "storybook": "^10.6.0", "vite": "^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0" } }, "sha512-7zt8tYB6dnSO8fbjUz91MHexGDpf9HrLlA3FAmlVb+2ZL3eWUs499L3I6BDUymcWu7oW5WCBJlB8ERj8ZLLzig=="],
 

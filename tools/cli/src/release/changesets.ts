@@ -6,7 +6,7 @@
 
 import { writeFileSync } from 'node:fs'
 
-import { type Manifest } from '#workspace/manifests.ts'
+import { type Manifest } from '@stealthscale/tool-workspace'
 
 /**
  * Describes one published package, in the shape changesets/action reads. Every field is
