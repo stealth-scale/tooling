@@ -3,7 +3,8 @@
  * A step is derived from a token where one exists, so eight radii follow one `--radius` and
  * every shadow follows one ink, and it is fixed where nothing computes it, such as the type
  * scale. The emitter registers all of them and nulls each namespace first, so a utility
- * nothing here defines renders nothing rather than rendering Tailwind's default.
+ * nothing here defines renders nothing rather than rendering Tailwind's default. The
+ * densities hang off an attribute on the document rather than off a theme.
  */
 
 /**
@@ -260,6 +261,98 @@ export const DURATION: Readonly<Record<string, number>> = {
 }
 
 /**
+ * Names the size steps a control comes in, smallest first, which is the order the stylesheet
+ * writes them in.
+ */
+export const CONTROL_SIZES = ['xs', 'sm', 'md', 'lg'] as const
+
+/**
+ * Names one size step of a control.
+ */
+export type ControlSize = (typeof CONTROL_SIZES)[number]
+
+/**
+ * Sets each control step as a distance from the density's own height, in rem: four pixels
+ * per step, two steps below the default and one above. A density is one length, and every
+ * step follows it, the way every radius follows the one `--radius`.
+ */
+export const CONTROL_STEPS: Readonly<Record<ControlSize, number>> = {
+  lg: 0.25,
+  md: 0,
+  sm: -0.25,
+  xs: -0.5,
+}
+
+/**
+ * Sets the focus ring's width in every density, in pixels. Two pixels is the perimeter the
+ * enhanced focus appearance criterion asks for, and a ring that grew with the control would
+ * be thinnest where controls sit closest together.
+ */
+export const FOCUS_WIDTH = 2
+
+/**
+ * Sets the two target sizes WCAG names, in pixels: the minimum every control clears in every
+ * density, and the enhanced size a touch density clears at its default step and above.
+ */
+export const TARGET_SIZES = { enhanced: 44, minimum: 24 } as const
+
+/**
+ * Carries one density: the one length every control height follows, and where its focus
+ * ring sits.
+ */
+export interface Density {
+  /**
+   * Sets the height of the default control, in rem. Every step derives from it.
+   */
+  control: number
+
+  /**
+   * Sets how far the focus ring sits outside the control, in pixels. Zero draws it flush,
+   * for a density that packs controls edge to edge and has no room outside one.
+   */
+  focusOffset: number
+}
+
+/**
+ * Names the density a page takes where nothing sets one.
+ */
+export const DEFAULT_DENSITY = 'comfortable'
+
+/**
+ * Sets each density: how closely controls are packed, and where the ring that marks one as
+ * focused sits.
+ *
+ * Density is the one scale a product changes without becoming a different system: a tablet
+ * build and a dense desktop table keep the same rhythm at a different size. It hangs off an
+ * attribute rather than a build, so a region sets `data-density` to be denser or looser than
+ * the page around it. `compact` puts the default control at 32 pixels, so its smallest still
+ * clears the minimum target; `comfortable` puts it at 40, which a thumb finds without aiming;
+ * `touch` puts it at 44, the enhanced target every mobile guideline sets as its floor.
+ */
+export const DENSITY: Readonly<Record<string, Density>> = {
+  comfortable: { control: 2.5, focusOffset: 2 },
+  compact: { control: 2, focusOffset: 0 },
+  touch: { control: 2.75, focusOffset: 2 },
+}
+
+/**
+ * Derives every control height of a density from its one length.
+ *
+ * @param {Density} density - The density to derive from, as `DENSITY` names it. Only its
+ *     `control` length is read; the ring's offset belongs to the stylesheet.
+ * @returns {Readonly<Record<ControlSize, number>>} Each step's height, in rem, every one of
+ *     them a whole pixel.
+ */
+export function controlHeights({ control }: Density): Readonly<Record<ControlSize, number>> {
+  return {
+    lg: control + CONTROL_STEPS.lg,
+    md: control + CONTROL_STEPS.md,
+    sm: control + CONTROL_STEPS.sm,
+    xs: control + CONTROL_STEPS.xs,
+  }
+}
+
+/**
  * Names the namespaces the emitter nulls before it registers its own steps, so no default
  * of Tailwind's survives into a theme. Breakpoints and containers are not here: those are a
  * layout decision, the same for every theme, and the design system's base sets them.
@@ -279,4 +372,6 @@ export const OWNED_NAMESPACES: readonly string[] = [
   'blur',
   'ease',
   'perspective',
+  'height',
+  'size',
 ]

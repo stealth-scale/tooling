@@ -1,7 +1,16 @@
 import { describe, expect, it } from 'vite-plus/test'
 
-import { boxShadowOf, emit, emitScoped, emitTheme, glowOf, radiusOf } from '#emit.ts'
-import { GLOW, OWNED_NAMESPACES, RADIUS, SHADOW, TEXT } from '#scales.ts'
+import {
+  boxShadowOf,
+  emit,
+  emitDensities,
+  emitScoped,
+  emitTailwind,
+  emitTheme,
+  glowOf,
+  radiusOf,
+} from '#emit.ts'
+import { CONTROL_SIZES, DENSITY, GLOW, OWNED_NAMESPACES, RADIUS, SHADOW, TEXT } from '#scales.ts'
 import { declarations } from '#stylesheet.ts'
 import { COLOR_TOKENS, REQUIRED_TOKENS, type ThemeValues } from '#tokens.ts'
 
@@ -152,5 +161,61 @@ describe('emitTheme', () => {
 
   it('refuses a recipe missing a member, rather than drawing something odd', () => {
     expect(() => emitTheme({ accent: 250 }, 'base')).toThrow(/no palette builds from/u)
+  })
+})
+
+describe('emitDensities', () => {
+  it('gives a page that sets no attribute the default density', () => {
+    const css = emitDensities()
+    const root = declarations(css, ':root')
+
+    expect(root['height-md'], 'comfortable puts the default control at 40px').toBe('2.5rem')
+    expect(root['focus-width'], 'one width in every density').toBe('2px')
+  })
+
+  it('writes a block per density, so a region can be denser than the page around it', () => {
+    const css = emitDensities()
+
+    expect(declarations(css, "[data-density='compact'] {")['height-md']).toBe('2rem')
+    expect(declarations(css, "[data-density='touch'] {")['height-md']).toBe('2.75rem')
+    expect(declarations(css, "[data-density='comfortable'] {")['height-md']).toBe('2.5rem')
+  })
+
+  it('draws the ring flush where a density leaves no room outside a control', () => {
+    const css = emitDensities()
+
+    expect(declarations(css, "[data-density='compact'] {")['focus-offset']).toBe('0px')
+    expect(declarations(css, "[data-density='touch'] {")['focus-offset']).toBe('2px')
+  })
+
+  it('carries every step of every density, so no control size is left unset', () => {
+    const css = emitDensities()
+
+    for (const name of Object.keys(DENSITY)) {
+      const block = declarations(css, `[data-density='${name}'] {`)
+      expect(
+        CONTROL_SIZES.every((step) => block[`height-${step}`] !== undefined),
+        name,
+      ).toBe(true)
+    }
+  })
+})
+
+describe('emitTailwind', () => {
+  it('brings in the framework every stealth theme runs on, and its plugins', () => {
+    const css = emitTailwind()
+
+    expect(css).toContain(`@import 'tailwindcss';`)
+    expect(css).toContain(`@plugin '@tailwindcss/typography';`)
+  })
+
+  it('registers the plugins after the import that defines them, and before anything else', () => {
+    const lines = emitTailwind().trim().split('\n')
+    const lastImport = lines.findLastIndex((line) => line.startsWith('@import'))
+    const firstPlugin = lines.findIndex((line) => line.startsWith('@plugin'))
+
+    expect(lastImport, 'a CSS parser refuses an import that follows another at-rule').toBeLessThan(
+      firstPlugin,
+    )
   })
 })

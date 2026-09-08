@@ -2,9 +2,15 @@ import { describe, expect, it } from 'vite-plus/test'
 
 import {
   BLUR,
+  CONTROL_SIZES,
+  CONTROL_STEPS,
+  controlHeights,
+  DEFAULT_DENSITY,
+  DENSITY,
   DROP_SHADOW,
   DURATION,
   EASE,
+  FOCUS_WIDTH,
   FONT_WEIGHT,
   GLOW,
   INSET_SHADOW,
@@ -13,6 +19,7 @@ import {
   PERSPECTIVE,
   RADIUS,
   SHADOW,
+  TARGET_SIZES,
   TEXT,
   TEXT_SHADOW,
   TRACKING,
@@ -22,6 +29,24 @@ import {
  * Lists the size steps Tailwind names, smallest first, where a namespace runs that far.
  */
 const SIZES = ['2xs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl', '4xl'] as const
+
+/**
+ * Sets how many pixels one rem is, which is what a height is measured in.
+ */
+const ROOT_FONT_SIZE = 16
+
+/**
+ * Reads every height of a density in pixels, smallest step first.
+ *
+ * @param {string} name - The density.
+ * @returns {number[]} The heights, in pixels.
+ */
+function pixelsOf(name: string): number[] {
+  const density = DENSITY[name]
+  if (density === undefined) throw new Error(`no density ${name}`)
+  const heights = controlHeights(density)
+  return CONTROL_SIZES.map((size) => heights[size] * ROOT_FONT_SIZE)
+}
 
 /**
  * Sorts steps as a designer reads them rather than as a dictionary does.
@@ -136,6 +161,57 @@ describe('the remaining scales', () => {
   })
 })
 
+describe('the densities', () => {
+  it('name three, the default among them, each one length', () => {
+    expect(Object.keys(DENSITY).toSorted()).toEqual(['comfortable', 'compact', 'touch'])
+    expect(DENSITY[DEFAULT_DENSITY]).toBeDefined()
+    expect(DENSITY['compact']?.control).toBeLessThan(DENSITY['comfortable']?.control ?? 0)
+    expect(DENSITY['comfortable']?.control).toBeLessThan(DENSITY['touch']?.control ?? 0)
+  })
+
+  it('derive every step from the one length, four pixels apart, the default in the middle', () => {
+    expect(CONTROL_STEPS.md).toBe(0)
+    expect(controlHeights({ control: 2, focusOffset: 0 })).toEqual({
+      lg: 2.25,
+      md: 2,
+      sm: 1.75,
+      xs: 1.5,
+    })
+    for (const name of Object.keys(DENSITY)) {
+      const heights = pixelsOf(name)
+      for (const [index, height] of heights.entries()) {
+        expect(height, `${name} step ${String(index)}`).toBe(
+          (heights[0] ?? 0) + index * (ROOT_FONT_SIZE / 4),
+        )
+      }
+    }
+  })
+
+  it('draw every control on whole pixels, at or above the minimum target', () => {
+    for (const name of Object.keys(DENSITY)) {
+      for (const height of pixelsOf(name)) {
+        expect(Number.isInteger(height), `${name} ${String(height)}px`).toBe(true)
+        expect(height, name).toBeGreaterThanOrEqual(TARGET_SIZES.minimum)
+      }
+    }
+  })
+
+  it('clear the enhanced target at touch, from the default step up', () => {
+    const [, , md, lg] = pixelsOf('touch')
+
+    expect(md).toBeGreaterThanOrEqual(TARGET_SIZES.enhanced)
+    expect(lg).toBeGreaterThanOrEqual(TARGET_SIZES.enhanced)
+  })
+
+  it('keep one ring width at the enhanced perimeter, and never draw the ring inside', () => {
+    expect(FOCUS_WIDTH).toBeGreaterThanOrEqual(2)
+    for (const { focusOffset } of Object.values(DENSITY)) {
+      expect(focusOffset).toBeGreaterThanOrEqual(0)
+    }
+    expect(DENSITY['compact']?.focusOffset, 'packed edge to edge, so flush').toBe(0)
+  })
+})
+
 describe('the owned namespaces', () => {
   it('cover every scale the emitter writes and leave layout to the design system', () => {
     for (const namespace of [
@@ -147,6 +223,8 @@ describe('the owned namespaces', () => {
       'blur',
       'ease',
       'perspective',
+      'height',
+      'size',
     ]) {
       expect(OWNED_NAMESPACES).toContain(namespace)
     }

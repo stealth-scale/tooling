@@ -12,7 +12,7 @@ let root = ''
 
 beforeEach(() => {
   root = join(mkdtempSync(join(tmpdir(), 'stealth-theme-')), 'kalon')
-  mkdirSync(join(root, 'src'), { recursive: true })
+  mkdirSync(root, { recursive: true })
 })
 
 afterEach(() => {
@@ -26,7 +26,7 @@ afterEach(() => {
  * @returns {string} Its contents.
  */
 function written(name: string): string {
-  return readFileSync(join(root, 'src', name), 'utf8')
+  return readFileSync(join(root, 'dist', name), 'utf8')
 }
 
 /**
@@ -42,26 +42,27 @@ describe('writeTheme', () => {
   it('writes both stylesheets and the table a consumer imports', () => {
     writeTheme(RECIPE, from())
 
-    expect(written('tokens.gen.css'), 'the one a document takes').toContain(':root')
-    expect(written('scoped.gen.css'), 'the one a catalogue loads').toContain('[data-theme=')
-    expect(written('values.gen.ts')).toContain('export const values: ThemeValues')
+    expect(written('tokens.css'), 'the one a document takes').toContain(':root')
+    expect(written('scoped.css'), 'the one a catalogue loads').toContain('[data-theme=')
+    expect(written('values.mjs')).toContain('export const values')
   })
 
   it('takes the name a document writes from the package directory, so a theme states it nowhere', () => {
     writeTheme(RECIPE, from())
 
-    expect(written('scoped.gen.css')).toContain("[data-theme='kalon']")
+    expect(written('scoped.css')).toContain("[data-theme='kalon']")
   })
 
   it('answers what it wrote, so a build can read the palette back', () => {
     const emitted = writeTheme(RECIPE, from())
 
-    expect(emitted.scoped).toBe(written('scoped.gen.css'))
+    expect(emitted.scoped).toBe(written('scoped.css'))
+    expect(written('values.d.mts'), 'typed for a consumer').toContain('ThemeValues')
     expect(emitted.values.light['background']).toBeDefined()
   })
 
   it('writes nothing for a recipe no palette builds from', () => {
     expect(() => writeTheme({ ...RECIPE, primary: 400 }, from())).toThrow(/kalon/u)
-    expect(() => written('tokens.gen.css')).toThrow()
+    expect(() => written('tokens.css')).toThrow()
   })
 })
