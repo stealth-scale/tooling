@@ -11,6 +11,7 @@ describe('the vite barrel', () => {
       'SAFETY_RULES',
       'SIZE_RULES',
       'SOURCE_CONDITION',
+      'STYLE_RULES',
       'docblocksOff',
       'formatConfig',
       'generatedGlobs',

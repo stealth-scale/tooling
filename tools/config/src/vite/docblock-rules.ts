@@ -103,6 +103,7 @@ export const DOC_RULES: Rules = {
   'jsdoc-js/require-throws': 'error',
   'jsdoc-js/require-throws-type': 'error',
   'jsdoc-js/tag-lines': ['error', 'never', { startLines: 1 }],
+  'jsdoc-js/valid-types': 'error',
 
   // The summary and the body sit flush against the asterisk; a tag's continuation lines are
   // the one indented thing, so they are excluded here and `check-line-alignment` sets them.

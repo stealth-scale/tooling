@@ -1,6 +1,6 @@
 /**
  * @fileoverview The rules every stealth repository is linted by, grouped by what they are
- * about: size, safety, markup and sorting. The docblock standard is its own module.
+ * about: size, safety, style, markup and sorting. The docblock standard is its own module.
  */
 
 import { type UserConfig } from 'vite-plus'

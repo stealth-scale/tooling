@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test'
 
-import { MARKUP_RULES, SAFETY_RULES, SIZE_RULES, sortRules } from './lint-rules.ts'
+import { MARKUP_RULES, SAFETY_RULES, SIZE_RULES, sortRules, STYLE_RULES } from './lint-rules.ts'
 
 describe('SIZE_RULES', () => {
   it('bounds a file and a function, because size is a proxy for doing one thing', () => {
@@ -28,6 +28,33 @@ describe('SAFETY_RULES', () => {
 
   it('turns off the rule no parameter carrying a foreign type can satisfy', () => {
     expect(SAFETY_RULES['typescript/prefer-readonly-parameter-types']).toBe('off')
+  })
+})
+
+describe('STYLE_RULES', () => {
+  it('settles each spelling the language leaves open, so no file argues it again', () => {
+    expect(Object.keys(STYLE_RULES)).toEqual([
+      'catch-error-name',
+      'consistent-type-specifier-style',
+      'explicit-function-return-type',
+      'method-signature-style',
+      'no-default-export',
+      'no-inferrable-types',
+      'no-relative-parent-imports',
+      'prefer-string-raw',
+    ])
+  })
+
+  it('takes the stricter of two signatures, which a property is over a method', () => {
+    expect(STYLE_RULES['method-signature-style']).toBe('error')
+  })
+
+  it('keeps a type import beside the values it arrives with', () => {
+    expect(STYLE_RULES['consistent-type-specifier-style']).toEqual(['error', 'prefer-inline'])
+  })
+
+  it('sends a cross-directory import through the package subpath rather than up the tree', () => {
+    expect(STYLE_RULES['no-relative-parent-imports']).toBe('error')
   })
 })
 
