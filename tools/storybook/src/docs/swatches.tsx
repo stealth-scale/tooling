@@ -87,7 +87,11 @@ export function Swatches({ of }: Readonly<SwatchesProps>): JSX.Element {
 /**
  * Draws the chart tokens as the bars they colour, side by side, so they can be told apart.
  *
- * @returns {JSX.Element} One bar per token, at heights that differ so the colours meet.
+ * Every bar is the same size. The page exists to compare five hues, and two colours are only
+ * comparable at equal area: a bar drawn shorter than its neighbour reads as a lighter colour
+ * whatever the token says.
+ *
+ * @returns {JSX.Element} One bar per token, all of one size, in the order a chart assigns them.
  */
 export function Series(): JSX.Element {
   return (
@@ -100,14 +104,13 @@ export function Series(): JSX.Element {
             gridTemplateColumns: `repeat(${String(CHART_TOKENS.length)}, 1fr)`,
           }}
         >
-          {CHART_TOKENS.map((token, index) => (
+          {CHART_TOKENS.map((token) => (
             <div key={token} style={{ display: 'grid', gap: '0.5rem' }}>
               <div
                 data-slot="bar"
                 style={{
-                  alignSelf: 'end',
                   background: tokens[token],
-                  blockSize: `${String(2 + ((index * 7) % 5) * 0.6)}rem`,
+                  blockSize: '4rem',
                   borderRadius: CORNER,
                 }}
               />
