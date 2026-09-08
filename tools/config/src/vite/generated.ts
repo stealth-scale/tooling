@@ -15,6 +15,9 @@ export const GENERATED = [
   '**/dist/**',
   '**/coverage/**',
   '**/storybook-static/**',
+  // Working notes and throwaway output. A catalogue built into it writes an index.html, and
+  // Vite reloads every client for any HTML written under the root.
+  '**/.scratch/**',
   '**/*.gen.*',
   // A declaration beside a config file, which only a tsconfig that includes its own config
   // would produce. No package's tsconfig does, and nobody writes one by hand.

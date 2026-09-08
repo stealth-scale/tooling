@@ -8,9 +8,16 @@ describe('GENERATED', () => {
       '**/dist/**',
       '**/coverage/**',
       '**/storybook-static/**',
+      '**/.scratch/**',
       '**/*.gen.*',
       '**/*.config.d.ts',
     ])
+  })
+
+  it('keeps a running catalogue out of the working directory it writes notes to', () => {
+    expect(GENERATED, 'a catalogue built into .scratch reloads every client').toContain(
+      '**/.scratch/**',
+    )
   })
 })
 
