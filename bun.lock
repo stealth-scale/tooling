@@ -7,6 +7,7 @@
       "devDependencies": {
         "@arethetypeswrong/core": "catalog:",
         "@changesets/cli": "catalog:",
+        "@stealthscale/tool-cli": "workspace:^",
         "@types/node": "catalog:",
         "@vitest/coverage-v8": "catalog:",
         "eslint-plugin-jsdoc": "catalog:",
@@ -23,6 +24,13 @@
       "devDependencies": {
         "@stealthscale/tool-config": "workspace:^",
         "@stealthscale/tool-testing": "workspace:^",
+      },
+    },
+    "core/locale": {
+      "name": "@stealthscale/core-locale",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@stealthscale/tool-config": "workspace:^",
       },
     },
     "core/result": {
@@ -46,7 +54,7 @@
       "name": "@stealthscale/tool-cli",
       "version": "0.0.0",
       "bin": {
-        "stealth": "./dist/bin/stealth.mjs",
+        "stealth": "./src/bin/stealth.ts",
       },
       "dependencies": {
         "@stealthscale/core-schema": "workspace:^",
@@ -337,6 +345,8 @@
     "@standard-schema/spec": ["@standard-schema/spec@1.1.0", "", {}, "sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w=="],
 
     "@stealthscale/core-env": ["@stealthscale/core-env@workspace:core/env"],
+
+    "@stealthscale/core-locale": ["@stealthscale/core-locale@workspace:core/locale"],
 
     "@stealthscale/core-result": ["@stealthscale/core-result@workspace:core/result"],
 

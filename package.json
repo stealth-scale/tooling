@@ -31,6 +31,7 @@
   "devDependencies": {
     "@arethetypeswrong/core": "catalog:",
     "@changesets/cli": "catalog:",
+    "@stealthscale/tool-cli": "workspace:^",
     "@types/node": "catalog:",
     "@vitest/coverage-v8": "catalog:",
     "eslint-plugin-jsdoc": "catalog:",
