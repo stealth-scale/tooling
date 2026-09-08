@@ -2,14 +2,29 @@ import { describe, expect, it } from 'vite-plus/test'
 
 import { fixture, many, SEED } from '#fixtures.ts'
 
-/** A person, as a specification or a story would want one. */
+/**
+ * Describes a person, as a specification or a story would want one.
+ */
 interface Person {
+  /**
+   * Carries the address.
+   */
   email: string
+
+  /**
+   * Carries the full name.
+   */
   name: string
+
+  /**
+   * Names the role the person holds.
+   */
   role: string
 }
 
-/** A person fixture, built from the seeded source. */
+/**
+ * Builds a person from the seeded source.
+ */
 const person = fixture<Person>((source) => ({
   email: source.internet.email(),
   name: source.person.fullName(),
