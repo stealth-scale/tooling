@@ -57,6 +57,12 @@ function lines(namespace: string, steps: Readonly<Record<string, string>>): stri
 }
 
 /**
+ * Draws the light along the top edge of a raised surface, which every box shadow carries as
+ * its first layer: transparent in light and a hairline of light in dark.
+ */
+const HIGHLIGHT = 'inset 0 1px 0 0 var(--shadow-highlight)'
+
+/**
  * Writes one shadow layer, taking its share of the theme's shadow ink.
  *
  * @param {ShadowLayer} layer - The layer's geometry and share.
@@ -68,21 +74,51 @@ function layer({ fraction, geometry }: ShadowLayer, ink = '--shadow'): string {
 }
 
 /**
- * Writes the box shadows. Every one carries the raised edge's highlight as its first layer,
- * which is transparent in light and a hairline of light in dark.
+ * Writes one box shadow as a `box-shadow` value: the raised edge's highlight, then every
+ * layer drawn from the theme's shadow ink.
+ *
+ * @param {readonly ShadowLayer[]} layers - The step's layers, as `SHADOW` lists them.
+ * @returns {string} The value, which reads the theme's own `--shadow` and
+ *     `--shadow-highlight`.
+ */
+export function boxShadowOf(layers: readonly ShadowLayer[]): string {
+  return [HIGHLIGHT, ...layers.map((one) => layer(one))].join(', ')
+}
+
+/**
+ * Writes one glow as a `box-shadow` value, every layer thrown in the theme's glow colour.
+ *
+ * @param {readonly ShadowLayer[]} layers - The step's layers, as `GLOW` lists them.
+ * @returns {string} The value, which reads the theme's own `--glow`.
+ */
+export function glowOf(layers: readonly ShadowLayer[]): string {
+  return layers.map((one) => layer(one, '--glow')).join(', ')
+}
+
+/**
+ * Writes one radius step as a multiple of the theme's one `--radius`.
+ *
+ * @param {number} factor - The step's factor, as `RADIUS` lists it.
+ * @returns {string} The value, which reads the theme's own `--radius`.
+ */
+export function radiusOf(factor: number): string {
+  return `calc(var(--radius) * ${String(factor)})`
+}
+
+/**
+ * Writes the box shadows and the glows.
  *
  * @returns {string} The lines, joined.
  */
 function boxShadows(): string {
-  const highlight = 'inset 0 1px 0 0 var(--shadow-highlight)'
   const steps = Object.fromEntries([
     ...Object.entries(SHADOW).map(([step, layers]): [string, string] => [
       step,
-      [highlight, ...layers.map((one) => layer(one))].join(', '),
+      boxShadowOf(layers),
     ]),
     ...Object.entries(GLOW).map(([step, layers]): [string, string] => [
       `glow-${step}`,
-      layers.map((one) => layer(one, '--glow')).join(', '),
+      glowOf(layers),
     ]),
   ])
   return lines('shadow', steps)
@@ -154,10 +190,7 @@ function themeLayer(): string {
   const nulled = OWNED_NAMESPACES.map((namespace) => `  --${namespace}-*: initial;`).join('\n')
   const colors = COLOR_TOKENS.map((token) => `  --color-${token}: var(--${token});`).join('\n')
   const radii = Object.fromEntries(
-    Object.entries(RADIUS).map(([step, factor]): [string, string] => [
-      step,
-      `calc(var(--radius) * ${String(factor)})`,
-    ]),
+    Object.entries(RADIUS).map(([step, factor]): [string, string] => [step, radiusOf(factor)]),
   )
   return `@theme inline {
 ${nulled}
@@ -233,7 +266,7 @@ ${declarationLines(values, 'dark')}
  * Writes the same tokens scoped to a `data-theme` attribute instead of `:root`, and no theme
  * layer, because a document that holds several themes registers the layer once.
  *
- * A deployable links one theme, so `:root` is right there. A catalogue renders every theme in
+ * A deployable links one theme, so `:root` is right there. A Storybook renders every theme in
  * one document and switches between them from a toolbar, which needs each theme's values
  * behind its own selector.
  *

@@ -2,7 +2,7 @@
  * @fileoverview Reads custom properties back out of a stylesheet's text. The scales are
  * authored CSS, and Tailwind registers them under `@theme inline`, which emits no custom
  * property to read at runtime, so the text is the only source a specification or a
- * catalogue can check them against.
+ * Storybook can check them against.
  */
 
 /**

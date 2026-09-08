@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test'
 
-import { emit, emitScoped } from '#emit.ts'
+import { boxShadowOf, emit, emitScoped, glowOf, radiusOf } from '#emit.ts'
 import { GLOW, OWNED_NAMESPACES, RADIUS, SHADOW, TEXT } from '#scales.ts'
 import { declarations } from '#stylesheet.ts'
 import { COLOR_TOKENS, REQUIRED_TOKENS, type ThemeValues } from '#tokens.ts'
@@ -71,6 +71,16 @@ describe('emit', () => {
     expect(layer['inset-shadow-xs']).toContain('var(--shadow)')
     expect(layer['drop-shadow-md']).toContain('var(--shadow)')
     expect(layer['text-shadow-sm']).toContain('var(--shadow)')
+  })
+
+  it('writes one step the way the stylesheet does, for a page that draws it by hand', () => {
+    expect(radiusOf(0.75)).toBe('calc(var(--radius) * 0.75)')
+    expect(boxShadowOf([{ fraction: 40, geometry: '0 1px 3px 0' }])).toBe(
+      'inset 0 1px 0 0 var(--shadow-highlight), 0 1px 3px 0 color-mix(in oklch, var(--shadow) 40%, transparent)',
+    )
+    expect(glowOf([{ fraction: 80, geometry: '0 0 12px -2px' }])).toBe(
+      '0 0 12px -2px color-mix(in oklch, var(--glow) 80%, transparent)',
+    )
   })
 
   it('registers the glows under the shadow namespace, thrown in the glow colour', () => {

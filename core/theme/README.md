@@ -1,6 +1,6 @@
 # @stealthscale/core-theme
 
-A **library**: every tier that renders installs it, and the catalogue and the generators
+A **library**: every tier that renders installs it, and Storybook and the generators
 read it.
 
 The package defines the tokens a theme must set, solves a palette that clears WCAG contrast,

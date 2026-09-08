@@ -3,10 +3,11 @@ import { describe, expect, it } from 'vite-plus/test'
 import { assertComplete } from '#assert.ts'
 import { contrast } from '#color.ts'
 import { fromPolar, inGamut } from '#convert.ts'
-import { DARK, LIGHT } from '#ladder.ts'
+import { FILL_PAIRS, OUTLINE_PAIRS, TEXT_PAIRS } from '#guarantees.ts'
+import { DARK, LIGHT, RATIOS } from '#ladder.ts'
 import { buildPalette } from '#palette.ts'
 import { type PaletteRecipe } from '#recipe.ts'
-import { CODE_TOKENS, COLOR_TOKENS, type TokenName } from '#tokens.ts'
+import { COLOR_TOKENS } from '#tokens.ts'
 
 /**
  * Reads the lightness an `oklch()` value states.
@@ -49,49 +50,6 @@ const bare: PaletteRecipe = {
   neutral: 260,
   primary: 258,
 }
-
-/**
- * Lists the pairs the system guarantees for text: a fill, and the text meant to sit on it.
- * The syntax colours sit on `muted`, which is the one surface a code block is drawn on.
- */
-const TEXT_PAIRS: readonly (readonly [TokenName, TokenName])[] = [
-  ...CODE_TOKENS.map((token) => ['muted', token] as const),
-  ['background', 'foreground'],
-  ['background', 'muted-foreground'],
-  ['background', 'primary-ink'],
-  ['background', 'destructive-ink'],
-  ['background', 'success-ink'],
-  ['background', 'warning-ink'],
-  ['background', 'info-ink'],
-  ['card', 'card-foreground'],
-  ['popover', 'popover-foreground'],
-  ['primary', 'primary-foreground'],
-  ['secondary', 'secondary-foreground'],
-  ['muted', 'muted-foreground'],
-  ['accent', 'accent-foreground'],
-  ['destructive', 'destructive-foreground'],
-  ['success', 'success-foreground'],
-  ['warning', 'warning-foreground'],
-  ['info', 'info-foreground'],
-  ['sidebar', 'sidebar-foreground'],
-  ['sidebar-primary', 'sidebar-primary-foreground'],
-  ['sidebar-accent', 'sidebar-accent-foreground'],
-  ['selection', 'selection-foreground'],
-  ['highlight', 'highlight-foreground'],
-] as const
-
-/**
- * Lists the fills a recipe's level applies to. Everything else is text on a surface and stays
- * AAA.
- */
-const FILL_PAIRS = [
-  ['primary', 'primary-foreground'],
-  ['destructive', 'destructive-foreground'],
-  ['success', 'success-foreground'],
-  ['warning', 'warning-foreground'],
-  ['info', 'info-foreground'],
-  ['sidebar-primary', 'sidebar-primary-foreground'],
-] as const
 
 /**
  * Lists four hues far enough apart that any lightness bug shows up in at least one.
@@ -252,18 +210,12 @@ describe('a generated palette', () => {
       const palette = buildPalette(recipe)
 
       for (const mode of ['dark', 'light'] as const) {
-        expect(
-          contrast(palette[mode].input, palette[mode].card),
-          `${mode} input on card`,
-        ).toBeGreaterThanOrEqual(3)
-        expect(
-          contrast(palette[mode].ring, palette[mode].background),
-          `${mode} ring on page`,
-        ).toBeGreaterThanOrEqual(3)
-        expect(
-          contrast(palette[mode]['sidebar-ring'], palette[mode].sidebar),
-          `${mode} ring on sidebar`,
-        ).toBeGreaterThanOrEqual(3)
+        for (const [on, edge] of OUTLINE_PAIRS) {
+          expect(
+            contrast(palette[mode][edge], palette[mode][on]),
+            `${mode} ${edge} on ${on}`,
+          ).toBeGreaterThanOrEqual(RATIOS.UI)
+        }
       }
     },
   )
