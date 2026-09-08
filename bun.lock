@@ -58,6 +58,13 @@
         "@stealthscale/tool-config": "workspace:^",
       },
     },
+    "core/theme": {
+      "name": "@stealthscale/core-theme",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@stealthscale/tool-config": "workspace:^",
+      },
+    },
     "tools/cli": {
       "name": "@stealthscale/tool-cli",
       "version": "0.0.0",
@@ -87,6 +94,17 @@
         "vite-plus": "^0.3.0",
       },
     },
+    "tools/fixtures": {
+      "name": "@stealthscale/tool-fixtures",
+      "version": "0.0.0",
+      "dependencies": {
+        "@faker-js/faker": "catalog:",
+        "@stealthscale/core-locale": "workspace:^",
+      },
+      "devDependencies": {
+        "@stealthscale/tool-config": "workspace:^",
+      },
+    },
     "tools/testing": {
       "name": "@stealthscale/tool-testing",
       "version": "0.0.0",
@@ -98,6 +116,7 @@
   "catalog": {
     "@arethetypeswrong/core": "^0.18.5",
     "@changesets/cli": "^3.0.2",
+    "@faker-js/faker": "^10.6.0",
     "@types/node": "^24",
     "@vitest/coverage-v8": "4.1.11",
     "citty": "~0.2.2",
@@ -187,6 +206,8 @@
     "@eslint/object-schema": ["@eslint/object-schema@3.0.5", "", {}, "sha512-vqTaUEgxzm+YDSdElad6PiRoX4t8VGDjCtt05zn4nU810UIx/uNEV7/lZJ6KwFThKZOzOxzXy48da+No7HZaMw=="],
 
     "@eslint/plugin-kit": ["@eslint/plugin-kit@0.7.3", "", { "dependencies": { "@eslint/core": "^1.2.1", "levn": "^0.4.1" } }, "sha512-IkO+/KEUvwbVpiURZg+P7zF74z5Jxe0UgJxVni+RtoHQ6IZieXaO02kmadomap/q+l6bc/jdPGGqTjhuZnuz1Q=="],
+
+    "@faker-js/faker": ["@faker-js/faker@10.6.0", "", {}, "sha512-3RQHgEtvL1Frl/d1cSreo7qhJ3Gk1OdNUai/CtZ8G+wYeRQnJih3s9xJ9/kgYekPQRdwgh0HXRPqMlzWGwivIQ=="],
 
     "@humanfs/core": ["@humanfs/core@0.19.2", "", { "dependencies": { "@humanfs/types": "^0.15.0" } }, "sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA=="],
 
@@ -362,9 +383,13 @@
 
     "@stealthscale/core-schema": ["@stealthscale/core-schema@workspace:core/schema"],
 
+    "@stealthscale/core-theme": ["@stealthscale/core-theme@workspace:core/theme"],
+
     "@stealthscale/tool-cli": ["@stealthscale/tool-cli@workspace:tools/cli"],
 
     "@stealthscale/tool-config": ["@stealthscale/tool-config@workspace:tools/config"],
+
+    "@stealthscale/tool-fixtures": ["@stealthscale/tool-fixtures@workspace:tools/fixtures"],
 
     "@stealthscale/tool-testing": ["@stealthscale/tool-testing@workspace:tools/testing"],
 

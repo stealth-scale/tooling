@@ -11,9 +11,10 @@
     "catalog": {
       "@arethetypeswrong/core": "^0.18.5",
       "@changesets/cli": "^3.0.2",
+      "@faker-js/faker": "^10.6.0",
       "@types/node": "^24",
-      "citty": "~0.2.2",
       "@vitest/coverage-v8": "4.1.11",
+      "citty": "~0.2.2",
       "eslint-plugin-jsdoc": "^64.3.4",
       "eslint-plugin-perfectionist": "^5.11.0",
       "publint": "^0.3.24",
