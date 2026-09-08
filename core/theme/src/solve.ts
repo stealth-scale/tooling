@@ -57,29 +57,31 @@ export function oklch(lightness: number, chroma: number, hue: number, alpha?: nu
 }
 
 /**
- * Walks a fill's lightness until it clears the ratio against the label on it.
+ * Walks one colour's lightness until it clears the ratio against a colour that stays put.
  *
- * The walk moves away from the label rather than toward it: a fill carrying white text has
- * to get darker, one carrying near-black text has to get lighter. Reading the direction off
- * the label rather than off the starting lightness is what makes this work for a fill that
- * starts on the wrong side. The walk is bounded and answers its closest attempt, so a pairing
- * that cannot reach the ratio, such as a mid-grey label, yields the most legible colour
+ * Either side of a pair may be the one that moves: a fill walks away from the label on it,
+ * and a text colour walks away from the surface under it. The walk moves away from the fixed
+ * colour rather than toward it, so a colour that starts on the wrong side of it still ends
+ * on the right one: a fill under white text gets darker, one under near-black text gets
+ * lighter. The walk is bounded and answers its closest attempt, so a pairing that cannot
+ * reach the ratio, such as a mid-grey against a mid-grey, yields the most legible colour
  * available rather than looping.
  *
- * @param {Start} start - The colour to walk from. The hue is held, the chroma is held where
- *     the display shows it, and only the lightness moves.
- * @param {string} label - The colour that has to be readable on the result.
+ * @param {Start} start - The colour that moves. The hue is held, the chroma is held where
+ *     the display shows it, and only the lightness walks.
+ * @param {string} fixed - The colour that stays put, which the result has to clear the ratio
+ *     against.
  * @param {number} [ratio] - The ratio to clear. Default: AAA.
- * @returns {string} An `oklch()` value.
+ * @returns {string} The moving colour as `oklch()`, at the first lightness that clears.
  */
-export function solveContrast(start: Start, label: string, ratio: number = RATIOS.AAA): string {
+export function solveContrast(start: Start, fixed: string, ratio: number = RATIOS.AAA): string {
   const { chroma, hue, lightness } = start
-  const parsed = parseColor(label)
+  const parsed = parseColor(fixed)
   const step = parsed !== undefined && luminance(parsed) > 0.5 ? -1 : 1
   let current = lightness
   for (let attempt = 0; attempt < 60; attempt += 1) {
     const candidate = oklch(current, chroma, hue)
-    if (contrast(label, candidate) >= ratio) return candidate
+    if (contrast(fixed, candidate) >= ratio) return candidate
     const next = current + step
     if (next < 8 || next > 97) break
     current = next
