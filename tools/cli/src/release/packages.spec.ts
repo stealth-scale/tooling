@@ -17,6 +17,7 @@ function manifest(name: string, fields: Partial<Manifest> = {}): Manifest {
     dependencies: {},
     description: undefined,
     directory: `/ws/${name.replace('@t/', '')}`,
+    exports: undefined,
     files: ['dist'],
     name,
     private: false,

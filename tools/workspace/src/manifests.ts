@@ -65,6 +65,13 @@ export interface Manifest {
   directory: string
 
   /**
+   * Carries the `exports` field as it is written, unread. A consumer that needs one entry
+   * reads it from here rather than resolving the package by name, which only works from a
+   * directory that depends on it. `undefined` means the manifest declares none.
+   */
+  exports: unknown
+
+  /**
    * Lists the `files` a tarball carries, when the manifest declares them.
    */
   files: readonly string[] | undefined
@@ -123,6 +130,7 @@ const RAW_MANIFEST = looseObject({
   bin: optional(union([record(string(), string()), string()])),
   dependencies: optional(record(string(), string())),
   description: optional(string()),
+  exports: optional(unknown()),
   files: optional(array(string())),
   name: optional(string()),
   private: optional(boolean()),
@@ -277,6 +285,7 @@ export function readManifest(directory: string): Manifest {
     dependencies: raw.dependencies ?? {},
     description: raw.description,
     directory,
+    exports: raw.exports,
     files: raw.files,
     name: raw.name,
     private: raw.private === true,

@@ -19,7 +19,9 @@ manifest names anything, which is how a module reads its own package's version w
 it was emitted at. `workspacePatterns` and `expandWorkspacePattern` turn the root's globs into
 directories, and `readManifest` narrows one manifest to the fields the toolchain reads.
 `dependencyClosure` orders a set of roots so a list walked front to back never meets a package
-before what it needs.
+before what it needs. `Manifest.exports` carries the exports map as written, so a consumer
+that needs one entry of a package reads it off the manifest rather than resolving the package
+by name, which only works from a directory that depends on it.
 
 ## What a package registers
 

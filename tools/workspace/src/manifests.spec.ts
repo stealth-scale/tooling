@@ -132,6 +132,7 @@ describe('manifests', () => {
         dependencies: { '@t/a': 'workspace:^', react: '^19' },
         description: 'The second package.',
         directory: workspace.path('packages/b'),
+        exports: undefined,
         files: ['dist'],
         name: '@t/b',
         private: false,
@@ -174,6 +175,16 @@ describe('manifests', () => {
       })
       expect(readManifest(registering.root).contributions).toBe(5)
       registering.remove()
+    })
+
+    it('carries the exports map as written, so a consumer reads one entry off it', () => {
+      const exporting = scratchWorkspace({
+        'package.json':
+          '{ "name": "@t/kalon", "version": "1.0.0", "exports": { "./values": "./dist/values.mjs" } }',
+      })
+
+      expect(readManifest(exporting.root).exports).toEqual({ './values': './dist/values.mjs' })
+      exporting.remove()
     })
 
     it('refuses a manifest with no name or no version', () => {
