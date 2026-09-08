@@ -56,6 +56,13 @@ export function managerEntries(existing: readonly string[] = []): string[] {
 /**
  * Names the modules Storybook loads into the preview, which is the document a story draws in.
  *
+ * The path is what the builder imports, and it is read in Node, where the repository's source
+ * condition is off: in the repository that owns this kit it therefore names `dist` while a
+ * page importing `@stealthscale/tool-storybook/docs` is resolved by Vite with the condition on
+ * and reaches `src`. The builder writes every annotation into its entry as a path, so a bare
+ * specifier here is read as a relative one and resolves nowhere. What the two resolutions
+ * would otherwise split, the preview's store keeps whole.
+ *
  * @param {readonly (PreviewAnnotation | string)[]} [existing] - The modules Storybook has
  *     already. Default: none.
  * @returns {(PreviewAnnotation | string)[]} The modules, this package's own last.

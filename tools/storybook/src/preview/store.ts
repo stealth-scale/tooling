@@ -96,11 +96,51 @@ export function previewStore(): PreviewStore {
   }
 }
 
+declare global {
+  /**
+   * Holds the one store a document has, so two copies of this module share one value.
+   */
+  // eslint-disable-next-line no-var -- a global is declared with `var` and TypeScript takes no other form
+  var stealthPreviewStore: PreviewStore | undefined
+}
+
+/**
+ * Describes what holds the one store, which in a document is the global object.
+ */
+export interface Holder {
+  /**
+   * Carries the store, once something has asked for it.
+   */
+  stealthPreviewStore?: PreviewStore | undefined
+}
+
+/**
+ * Returns the store the document already has, and builds it on the first ask.
+ *
+ * A document can load this module twice. Storybook's builder imports the preview by its path,
+ * read in Node with the repository's source condition off, while a page imports this package
+ * by name and Vite resolves it with the condition on: the first reaches `dist` and the second
+ * `src`. Each copy would hold a store of its own, and the one a page reads is the one the
+ * preview never writes, so every block on the page reports that no theme is registered. The
+ * value sits on the global object instead, which both copies share.
+ *
+ * @param {Holder} holder - Where the store is kept, which is `globalThis` in a document.
+ * @returns {PreviewStore} The store the holder carries, kept there for the next caller.
+ */
+export function sharedStore(holder: Holder): PreviewStore {
+  const existing = holder.stealthPreviewStore
+  if (existing !== undefined) return existing
+
+  const store = previewStore()
+  holder.stealthPreviewStore = store
+  return store
+}
+
 /**
  * Holds what the running preview knows. The preview writes it; a docs container and the
  * blocks on a page read it.
  */
-export const preview: PreviewStore = previewStore()
+export const preview: PreviewStore = sharedStore(globalThis)
 
 /**
  * Returns what the preview knows, and re-renders the caller when it changes.

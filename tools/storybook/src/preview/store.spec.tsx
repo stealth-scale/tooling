@@ -5,7 +5,14 @@ import { describe, expect, it, vi } from 'vite-plus/test'
 
 import { type Appearance } from '@stealthscale/core-appearance'
 
-import { preview, type PreviewState, previewStore, usePreview } from './store.ts'
+import {
+  type Holder,
+  preview,
+  type PreviewState,
+  previewStore,
+  sharedStore,
+  usePreview,
+} from './store.ts'
 
 /** An appearance in one theme. */
 function drawnIn(theme: string): Appearance {
@@ -50,6 +57,24 @@ describe('previewStore', () => {
     store.set(known('thesmos'))
 
     expect(listener).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('sharedStore', () => {
+  it('builds one store and hands the same one to every later caller', () => {
+    const holder: Holder = {}
+    const first = sharedStore(holder)
+
+    first.set(known('kalon'))
+
+    expect(sharedStore(holder), 'a second copy of this module must not start a second store').toBe(
+      first,
+    )
+    expect(sharedStore(holder).get()?.appearance.theme).toBe('kalon')
+  })
+
+  it('gives two holders a store each, so nothing leaks between documents', () => {
+    expect(sharedStore({})).not.toBe(sharedStore({}))
   })
 })
 
