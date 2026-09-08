@@ -39,10 +39,10 @@ export interface Refusal<Failure> {
 }
 
 /**
- * What a step gives back: the value, or the reason it refused.
+ * Names what a step gives back: the value, or the reason it refused.
  *
  * A function returns this rather than throwing when refusing is an ordinary outcome the
- * caller handles — a boundary that rejects input, a lookup that finds nothing, a step that
+ * caller handles: a boundary that rejects input, a lookup that finds nothing, a step that
  * cannot run yet. It throws only for a fault the caller cannot do anything about.
  *
  * @template Value - What the step produces when it works.
@@ -103,7 +103,8 @@ export function valueOr<Value, Failure>(result: Result<Value, Failure>, fallback
  * @template Mapped - What the function produces.
  * @template Failure - What the step reports when it refuses.
  * @param {Result<Value, Failure>} result - The result to map.
- * @param {(value: Value) => Mapped} change - Runs on the value of a success, and never on a refusal.
+ * @param {(value: Value) => Mapped} change - Runs on the value of a success, and never on a
+ *     refusal.
  * @returns {Result<Mapped, Failure>} The mapped success, or the same refusal.
  */
 export function mapValue<Value, Mapped, Failure>(
@@ -121,7 +122,8 @@ export function mapValue<Value, Mapped, Failure>(
  * @template Failure - What it reports when it refuses.
  * @template Mapped - What the function produces.
  * @param {Result<Value, Failure>} result - The result to map.
- * @param {(failure: Failure) => Mapped} change - Runs on the reason of a refusal, and never on a success.
+ * @param {(failure: Failure) => Mapped} change - Runs on the reason of a refusal, and never
+ *     on a success.
  * @returns {Result<Value, Mapped>} The same success, or the mapped refusal.
  */
 export function mapFailure<Value, Failure, Mapped>(
@@ -139,7 +141,8 @@ export function mapFailure<Value, Failure, Mapped>(
  * @template Next - What the following step produces.
  * @template Failure - What either step reports when it refuses.
  * @param {Result<Value, Failure>} result - The result of the step before.
- * @param {(value: Value) => Result<Next, Failure>} step - Runs on the value of a success, and never on a refusal.
+ * @param {(value: Value) => Result<Next, Failure>} step - Runs on the value of a success,
+ *     and never on a refusal.
  * @returns {Result<Next, Failure>} The following step's result, or the refusal that stopped
  *     the chain before it ran.
  */
@@ -156,7 +159,8 @@ export function andThen<Value, Next, Failure>(
  *
  * @template Value - What each step produces.
  * @template Failure - What each reports when it refuses.
- * @param {readonly Result<Value, Failure>[]} results - The results to collect, in the order the caller made them.
+ * @param {readonly Result<Value, Failure>[]} results - The results to collect. They are in
+ *     the order the caller made them.
  * @returns {Collected<Value, Failure>} Every value in order when all worked, and otherwise
  *     every reason in order. An empty list succeeds with an empty list.
  */
