@@ -3,13 +3,15 @@
  * and `.dark` overrides them, which is the shape the `dark:` variant and every
  * `bg-background` expect. The theme layer nulls every namespace this package owns and
  * registers every step, so a utility nothing here defines renders nothing rather than
- * rendering Tailwind's default. Keyframes, the custom variants and the densities are
- * authored CSS the design system ships, which every theme's stylesheet imports first.
+ * rendering Tailwind's default. The densities and the motion vocabulary are written here too,
+ * each into a stylesheet of its own, because neither follows a palette and every theme shares
+ * both. The custom variants and the base layer are the one part a theme still authors.
  */
 
 import { safeParse } from '@stealthscale/core-schema'
 
 import { assertComplete } from '#assert.ts'
+import { ANIMATION, KEYFRAMES, PRESS_SCALE, SPINNING, STILL } from '#motion.ts'
 import { buildPalette } from '#palette.ts'
 import { recipeSchema } from '#recipe.ts'
 import {
@@ -432,5 +434,95 @@ export function emitTailwind(): string {
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @plugin '@tailwindcss/typography';
+`
+}
+
+/**
+ * Writes one animation's keyframes.
+ *
+ * @param {string} name - The animation's name, which its `--animate-*` step runs.
+ * @param {Readonly<Record<string, readonly string[]>>} offsets - The declarations at each
+ *     offset, as `KEYFRAMES` holds them.
+ * @returns {string} The `@keyframes` rule.
+ */
+function keyframes(name: string, offsets: Readonly<Record<string, readonly string[]>>): string {
+  const steps = Object.entries(offsets)
+    .map(([offset, declarations]) => {
+      const body = declarations.map((declaration) => `    ${declaration};`).join('\n')
+      return `  ${offset} {\n${body}\n  }`
+    })
+    .join('\n')
+
+  return `@keyframes ${name} {\n${steps}\n}`
+}
+
+/**
+ * Writes one rule.
+ *
+ * @param {string} selector - The selector the rule applies to.
+ * @param {readonly string[]} declarations - The declarations, without their semicolons.
+ * @param {string} [indent] - The indent every line takes. Default: none.
+ * @returns {string} The rule, with each declaration on a line of its own.
+ */
+function rule(selector: string, declarations: readonly string[], indent = ''): string {
+  const body = declarations.map((declaration) => `${indent}  ${declaration};`).join('\n')
+  return `${indent}${selector} {\n${body}\n${indent}}`
+}
+
+/**
+ * Writes the policy a person asking for reduced motion gets.
+ *
+ * The attribute answers as well as the media query, so the path can be reviewed on demand
+ * rather than only on a machine configured for it.
+ *
+ * @returns {string} The rules, in both forms.
+ */
+function stillness(): string {
+  const everything = '*,\n*::before,\n*::after'
+  const attribute =
+    '[data-reduced-motion],\n[data-reduced-motion] *,\n' +
+    '[data-reduced-motion] *::before,\n[data-reduced-motion] *::after'
+
+  return `@media (prefers-reduced-motion: reduce) {
+${rule(':root', ['--press-scale: 1'], '  ')}
+
+${rule(everything, STILL, '  ')}
+
+${rule("[data-slot='spinner']", SPINNING, '  ')}
+}
+
+${rule(attribute, STILL)}
+
+${rule("[data-reduced-motion] [data-slot='spinner']", SPINNING)}`
+}
+
+/**
+ * Writes the motion vocabulary: every animation as a step of the `animate` namespace, the
+ * keyframes those steps run, and what a person asking for reduced motion gets instead.
+ *
+ * It is a stylesheet of its own because a keyframe is a top-level rule and cannot sit inside
+ * the theme layer, and because the vocabulary is the same whatever a recipe solves to: one
+ * theme writes it and every theme extending that one imports it. The reduced-motion policy is
+ * here rather than in a theme's own base because it overrides `--press-scale`, and a rule that
+ * loads before the declaration it overrides does nothing.
+ *
+ * @returns {string} The stylesheet.
+ */
+export function emitMotion(): string {
+  const frames = Object.entries(KEYFRAMES)
+    .map(([name, offsets]) => keyframes(name, offsets))
+    .join('\n\n')
+
+  return `${HEADER}
+
+@theme {
+  --press-scale: ${String(PRESS_SCALE)};
+
+${lines('animate', ANIMATION)}
+}
+
+${frames}
+
+${stillness()}
 `
 }

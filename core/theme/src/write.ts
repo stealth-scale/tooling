@@ -49,8 +49,8 @@ export interface ThemeBase {
 }
 
 /**
- * Writes the stylesheet an app links: Tailwind, the shared base, the densities, then this
- * theme's own tokens.
+ * Writes the stylesheet an app links: Tailwind, the shared base, the densities, the motion
+ * vocabulary, then this theme's own tokens.
  *
  * It is generated rather than authored for two reasons. It names generated files, and a
  * stylesheet a person wrote naming `tokens.css` by hand goes stale the day that file is
@@ -71,6 +71,7 @@ function indexStylesheet(base: string): string {
 @import '${base}/tailwind.css';
 @import '${base}/base.css';
 @import '${base}/density.css';
+@import '${base}/motion.css';
 @import './tokens.css';
 `
 }

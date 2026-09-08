@@ -5,6 +5,7 @@ export {
   boxShadowOf,
   emit,
   emitDensities,
+  emitMotion,
   emitScoped,
   emitTailwind,
   type EmittedTheme,
@@ -26,6 +27,7 @@ export {
   type Outcome,
   RATIOS,
 } from '#ladder.ts'
+export { ANIMATION, KEYFRAMES, PRESS_SCALE, SPINNING, STILL } from '#motion.ts'
 export { NAMED } from '#named.ts'
 export { hex, parseColor } from '#notation.ts'
 export { buildPalette } from '#palette.ts'

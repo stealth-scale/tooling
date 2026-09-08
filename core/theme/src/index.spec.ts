@@ -6,6 +6,7 @@ describe('the package barrel', () => {
   it('exports the contract, the scales, the builder, the emitter and the colour maths', () => {
     expect(Object.keys(theme).toSorted()).toEqual(
       [
+        'ANIMATION',
         'BLUR',
         'CHART_TOKENS',
         'CODE_TOKENS',
@@ -29,6 +30,7 @@ describe('the package barrel', () => {
         'GLOW',
         'GRADIENT_TOKENS',
         'INSET_SHADOW',
+        'KEYFRAMES',
         'LEADING',
         'LIGHT',
         'LIGHT_FILLS',
@@ -38,6 +40,7 @@ describe('the package barrel', () => {
         'OUTLINE_TOKENS',
         'OWNED_NAMESPACES',
         'PERSPECTIVE',
+        'PRESS_SCALE',
         'RADIUS',
         'RADIUS_TOKENS',
         'RATIOS',
@@ -46,8 +49,10 @@ describe('the package barrel', () => {
         'SHADOW',
         'SHADOW_TOKENS',
         'SIDEBAR_TOKENS',
+        'SPINNING',
         'STATUS_HUES',
         'STATUS_TOKENS',
+        'STILL',
         'SURFACE_TOKENS',
         'TARGET_SIZES',
         'TEXT',
@@ -65,6 +70,7 @@ describe('the package barrel', () => {
         'declarations',
         'emit',
         'emitDensities',
+        'emitMotion',
         'emitTailwind',
         'emitScoped',
         'emitTheme',

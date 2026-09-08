@@ -4,12 +4,14 @@ import {
   boxShadowOf,
   emit,
   emitDensities,
+  emitMotion,
   emitScoped,
   emitTailwind,
   emitTheme,
   glowOf,
   radiusOf,
 } from '#emit.ts'
+import { ANIMATION, KEYFRAMES } from '#motion.ts'
 import { CONTROL_SIZES, DENSITY, GLOW, OWNED_NAMESPACES, RADIUS, SHADOW, TEXT } from '#scales.ts'
 import { declarations } from '#stylesheet.ts'
 import { COLOR_TOKENS, REQUIRED_TOKENS, type ThemeValues } from '#tokens.ts'
@@ -217,5 +219,57 @@ describe('emitTailwind', () => {
     expect(lastImport, 'a CSS parser refuses an import that follows another at-rule').toBeLessThan(
       firstPlugin,
     )
+  })
+})
+
+describe('emitMotion', () => {
+  it('registers every animation as a step of the animate namespace', () => {
+    const css = emitMotion()
+
+    for (const [name, shorthand] of Object.entries(ANIMATION)) {
+      expect(css).toContain(`  --animate-${name}: ${shorthand};`)
+    }
+    expect(css, 'a pressed control gives by the scale the contract sets').toContain(
+      '--press-scale: 0.98;',
+    )
+  })
+
+  it('defines the keyframes those steps run, at every offset each names', () => {
+    const css = emitMotion()
+
+    for (const name of Object.keys(KEYFRAMES)) {
+      expect(css).toContain(`@keyframes ${name} {`)
+    }
+    expect(css, 'an offset naming two stops writes one rule').toContain(`  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }`)
+    expect(css, 'and an animation with one stop writes one').toContain(`@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}`)
+  })
+
+  it('stops motion for a person who asks, by the query and by the attribute', () => {
+    const css = emitMotion()
+
+    expect(css).toContain('@media (prefers-reduced-motion: reduce) {')
+    expect(css).toContain('[data-reduced-motion] *::after {')
+    expect(css, 'the press has to be flattened where it is declared').toContain('--press-scale: 1;')
+    expect(css, 'a spinner keeps turning, slowly').toContain(
+      "[data-reduced-motion] [data-slot='spinner'] {",
+    )
+  })
+
+  it('declares the press scale before the rule that flattens it', () => {
+    const css = emitMotion()
+
+    expect(
+      css.indexOf('--press-scale: 0.98;'),
+      'a rule that loads before the declaration it overrides does nothing',
+    ).toBeLessThan(css.indexOf('--press-scale: 1;'))
   })
 })
