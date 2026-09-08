@@ -16,7 +16,7 @@ import {
   type TokenName,
 } from '@stealthscale/core-theme'
 
-import { reached } from './pairs.tsx'
+import { type Criterion, reached } from './pairs.tsx'
 import { CAPTION, CORNER, HAIRLINE, MONO } from './styles.ts'
 import { type CurrentTheme, Themed } from './theme.tsx'
 
@@ -50,6 +50,11 @@ const ROW: CSSProperties = { background: 'transparent' }
  */
 interface Group {
   /**
+   * Names the criterion the pairs are read under, which decides what a ratio reaches.
+   */
+  criterion: Criterion
+
+  /**
    * Sets the ratio every pair has to clear.
    */
   floor: number
@@ -77,19 +82,35 @@ const SURFACE_PAIRS = TEXT_PAIRS.filter(
  * Lists the three groups, in the order the table prints them.
  */
 const GROUPS: readonly Group[] = [
-  { floor: RATIOS.AAA, pairs: SURFACE_PAIRS, title: 'Text on a surface, AAA in every theme' },
   {
+    criterion: 'text',
+    floor: RATIOS.AAA,
+    pairs: SURFACE_PAIRS,
+    title: 'Text on a surface, AAA in every theme',
+  },
+  {
+    criterion: 'text',
     floor: RATIOS.AA,
     pairs: FILL_PAIRS,
     title: "A label on a fill, the level the theme's recipe asked for and AA at the least",
   },
-  { floor: RATIOS.UI, pairs: OUTLINE_PAIRS, title: 'An edge on its surface, 3:1 for a boundary' },
+  {
+    criterion: 'edge',
+    floor: RATIOS.UI,
+    pairs: OUTLINE_PAIRS,
+    title: 'An edge on its surface, the 3:1 WCAG 1.4.11 asks of a boundary',
+  },
 ]
 
 /**
  * Describes one row.
  */
 interface RowProps {
+  /**
+   * Names the criterion the pair is read under.
+   */
+  criterion: Criterion
+
   /**
    * Sets the ratio the pair has to clear.
    */
@@ -113,7 +134,7 @@ interface RowProps {
  *     member.
  * @returns {JSX.Element} The row: the pair, a sample, the ratio, the floor, and the result.
  */
-function Row({ floor, pair: [on, over], tokens }: Readonly<RowProps>): JSX.Element {
+function Row({ criterion, floor, pair: [on, over], tokens }: Readonly<RowProps>): JSX.Element {
   const ratio = contrast(tokens[over], tokens[on])
   const ok = ratio >= floor
 
@@ -140,7 +161,7 @@ function Row({ floor, pair: [on, over], tokens }: Readonly<RowProps>): JSX.Eleme
       </td>
       <td style={{ ...CELL, ...MONO }}>{ratio.toFixed(2)}:1</td>
       <td style={{ ...CELL, ...MONO }}>{floor.toFixed(1)}:1</td>
-      <td style={{ ...CELL, ...MONO }}>{reached(ratio)}</td>
+      <td style={{ ...CELL, ...MONO }}>{reached(ratio, criterion)}</td>
       <td
         style={{
           ...CELL,
@@ -184,7 +205,13 @@ function Rows({ group, tokens }: Readonly<RowsProps>): JSX.Element {
         </th>
       </tr>
       {group.pairs.map((pair) => (
-        <Row floor={group.floor} key={`${pair[1]} on ${pair[0]}`} pair={pair} tokens={tokens} />
+        <Row
+          criterion={group.criterion}
+          floor={group.floor}
+          key={`${pair[1]} on ${pair[0]}`}
+          pair={pair}
+          tokens={tokens}
+        />
       ))}
     </>
   )

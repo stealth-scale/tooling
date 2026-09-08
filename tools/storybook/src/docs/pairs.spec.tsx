@@ -12,15 +12,16 @@ function levelOf(drawn: Element | undefined): string | undefined {
 }
 
 describe('reached', () => {
-  it('names the level a ratio reaches', () => {
+  it('names the level text reaches, under 1.4.3', () => {
     expect(reached(7)).toBe('AAA')
     expect(reached(4.5)).toBe('AA')
-    expect(reached(3)).toBe('UI')
-    expect(reached(2.99)).toBe('fails')
+    expect(reached(4.49)).toBe('fails')
   })
 
-  it('names the boundary level, so an edge clearing 3:1 is not reported as reaching none', () => {
-    expect(reached(4.49)).toBe('UI')
+  it('holds an edge to 1.4.11, which is AA at 3:1 and offers no enhanced level', () => {
+    expect(reached(3, 'edge')).toBe('AA')
+    expect(reached(2.99, 'edge')).toBe('fails')
+    expect(reached(21, 'edge'), 'no boundary reaches AAA, because 1.4.11 defines none').toBe('AA')
   })
 })
 

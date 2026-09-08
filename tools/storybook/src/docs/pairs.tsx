@@ -13,23 +13,32 @@ import { BADGE, CAPTION, CORNER, GRID, HAIRLINE, MONO } from './styles.ts'
 import { type CurrentTheme, Themed } from './theme.tsx'
 
 /**
- * Names the level a ratio reaches, or that it reaches none of them.
+ * Names which success criterion a pair is read under, because the two set different floors
+ * for the same conformance level.
  */
-export type Reached = 'AA' | 'AAA' | 'fails' | 'UI'
+export type Criterion = 'edge' | 'text'
 
 /**
- * Names the highest level a ratio reaches.
+ * Names the conformance level a ratio reaches, or that it reaches neither.
+ */
+export type Reached = 'AA' | 'AAA' | 'fails'
+
+/**
+ * Names the highest conformance level a ratio reaches under the criterion that applies to it.
  *
- * `UI` is on the ladder because an edge is held to 3:1 and never to a text level: without it
- * a boundary that clears its own floor is reported as reaching nothing.
+ * Text is read under 1.4.3, which sets AA at 4.5:1 and AAA at 7:1. A boundary is read under
+ * 1.4.11, which sets one floor at 3:1 and is itself a Level AA criterion with no enhanced
+ * variant: an edge reaches AA at 3:1 and cannot reach AAA at all. A single ladder would
+ * report an edge that clears its own floor as reaching nothing.
  *
  * @param {number} ratio - The contrast ratio, 1 to 21.
- * @returns {Reached} `AAA` at 7:1, `AA` at 4.5:1, `UI` at 3:1, and `fails` below that.
+ * @param {Criterion} [criterion] - The criterion the pair is read under. Default: `text`.
+ * @returns {Reached} The level reached, and `fails` below the criterion's own floor.
  */
-export function reached(ratio: number): Reached {
+export function reached(ratio: number, criterion: Criterion = 'text'): Reached {
+  if (criterion === 'edge') return ratio >= RATIOS.UI ? 'AA' : 'fails'
   if (ratio >= RATIOS.AAA) return 'AAA'
   if (ratio >= RATIOS.AA) return 'AA'
-  if (ratio >= RATIOS.UI) return 'UI'
   return 'fails'
 }
 
