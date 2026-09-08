@@ -1,11 +1,11 @@
 # @stealthscale/core-appearance
 
-A **library**: the host, the catalogue and a settings screen all install it.
+A **library**: the host, Storybook and a settings screen all install it.
 
 How a product is drawn for one person, as one value: which theme resolves the tokens, light
 or dark within it, the control density, whether motion is reduced, the locale the words are
 rendered in, and the direction its text runs. Every writer builds the same value and one
-provider reads it, so the host, the catalogue's toolbars and a settings form cannot disagree
+provider reads it, so the host, Storybook's toolbars and a settings form cannot disagree
 about what the document carries.
 
 ```ts
@@ -30,8 +30,8 @@ nothing and every value takes its one written default.
 
 `ATTRIBUTES` names the attribute each value is written to, and `MODE_CLASS` the class that
 marks dark mode. The table is the contract between three parties that never import each
-other's code: the base stylesheet writes its selectors against it, the host and the
-catalogue write the document with it, and a spec holds the stylesheet to it.
+other's code: the base stylesheet writes its selectors against it, the host and
+Storybook write the document with it, and a spec holds the stylesheet to it.
 
 `appearanceSchema(offered)` refuses a value a boundary receives that names a theme, a density
 or a mode the product does not offer, or a locale that is no tag, with codes a catalogue
@@ -39,7 +39,7 @@ translates.
 
 ## What a design system contributes
 
-A host and a catalogue need the same three things before the first pixel: the provider to
+A host and a Storybook need the same three things before the first pixel: the provider to
 render, the stylesheets to load before any theme, and the densities on offer. The package
 that has them says so in its manifest, under the `stealth` field the toolchain reads:
 

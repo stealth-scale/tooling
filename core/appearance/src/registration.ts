@@ -1,12 +1,19 @@
 /**
  * @fileoverview States how a design system declares what it contributes to anything that
- * draws with it, which is one entry in its `stealth` manifest field. A host and a catalogue
- * both need the same three things before the first pixel: the provider to render, the
- * stylesheets to load before any theme, and the densities on offer. They read that entry
+ * draws with it, which is one entry in its `stealth` manifest field. A host and a Storybook
+ * both need the same things before the first pixel: the provider to render, the stylesheets
+ * to load before any theme, and the densities and locales on offer. They read that entry
  * rather than each keeping its own list.
  */
 
-import { array, exactOptional, looseObject, type SchemaOf, string } from '@stealthscale/core-schema'
+import {
+  array,
+  exactOptional,
+  locale,
+  looseObject,
+  type SchemaOf,
+  string,
+} from '@stealthscale/core-schema'
 
 /**
  * Names the key a design system registers itself under, inside the `stealth` field.
@@ -25,6 +32,12 @@ export interface AppearanceContribution {
    * what an offer's `densities` is built from.
    */
   densities?: readonly string[]
+
+  /**
+   * Lists the locales the product ships words for, as BCP-47 tags, the first being the
+   * fallback. They are what an offer's `locales` is built from.
+   */
+  locales?: readonly string[]
 
   /**
    * Names the module whose default export applies an appearance to the tree below it,
@@ -47,6 +60,7 @@ export interface AppearanceContribution {
  */
 export const APPEARANCE_CONTRIBUTION: SchemaOf<AppearanceContribution> = looseObject({
   densities: exactOptional(array(string())),
+  locales: exactOptional(array(locale())),
   provider: exactOptional(string()),
   stylesheets: exactOptional(array(string())),
 })

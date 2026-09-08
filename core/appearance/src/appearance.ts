@@ -1,7 +1,7 @@
 /**
  * @fileoverview Names the six values a product sets on its document before it draws anything,
  * as one value every writer builds and one reader takes: the host from a deployment document
- * and a person's settings, the catalogue from its toolbars, a settings screen from a form.
+ * and a person's settings, Storybook from its toolbars, a settings screen from a form.
  */
 
 import { type Direction } from '@stealthscale/core-locale'

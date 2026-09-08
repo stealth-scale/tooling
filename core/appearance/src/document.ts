@@ -1,7 +1,7 @@
 /**
  * @fileoverview Writes an appearance on the document root and reads one back. The attribute
  * names are the contract between three parties that never import each other's code: the base
- * stylesheet writes its selectors against them, the host and the catalogue write the document
+ * stylesheet writes its selectors against them, the host and Storybook write the document
  * with them, and a spec holds the stylesheet to the table.
  */
 
