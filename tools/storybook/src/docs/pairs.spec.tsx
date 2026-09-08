@@ -15,7 +15,12 @@ describe('reached', () => {
   it('names the level a ratio reaches', () => {
     expect(reached(7)).toBe('AAA')
     expect(reached(4.5)).toBe('AA')
-    expect(reached(4.49)).toBe('fails')
+    expect(reached(3)).toBe('UI')
+    expect(reached(2.99)).toBe('fails')
+  })
+
+  it('names the boundary level, so an edge clearing 3:1 is not reported as reaching none', () => {
+    expect(reached(4.49)).toBe('UI')
   })
 })
 

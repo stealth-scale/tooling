@@ -13,19 +13,23 @@ import { BADGE, CAPTION, CORNER, GRID, HAIRLINE, MONO } from './styles.ts'
 import { type CurrentTheme, Themed } from './theme.tsx'
 
 /**
- * Names the level a ratio reaches, or that it reaches neither.
+ * Names the level a ratio reaches, or that it reaches none of them.
  */
-export type Reached = 'AA' | 'AAA' | 'fails'
+export type Reached = 'AA' | 'AAA' | 'fails' | 'UI'
 
 /**
- * Names the level a ratio reaches.
+ * Names the highest level a ratio reaches.
+ *
+ * `UI` is on the ladder because an edge is held to 3:1 and never to a text level: without it
+ * a boundary that clears its own floor is reported as reaching nothing.
  *
  * @param {number} ratio - The contrast ratio, 1 to 21.
- * @returns {Reached} `AAA` at 7:1, `AA` at 4.5:1, and `fails` below that.
+ * @returns {Reached} `AAA` at 7:1, `AA` at 4.5:1, `UI` at 3:1, and `fails` below that.
  */
 export function reached(ratio: number): Reached {
   if (ratio >= RATIOS.AAA) return 'AAA'
   if (ratio >= RATIOS.AA) return 'AA'
+  if (ratio >= RATIOS.UI) return 'UI'
   return 'fails'
 }
 
@@ -33,6 +37,12 @@ export function reached(ratio: number): Reached {
  * Describes one ratio to print.
  */
 interface RatioProps {
+  /**
+   * Sets the ratio this pair has to clear, which decides whether the badge reads as a
+   * failure. A fill and its label are held to `AA`, an ink to `AAA`.
+   */
+  floor: number
+
   /**
    * Carries the colour the words sit on.
    */
@@ -55,13 +65,18 @@ interface RatioProps {
  * @param {RatioProps} props - The two colours. `RatioProps` documents every member.
  * @returns {JSX.Element} The ratio to two decimals, then the level, in a badge.
  */
-function Ratio({ on, over }: Readonly<RatioProps>): JSX.Element {
+function Ratio({ floor, on, over }: Readonly<RatioProps>): JSX.Element {
   const ratio = contrast(over, on)
   const level = reached(ratio)
-  const tone = level === 'fails' ? 'var(--destructive-ink)' : 'var(--foreground)'
+  const ok = ratio >= floor
+  const tone = ok ? 'var(--success-ink)' : 'var(--destructive-ink)'
 
   return (
-    <span data-reached={level} style={{ ...BADGE, ...MONO, color: tone, justifySelf: 'start' }}>
+    <span
+      data-ok={ok ? '' : undefined}
+      data-reached={level}
+      style={{ ...BADGE, ...MONO, color: tone, justifySelf: 'start' }}
+    >
       {ratio.toFixed(2)}:1 {level}
     </span>
   )
@@ -112,7 +127,7 @@ export function Pairs({ pairs }: Readonly<PairsProps>): JSX.Element {
             >
               <span style={{ fontWeight: 600 }}>{fill}</span>
               <code style={{ ...MONO, fontSize: '0.75rem' }}>{text}</code>
-              <Ratio on={tokens[fill]} over={tokens[text]} />
+              <Ratio floor={RATIOS.AA} on={tokens[fill]} over={tokens[text]} />
             </div>
           ))}
         </div>
@@ -170,7 +185,7 @@ export function Inks({ on = 'background', tokens: named }: Readonly<InksProps>):
               </span>
               <code style={{ ...MONO, fontSize: '0.8125rem' }}>{token}</code>
               <span style={CAPTION}>{tokens[token]}</span>
-              <Ratio on={tokens[on]} over={tokens[token]} />
+              <Ratio floor={RATIOS.AAA} on={tokens[on]} over={tokens[token]} />
             </div>
           ))}
         </div>

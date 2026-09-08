@@ -37,6 +37,15 @@ const CELL: CSSProperties = {
 const HEAD: CSSProperties = { ...CELL, color: 'var(--muted-foreground)', fontWeight: 500 }
 
 /**
+ * Sets every row on the page's own surface.
+ *
+ * Storybook's documentation stylesheet paints every second row of a table a fixed grey, which
+ * is neither of this theme's surfaces and reads as banding in dark mode. An inline background
+ * outranks that rule, so the table sits on the page whatever theme is on.
+ */
+const ROW: CSSProperties = { background: 'transparent' }
+
+/**
  * Describes one group of guarantees: the pairs, and the floor every theme holds them to.
  */
 interface Group {
@@ -109,7 +118,7 @@ function Row({ floor, pair: [on, over], tokens }: Readonly<RowProps>): JSX.Eleme
   const ok = ratio >= floor
 
   return (
-    <tr data-ok={ok ? '' : undefined} data-slot="guarantee">
+    <tr data-ok={ok ? '' : undefined} data-slot="guarantee" style={ROW}>
       <td style={{ ...CELL, ...MONO, fontSize: '0.75rem' }}>
         {over}
         <br />
@@ -135,7 +144,7 @@ function Row({ floor, pair: [on, over], tokens }: Readonly<RowProps>): JSX.Eleme
       <td
         style={{
           ...CELL,
-          color: ok ? 'var(--foreground)' : 'var(--destructive-ink)',
+          color: ok ? 'var(--success-ink)' : 'var(--destructive-ink)',
           fontWeight: 600,
         }}
       >
@@ -169,7 +178,7 @@ interface RowsProps {
 function Rows({ group, tokens }: Readonly<RowsProps>): JSX.Element {
   return (
     <>
-      <tr>
+      <tr style={ROW}>
         <th colSpan={6} scope="colgroup" style={{ ...HEAD, paddingTop: '1.25rem' }}>
           {group.title}
         </th>
@@ -195,7 +204,7 @@ export function Guarantees(): JSX.Element {
       {({ tokens }: CurrentTheme) => (
         <table style={{ borderCollapse: 'collapse', margin: '1.5rem 0', width: '100%' }}>
           <thead>
-            <tr>
+            <tr style={ROW}>
               <th style={HEAD}>Text on surface</th>
               <th style={HEAD}>Sample</th>
               <th style={HEAD}>Ratio</th>
