@@ -3,7 +3,8 @@ dist/
 coverage/
 *.tsbuildinfo
 
-# Emitted by the pack step's declaration build when a spec reaches a config file
+# A package's tsconfig includes only src, so a declaration build never reaches a config.
+# The pattern keeps the artefact out of a commit if one ever does.
 *.config.d.ts
 
 # Written by `vp config`, which `prepare` runs on install
