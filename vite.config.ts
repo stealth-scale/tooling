@@ -1,4 +1,6 @@
+import { storybookTest } from '@storybook/addon-vitest/vitest-plugin'
 import { defineConfig } from 'vite-plus'
+import { playwright } from 'vite-plus/test/browser-playwright'
 
 // By relative path, not by name: the source condition that resolves a workspace package to
 // its source is set by the config being loaded, so this one file cannot use it. Every other
@@ -44,5 +46,23 @@ export default defineConfig({
 
   // The `stealth` bin hands its command to citty and decides nothing, so there is nothing in
   // it to specify; the command it starts is specified in full beside it.
-  test: testConfig({ dom: true, uncovered: ['tools/cli/src/bin/**'] }),
+  test: testConfig({
+    dom: true,
+    projects: [
+      {
+        extends: true,
+        plugins: [storybookTest({ configDir: 'tools/storybook/.storybook' })],
+        test: {
+          browser: {
+            enabled: true,
+            headless: true,
+            instances: [{ browser: 'chromium' }],
+            provider: playwright(),
+          },
+          name: 'stories',
+        },
+      },
+    ],
+    uncovered: ['tools/cli/src/bin/**'],
+  }),
 })

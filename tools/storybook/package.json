@@ -21,41 +21,27 @@
       "stealth-source": "./src/index.ts",
       "default": "./dist/index.mjs"
     },
-    "./config": {
-      "stealth-source": "./src/config/index.ts",
-      "default": "./dist/config/index.mjs"
-    },
-    "./manager": {
-      "stealth-source": "./src/preview/manager.tsx",
-      "default": "./dist/preview/manager.mjs"
-    },
-    "./package.json": "./package.json",
-    "./preset": {
-      "stealth-source": "./src/preview/preset.ts",
-      "default": "./dist/preview/preset.mjs"
-    },
-    "./preview": {
-      "stealth-source": "./src/preview/index.ts",
-      "default": "./dist/preview/index.mjs"
-    }
+    "./package.json": "./package.json"
   },
   "publishConfig": {
     "exports": {
       ".": "./dist/index.mjs",
-      "./config": "./dist/config/index.mjs",
-      "./manager": "./dist/preview/manager.mjs",
-      "./package.json": "./package.json",
-      "./preset": "./dist/preview/preset.mjs",
-      "./preview": "./dist/preview/index.mjs"
+      "./package.json": "./package.json"
     },
     "access": "public"
   },
   "scripts": {
-    "build": "vp pack src/index.ts src/config/index.ts src/preview/index.ts src/preview/manager.tsx src/preview/preset.ts"
+    "build": "vp pack src/index.ts"
   },
   "dependencies": {
+    "@storybook/addon-a11y": "catalog:",
+    "@storybook/addon-docs": "catalog:",
+    "@storybook/addon-vitest": "catalog:",
+    "@vitest/browser-playwright": "catalog:",
     "magic-string": "catalog:",
-    "react-docgen": "catalog:"
+    "playwright": "catalog:",
+    "react-docgen": "catalog:",
+    "storybook-addon-pseudo-states": "catalog:"
   },
   "devDependencies": {
     "@stealthscale/tool-config": "workspace:^",

@@ -159,7 +159,7 @@ function run(file: string, args: readonly string[], options: RunOptions): Promis
 /**
  * Sets how long a stopped process is given to leave on `SIGTERM` before it is killed.
  */
-const GRACE_MS = 5000
+const GRACE_MS = 1000
 
 /**
  * Starts one long-lived process, owned by its pid.

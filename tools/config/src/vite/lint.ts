@@ -39,6 +39,23 @@ const BASE_PLUGINS: LintPlugins = ['typescript', 'unicorn', 'oxc', 'import', 'pr
 const UNDOCUMENTED_FILES = ['**/*.spec.ts', '**/*.spec.tsx', '**/*.stories.ts', '**/*.stories.tsx']
 
 /**
+ * Where a repository's catalogue configuration sits.
+ *
+ * Storybook reads each of these files by its default export, and they are configuration
+ * rather than source, so they carry no docblocks either.
+ */
+const CATALOGUE_CONFIG = '**/.storybook/**'
+
+/**
+ * What a tool loads by its default export rather than by name.
+ *
+ * A configuration file and a story file are both read by something that decides what to do
+ * with the whole module: Vite and Storybook load a config by its default export, and a story
+ * file's default export is the meta the indexer reads. Everything else exports names.
+ */
+const DEFAULT_EXPORTED = ['**/*.config.ts', '**/*.stories.ts', '**/*.stories.tsx']
+
+/**
  * One tier's rule about what it may import.
  *
  * A tier is a directory and a layering rule. This states the rule as something the linter
@@ -129,8 +146,8 @@ function layerOverrides(layers: readonly Layer[]): LintOverride[] {
 }
 
 /**
- * The overrides every repository gets: Node's console where output is the interface, and the
- * two relaxations a specification needs.
+ * The overrides every repository gets: Node's console where output is the interface, what a
+ * tool loads by its default export, and the two relaxations a specification needs.
  *
  * A `describe` block is a container rather than a unit of logic, so its length is the number
  * of cases and splitting it scatters what a reader came for. And a specification narrows a
@@ -147,7 +164,8 @@ function sharedOverrides(node: readonly string[]): LintOverride[] {
   }
 
   overrides.push(
-    { files: ['**/*.config.ts'], rules: { 'no-default-export': 'off' } },
+    { files: DEFAULT_EXPORTED, rules: { 'no-default-export': 'off' } },
+    { files: [CATALOGUE_CONFIG], rules: { ...docblocksOff(), 'no-default-export': 'off' } },
     {
       files: UNDOCUMENTED_FILES,
       plugins: [...BASE_PLUGINS, 'vitest'],
