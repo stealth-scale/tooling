@@ -5,6 +5,7 @@
  */
 
 export { commandMeta, stealth } from './cli.ts'
+export { type TagEvent, tagEvent, writeTagEvents } from './release/changesets.ts'
 export { releaseCommand, releaseCommandWith, type ReleaseDeps } from './release/command.ts'
 export {
   missingFiles,

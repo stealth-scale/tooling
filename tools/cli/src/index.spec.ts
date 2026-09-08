@@ -27,10 +27,12 @@ describe('index', () => {
       'render',
       'shell',
       'stealth',
+      'tagEvent',
       'withTrailingSlash',
       'workspaceManifests',
       'workspacePatterns',
       'workspaceRoot',
+      'writeTagEvents',
     ])
   })
 })

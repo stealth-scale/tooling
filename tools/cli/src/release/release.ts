@@ -8,14 +8,25 @@ import { mkdirSync } from 'node:fs'
 import { failed, lastLines, passed, type Report, type Step } from '../report/report.ts'
 import type { Shell } from '../shell/shell.ts'
 import { dependencyClosure, type Manifest, workspaceManifests } from '../workspace/manifests.ts'
+import { type TagEvent, tagEvent, writeTagEvents } from './changesets.ts'
 import { missingFiles, pack, type PublishOptions, publishTarball } from './packages.ts'
 import { configuredRegistry, registryHasVersion, withTrailingSlash } from './registry.ts'
 
 /**
- * Prefixes the line changesets/action reads to create a GitHub release. The format is
- * theirs: a line that starts with this, then `<name>@<version>`.
+ * Describes what releasing one package came to.
  */
-const TAG_LINE_PREFIX = 'New tag: '
+interface Released {
+  /**
+   * Carries the step, for the report.
+   */
+  step: Step
+
+  /**
+   * Carries the tag entry, when the package went out. A package that was skipped, refused or
+   * only rehearsed has none.
+   */
+  tag?: TagEvent | undefined
+}
 
 /**
  * Describes what the release set came to.
@@ -36,6 +47,12 @@ export interface ReleaseSet {
  * Describes what a release run is told.
  */
 export interface ReleaseOptions extends PublishOptions {
+  /**
+   * Names the file changesets/action reads the published tags from, as it handed it over in
+   * `CHANGESETS_OUTPUT`. Left out, a run tells nothing and no tag is created.
+   */
+  changesetsOutput?: string | undefined
+
   /**
    * Asks the registry whether it has a version already.
    */
@@ -84,29 +101,29 @@ export function releaseSet(root: string): ReleaseSet {
  * @param {string} registry - The registry to ask, unless the manifest names its own.
  * @param {ReleaseOptions} options - How to publish, and where the tarballs go.
  * @param {Shell} shell - The shell that runs bun and npm.
- * @returns {Promise<Step>} The step, with the tag line, the reason for skipping, or the failure.
+ * @returns {Promise<Released>} The step, and the tag entry when the package went out.
  */
 async function releaseOne(
   manifest: Manifest,
   registry: string,
   options: ReleaseOptions,
   shell: Shell,
-): Promise<Step> {
+): Promise<Released> {
   const name = `publish ${manifest.name}@${manifest.version}`
   const target = manifest.registry === undefined ? registry : withTrailingSlash(manifest.registry)
   if (await registryHasVersion(target, manifest, options.fetch)) {
-    return passed(name, 'already on the registry')
+    return { step: passed(name, 'already on the registry') }
   }
   const missing = missingFiles(manifest)
-  if (missing.length > 0) return failed(name, `not built: ${missing.join(', ')} missing`)
+  if (missing.length > 0) return { step: failed(name, `not built: ${missing.join(', ')} missing`) }
   const { packed, step } = await pack(manifest, options.tarballs, shell)
-  if (packed === undefined) return step
+  if (packed === undefined) return { step }
   const outcome = await publishTarball(packed.tarball, options.tarballs, options, shell)
-  if (outcome.code !== 0) return failed(name, lastLines(`${outcome.stdout}\n${outcome.stderr}`))
-  return passed(
-    name,
-    options.dryRun ? 'dry run' : `${TAG_LINE_PREFIX}${manifest.name}@${manifest.version}`,
-  )
+  if (outcome.code !== 0) {
+    return { step: failed(name, lastLines(`${outcome.stdout}\n${outcome.stderr}`)) }
+  }
+  if (options.dryRun) return { step: passed(name, 'dry run') }
+  return { step: passed(name, 'published'), tag: tagEvent(manifest) }
 }
 
 /**
@@ -117,26 +134,21 @@ async function releaseOne(
  * @param {string} registry - The registry to ask, unless a manifest names its own.
  * @param {ReleaseOptions} options - How to publish, and where the tarballs go.
  * @param {Shell} shell - The shell that runs bun and npm.
- * @returns {Promise<Step[]>} One step per package.
+ * @returns {Promise<Released[]>} One entry per package, in the order they were tried.
  */
 function releaseAll(
   ordered: readonly Manifest[],
   registry: string,
   options: ReleaseOptions,
   shell: Shell,
-): Promise<Step[]> {
-  return ordered.reduce<Promise<Step[]>>(async (before, manifest) => {
-    const steps = await before
-    if (steps.some((step) => !step.ok)) {
-      return [
-        ...steps,
-        failed(
-          `publish ${manifest.name}@${manifest.version}`,
-          'not attempted: an earlier publish failed',
-        ),
-      ]
+): Promise<Released[]> {
+  return ordered.reduce<Promise<Released[]>>(async (before, manifest) => {
+    const done = await before
+    if (done.some(({ step }) => !step.ok)) {
+      const name = `publish ${manifest.name}@${manifest.version}`
+      return [...done, { step: failed(name, 'not attempted: an earlier publish failed') }]
     }
-    return [...steps, await releaseOne(manifest, registry, options, shell)]
+    return [...done, await releaseOne(manifest, registry, options, shell)]
   }, Promise.resolve([]))
 }
 
@@ -160,9 +172,18 @@ export async function release(options: ReleaseOptions, shell: Shell): Promise<Re
     options.registry === undefined
       ? await configuredRegistry(shell, options.tarballs)
       : withTrailingSlash(options.registry)
-  const steps = await releaseAll(ordered, registry, options, shell)
+  const released = await releaseAll(ordered, registry, options, shell)
+  if (options.changesetsOutput !== undefined) {
+    writeTagEvents(
+      options.changesetsOutput,
+      released.flatMap(({ tag }) => (tag === undefined ? [] : [tag])),
+    )
+  }
   return {
-    steps: [passed('release set', `${ordered.length} packages to ${registry}`), ...steps],
+    steps: [
+      passed('release set', `${ordered.length} packages to ${registry}`),
+      ...released.map(({ step }) => step),
+    ],
     workdir: options.tarballs,
   }
 }

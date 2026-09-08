@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vite-plus/test'
 
@@ -77,9 +78,9 @@ describe('release', () => {
 
     expect(report.steps).toEqual([
       { detail: `4 packages to ${REGISTRY}`, name: 'release set', ok: true },
-      { detail: 'New tag: @t/utils@0.1.0', name: 'publish @t/utils@0.1.0', ok: true },
+      { detail: 'published', name: 'publish @t/utils@0.1.0', ok: true },
       { detail: 'already on the registry', name: 'publish @t/theme-base@0.1.0', ok: true },
-      { detail: 'New tag: @t/ui@0.1.0', name: 'publish @t/ui@0.1.0', ok: true },
+      { detail: 'published', name: 'publish @t/ui@0.1.0', ok: true },
       { detail: 'not built: dist missing', name: 'publish @t/unbuilt@0.1.0', ok: false },
     ])
     expect(fake.asked.map((asked) => asked.command)).toEqual([
@@ -217,6 +218,51 @@ describe('release', () => {
       },
     ])
     expect(fake.asked).toEqual([])
+    scratch.remove()
+  })
+
+  it('tells changesets what went out, and nothing about a package it skipped', async () => {
+    const scratch = releaseWorkspace()
+    const output = scratch.path('changesets.ndjson')
+
+    await release(
+      {
+        changesetsOutput: output,
+        dryRun: false,
+        fetch: registryWith({ '@t/theme-base': ['0.1.0'] }),
+        provenance: false,
+        registry: REGISTRY,
+        root: scratch.root,
+        tarballs: scratch.path('tarballs'),
+      },
+      recordingShell(packing).shell,
+    )
+
+    expect(readFileSync(output, 'utf8')).toBe(
+      '{"packageName":"@t/utils","tag":"@t/utils@0.1.0","type":"git-tag"}\n' +
+        '{"packageName":"@t/ui","tag":"@t/ui@0.1.0","type":"git-tag"}\n',
+    )
+    scratch.remove()
+  })
+
+  it('tells changesets nothing went out on a dry run, rather than leaving it guessing', async () => {
+    const scratch = releaseWorkspace()
+    const output = scratch.path('changesets.ndjson')
+
+    await release(
+      {
+        changesetsOutput: output,
+        dryRun: true,
+        fetch: registryWith({}),
+        provenance: false,
+        registry: REGISTRY,
+        root: scratch.root,
+        tarballs: scratch.path('tarballs'),
+      },
+      recordingShell(packing).shell,
+    )
+
+    expect(readFileSync(output, 'utf8')).toBe('')
     scratch.remove()
   })
 

@@ -1,5 +1,5 @@
 import { runCommand } from 'citty'
-import { existsSync, readdirSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
@@ -8,10 +8,11 @@ import { releaseCommand, releaseCommandWith, type ReleaseDeps } from './command.
 import { CONFIGURED_REGISTRY, packing, registryWith, releaseWorkspace } from './release.fixtures.ts'
 
 /** The command, its dependencies, and what it wrote. */
-function commandFor(cwd: string, versions: Record<string, string[]> = {}) {
+function commandFor(cwd: string, versions: Record<string, string[]> = {}, changesets?: string) {
   const fake = recordingShell(packing)
   const written: string[] = []
   const deps: ReleaseDeps = {
+    changesetsOutput: changesets,
     cwd,
     fetch: registryWith(versions),
     log: (text) => {
@@ -116,6 +117,19 @@ describe('releaseCommandWith', () => {
 
     expect(written.join('')).toContain('5 steps, all passed')
     expect(process.exitCode).toBe(exitCode)
+    scratch.remove()
+  })
+})
+
+describe('releaseCommand with a changesets output', () => {
+  it('writes the tags where the action reads them', async () => {
+    const scratch = releaseWorkspace()
+    const output = scratch.path('changesets.ndjson')
+    const { command } = commandFor(scratch.root, { '@t/unbuilt': ['0.1.0'] }, output)
+
+    await runCommand(command, { rawArgs: ['--tarballs', scratch.path('t')] })
+
+    expect(readFileSync(output, 'utf8').trim().split('\n')).toHaveLength(3)
     scratch.remove()
   })
 })

@@ -60,6 +60,12 @@ const RELEASE_ARGS = {
  */
 export interface ReleaseDeps {
   /**
+   * Names the file changesets/action reads the published tags from, which it hands the run
+   * in `CHANGESETS_OUTPUT`. Outside that action there is nothing to tell and nothing here.
+   */
+  changesetsOutput: string | undefined
+
+  /**
    * Names the directory the command was run in, which is where the workspace is looked for.
    */
   cwd: string
@@ -94,6 +100,7 @@ export interface ReleaseDeps {
 async function runRelease(args: ParsedArgs<typeof RELEASE_ARGS>, deps: ReleaseDeps): Promise<void> {
   const report = await release(
     {
+      changesetsOutput: deps.changesetsOutput,
       dryRun: args['dry-run'],
       fetch: deps.fetch,
       provenance: args.provenance,
@@ -137,6 +144,7 @@ export function releaseCommandWith(deps: ReleaseDeps): CommandDef<typeof RELEASE
  * shell and the terminal.
  */
 export const releaseCommand = releaseCommandWith({
+  changesetsOutput: process.env['CHANGESETS_OUTPUT'],
   cwd: process.cwd(),
   fetch,
   log: process.stdout.write.bind(process.stdout),
