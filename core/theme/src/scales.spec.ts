@@ -89,7 +89,7 @@ describe('the shadows', () => {
     const layers = [
       ...Object.values(SHADOW).flat(),
       ...Object.values(GLOW).flat(),
-      ...Object.values(INSET_SHADOW),
+      ...Object.values(INSET_SHADOW).flat(),
       ...Object.values(DROP_SHADOW).flat(),
       ...Object.values(TEXT_SHADOW).flat(),
     ]

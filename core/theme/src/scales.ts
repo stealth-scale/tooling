@@ -102,12 +102,13 @@ export const SHADOW: Readonly<Record<string, readonly ShadowLayer[]>> = {
 }
 
 /**
- * Sets each inset shadow, drawn from the theme's shadow colour.
+ * Sets each inset shadow, drawn from the theme's shadow colour. Each step is one layer, in
+ * the shape the other shadow tables share.
  */
-export const INSET_SHADOW: Readonly<Record<string, ShadowLayer>> = {
-  '2xs': { fraction: 20, geometry: 'inset 0 1px' },
-  sm: { fraction: 20, geometry: 'inset 0 2px 4px' },
-  xs: { fraction: 20, geometry: 'inset 0 1px 1px' },
+export const INSET_SHADOW: Readonly<Record<string, readonly ShadowLayer[]>> = {
+  '2xs': [{ fraction: 20, geometry: 'inset 0 1px' }],
+  sm: [{ fraction: 20, geometry: 'inset 0 2px 4px' }],
+  xs: [{ fraction: 20, geometry: 'inset 0 1px 1px' }],
 }
 
 /**

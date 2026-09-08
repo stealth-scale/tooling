@@ -181,7 +181,7 @@ ${lines('radius', radii)}
 
 ${boxShadows()}
 
-${lines('inset-shadow', Object.fromEntries(Object.entries(INSET_SHADOW).map(([step, one]): [string, string] => [step, layer(one)])))}
+${layeredShadows('inset-shadow', INSET_SHADOW)}
 
 ${layeredShadows('drop-shadow', DROP_SHADOW)}
 
