@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { describe, expect, it } from 'vite-plus/test'
 
 import { packageFiles, scratchWorkspace } from '@stealthscale/tool-testing'
@@ -149,5 +151,54 @@ describe('publishTarball', () => {
     )
 
     expect(fake.asked[0]?.command).not.toContain('--registry')
+  })
+})
+
+describe('pack, writing the ranges', () => {
+  it('publishes the version going out, not the one the lockfile remembers', async () => {
+    const declared = { dependencies: { '@t/b': 'workspace:^' }, name: '@t/a', version: '0.1.0' }
+    const workspace = scratchWorkspace({ 'packages/a/package.json': JSON.stringify(declared) })
+    const directory = workspace.path('packages/a')
+    const seen: string[] = []
+    const { shell } = recordingShell(() => {
+      seen.push(readFileSync(join(directory, 'package.json'), 'utf8'))
+      return { stdout: 'a-0.1.0.tgz\n' }
+    })
+
+    await pack(manifest('@t/a', { directory }), '/out', shell, new Map([['@t/b', '0.1.0']]))
+
+    expect(seen[0], 'what bun packed').toContain('"@t/b": "^0.1.0"')
+    expect(
+      readFileSync(join(directory, 'package.json'), 'utf8'),
+      'and the file it was packed from, put back',
+    ).toBe(JSON.stringify(declared))
+  })
+
+  it('puts the manifest back when bun fails, so a broken run leaves no edit behind', async () => {
+    const declared = { dependencies: { '@t/b': 'workspace:^' }, name: '@t/a', version: '0.1.0' }
+    const workspace = scratchWorkspace({ 'packages/a/package.json': JSON.stringify(declared) })
+    const directory = workspace.path('packages/a')
+    const { shell } = recordingShell(() => {
+      throw new Error('bun died')
+    })
+
+    await expect(
+      pack(manifest('@t/a', { directory }), '/out', shell, new Map([['@t/b', '0.1.0']])),
+    ).rejects.toThrow(/bun died/u)
+    expect(readFileSync(join(directory, 'package.json'), 'utf8')).toBe(JSON.stringify(declared))
+  })
+
+  it('refuses a manifest that is not an object rather than writing an empty one over it', async () => {
+    const workspace = scratchWorkspace({ 'packages/a/package.json': '"not a manifest"' })
+    const directory = workspace.path('packages/a')
+    const { shell } = recordingShell()
+
+    await expect(
+      pack(manifest('@t/a', { directory }), '/out', shell, new Map([['@t/b', '0.1.0']])),
+    ).rejects.toThrow(/parsed to string/u)
+    expect(
+      readFileSync(join(directory, 'package.json'), 'utf8'),
+      'and it threw before anything was written',
+    ).toBe('"not a manifest"')
   })
 })

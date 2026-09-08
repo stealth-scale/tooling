@@ -90,21 +90,39 @@ export function releaseSet(root: string): ReleaseSet {
 }
 
 /**
+ * Names where a release is going and what is going there.
+ */
+interface Publishing {
+  /**
+   * Names the registry to ask, unless the manifest names its own.
+   */
+  registry: string
+
+  /**
+   * Maps each package being published to the version it is going out at, which is what a
+   * workspace protocol in its manifest is written from.
+   */
+  versions: ReadonlyMap<string, string>
+}
+
+/**
  * Releases one package: skips it when the registry has the version, refuses it when a path
  * its `files` names is missing, and packs and publishes it otherwise.
  *
  * @param {Manifest} manifest - The package to release.
- * @param {string} registry - The registry to ask, unless the manifest names its own.
+ * @param {Publishing} publishing - The registry to ask and the versions going out.
+ *     `Publishing` documents every member.
  * @param {ReleaseOptions} options - How to publish, and where the tarballs go.
  * @param {Shell} shell - The shell that runs bun and npm.
  * @returns {Promise<Released>} The step, and the tag entry when the package went out.
  */
 async function releaseOne(
   manifest: Manifest,
-  registry: string,
+  publishing: Publishing,
   options: ReleaseOptions,
   shell: Shell,
 ): Promise<Released> {
+  const { registry, versions } = publishing
   const name = `publish ${manifest.name}@${manifest.version}`
   const target = manifest.registry === undefined ? registry : withTrailingSlash(manifest.registry)
   if (await registryHasVersion(target, manifest, options.fetch)) {
@@ -112,7 +130,7 @@ async function releaseOne(
   }
   const missing = missingFiles(manifest)
   if (missing.length > 0) return { step: failed(name, `not built: ${missing.join(', ')} missing`) }
-  const { packed, step } = await pack(manifest, options.tarballs, shell)
+  const { packed, step } = await pack(manifest, options.tarballs, shell, versions)
   if (packed === undefined) return { step }
   const outcome = await publishTarball(packed.tarball, options.tarballs, options, shell)
   if (outcome.code !== 0) {
@@ -138,13 +156,17 @@ function releaseAll(
   options: ReleaseOptions,
   shell: Shell,
 ): Promise<Released[]> {
+  // Read off the set being published rather than the lockfile, which holds the version from
+  // before `changeset version` and which no install refreshes.
+  const versions = new Map(ordered.map((manifest) => [manifest.name, manifest.version]))
+
   return ordered.reduce<Promise<Released[]>>(async (before, manifest) => {
     const done = await before
     if (done.some(({ step }) => !step.ok)) {
       const name = `publish ${manifest.name}@${manifest.version}`
       return [...done, { step: failed(name, 'not attempted: an earlier publish failed') }]
     }
-    return [...done, await releaseOne(manifest, registry, options, shell)]
+    return [...done, await releaseOne(manifest, { registry, versions }, options, shell)]
   }, Promise.resolve([]))
 }
 

@@ -68,15 +68,24 @@ const DOCUMENTED_CONTEXTS = [
 const ONE_PARAM_PER_OBJECT = { checkDestructured: false }
 
 /**
- * The types the plugin does not find for itself.
+ * The ambient types the plugin does not find for itself.
  *
- * It resolves a name against what the file declares and imports, and the DOM library is
- * neither, so a parameter typed `HTMLElement` reads as a type nobody defined. These are the
- * ones a component, a decorator or a play function takes; anything narrower than `Element` a
- * file imports and the plugin finds.
+ * It resolves a name against what the file declares and imports, and neither the DOM library
+ * nor the parts of the standard library it does not already know are either, so a parameter
+ * typed `HTMLElement` reads as a type nobody defined. Anything narrower than these a file
+ * imports, and the plugin finds it there.
  */
 const AMBIENT_TYPES = {
-  definedTypes: ['Document', 'DOMRect', 'Element', 'Event', 'HTMLElement', 'Window'],
+  definedTypes: [
+    'Document',
+    'DOMRect',
+    'Element',
+    'Event',
+    'HTMLElement',
+    'ReadonlyMap',
+    'ReadonlySet',
+    'Window',
+  ],
 }
 
 /**
