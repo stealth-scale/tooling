@@ -76,8 +76,10 @@
     outline-offset: var(--focus-offset);
   }
 
+  /* The pair the contract guarantees for selected text, which every theme solves to AAA. */
   ::selection {
-    background-color: color-mix(in oklch, var(--primary) 30%, transparent);
+    background-color: var(--selection);
+    color: var(--selection-foreground);
   }
 
   code,
