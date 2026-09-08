@@ -62,6 +62,12 @@ describe('the cylindrical notations', () => {
     expect(bytes(parseColor('hsl(210 0% 50%)'))).toBe('128,128,128')
   })
 
+  it('reads a hue written in degrees, and none as nothing', () => {
+    expect(parseColor('hsl(210deg 50% 40%)')).toEqual(parseColor('hsl(210 50% 40%)'))
+    expect(parseColor('oklch(45% 0.17 258deg)')).toEqual(parseColor('oklch(45% 0.17 258)'))
+    expect(parseColor('oklch(45% none 258)')).toEqual(parseColor('oklch(45% 0 258)'))
+  })
+
   it('reads hwb(), including the grey a full wash gives', () => {
     expect(bytes(parseColor('hwb(0 0% 0%)'))).toBe('255,0,0')
     expect(bytes(parseColor('hwb(210 100% 100%)'))).toBe('128,128,128')

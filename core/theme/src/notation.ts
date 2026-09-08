@@ -36,15 +36,19 @@ const FUNCTION = /^([a-z]+)\(([^)]*)\)$/iu
 const ARGUMENTS = /[\s,/]+/u
 
 /**
- * Reads one argument as a number, taking a percentage as a share of the range it spans.
+ * Reads one argument as a number: a percentage as a share of the range it spans, a hue
+ * written in degrees as the number before the unit, and `none` as 0, which is what CSS
+ * Color 4 makes of it.
  *
- * @param {string | undefined} text - The argument as written.
+ * @param {string | undefined} text - The argument as written, in lower case.
  * @param {number} span - The value 100 per cent stands for in this position.
  * @returns {number} The number, or `Number.NaN` when the argument is absent.
  */
 function scalar(text: string | undefined, span: number): number {
   if (text === undefined || text === '') return Number.NaN
-  return text.endsWith('%') ? (Number(text.slice(0, -1)) / 100) * span : Number(text)
+  if (text === 'none') return 0
+  if (text.endsWith('%')) return (Number(text.slice(0, -1)) / 100) * span
+  return Number(text.endsWith('deg') ? text.slice(0, -3) : text)
 }
 
 /**
