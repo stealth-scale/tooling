@@ -12,15 +12,10 @@ import { offered } from 'virtual:stealth/offered'
 import Provider from 'virtual:stealth/provider'
 import { themes as registered } from 'virtual:stealth/themes'
 
-import { appearanceFrom, solveThemes, writeThemes } from './appearance.ts'
+import { appearanceFrom } from './appearance.ts'
 import { follower } from './follow.ts'
 import { storybookPreview } from './preview.tsx'
 import { preview } from './store.ts'
-
-/**
- * Holds every theme the workspace registered, solved once at boot.
- */
-const themes = solveThemes(registered)
 
 /**
  * Holds the channel the frame around a story listens on.
@@ -35,13 +30,12 @@ const follow = follower({
   offered,
   root: document.documentElement,
   store: preview,
-  themes,
+  themes: registered,
 })
 
 channel.on(GLOBALS_UPDATED, follow)
 channel.on(SET_GLOBALS, follow)
 
-writeThemes(themes, document)
-preview.set({ appearance: appearanceFrom({}, offered), themes })
+preview.set({ appearance: appearanceFrom({}, offered), themes: registered })
 
-export default storybookPreview({ offered, provider: Provider, themes })
+export default storybookPreview({ offered, provider: Provider, themes: registered })

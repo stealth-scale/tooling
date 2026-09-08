@@ -42,11 +42,6 @@ export interface ThemeRegistration {
   package: string
 
   /**
-   * Names the recipe module, absolute. Its default export is the palette recipe.
-   */
-  recipe: string
-
-  /**
    * Carries the name a person picks the theme by.
    */
   title: string
@@ -190,7 +185,7 @@ function providerOf(
  *
  * @param {Registered<ThemeContribution>} registered - The package's theme entry.
  * @param {Logger} log - Where the reading reports what it found.
- * @returns {ThemeRegistration} The theme, with its recipe resolved against its package.
+ * @returns {ThemeRegistration} The theme, named after the directory that holds it.
  */
 function themeOf(
   { manifest, value }: Registered<ThemeContribution>,
@@ -199,12 +194,7 @@ function themeOf(
   const name = basename(manifest.directory)
   log.info('registered a theme', { name, package: manifest.name })
 
-  return {
-    name,
-    package: manifest.name,
-    recipe: resolve(manifest.directory, value.recipe),
-    title: value.title,
-  }
+  return { name, package: manifest.name, title: value.title }
 }
 
 /**

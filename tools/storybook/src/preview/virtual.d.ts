@@ -23,7 +23,7 @@ declare module 'virtual:stealth/provider' {
 
 declare module 'virtual:stealth/themes' {
   /**
-   * Holds every theme the workspace registered, as its recipe and its title.
+   * Holds every theme the workspace registered, solved, as each theme's own build solved it.
    */
-  export const themes: import('./appearance.ts').RegisteredThemes
+  export const themes: import('./appearance.ts').Themes
 }

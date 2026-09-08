@@ -21,17 +21,22 @@
       "tooling-source": "./src/index.ts",
       "default": "./dist/index.mjs"
     },
+    "./write": {
+      "tooling-source": "./src/write.ts",
+      "default": "./dist/write.mjs"
+    },
     "./package.json": "./package.json"
   },
   "publishConfig": {
     "exports": {
       ".": "./dist/index.mjs",
+      "./write": "./dist/write.mjs",
       "./package.json": "./package.json"
     },
     "access": "public"
   },
   "scripts": {
-    "build": "vp pack src/index.ts"
+    "build": "vp pack src/index.ts src/write.ts"
   },
   "dependencies": {
     "@stealthscale/core-schema": "workspace:^"

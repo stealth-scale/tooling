@@ -21,12 +21,12 @@ export const MODULES = {
 
   /**
    * Holds the module that wraps every story, which is the design system's own provider, and
-   * the stylesheets that come before any theme.
+   * every stylesheet under it: the design system's own, then each theme's.
    */
   provider: 'virtual:stealth/provider',
 
   /**
-   * Holds every theme's recipe and title, keyed by the name a document writes.
+   * Holds every theme solved, keyed by the name a document writes.
    */
   themes: 'virtual:stealth/themes',
 } as const
@@ -47,33 +47,39 @@ function literal(value: unknown): string {
 }
 
 /**
- * Writes the module holding every theme's recipe.
+ * Writes the module holding every theme, solved.
  *
- * The recipe is carried as its package wrote it and solved where the story runs, because a
- * recipe is TypeScript and only the bundler evaluates it. The module imports nothing but the
- * recipes, each by its absolute path, so it resolves the same way in every layout.
+ * A theme solves its palette in its own build and exports the table, so this imports the
+ * result by package name rather than carrying a recipe the browser would have to solve. No
+ * consumer ships the solver, every one reads the same table, and a recipe that cannot be
+ * drawn has already failed its own package's build.
  *
  * @param {Registrations} registered - The reading of the workspace.
  * @returns {string} The module's source.
  */
 function themesModule(registered: Registrations): string {
   const imports = registered.themes.map(
-    (theme, index) => `import recipe${String(index)} from ${literal(theme.recipe)}`,
+    (theme, index) => `import { values as values${String(index)} } from ${literal(theme.package)}`,
   )
   const entries = registered.themes.map(
     (theme, index) =>
-      `  ${literal(theme.name)}: { recipe: recipe${String(index)}, title: ${literal(theme.title)} },`,
+      `  ${literal(theme.name)}: { title: ${literal(theme.title)}, values: values${String(index)} },`,
   )
 
   return [...imports, '', 'export const themes = {', ...entries, '}', ''].join('\n')
 }
 
 /**
- * Writes the module holding what wraps every story.
+ * Writes the module holding what wraps every story, and every stylesheet under it.
  *
- * The stylesheets the preview loads before any theme are imported here rather than from a
- * module of their own, because every story needs both and one import keeps their order fixed:
- * the design system's own rules land before a theme's tokens.
+ * One module imports both so their order is fixed rather than left to whenever a preview
+ * annotation happens to run: the design system's own rules land first, then each theme's
+ * tokens behind its own `[data-theme]`. Both go through the bundler, so the cascade is import
+ * order and Tailwind's layers arbitrate the rest.
+ *
+ * Every registered theme is loaded, not only the one a toolbar is on, so switching a theme
+ * changes an attribute rather than fetching a stylesheet, and a page drawing two themes at
+ * once has both.
  *
  * @param {Registrations} registered - The reading of the workspace.
  * @returns {string} The module's source. Where no package registers a provider it draws the
@@ -82,12 +88,15 @@ function themesModule(registered: Registrations): string {
 function providerModule(registered: Registrations): string {
   const { provider, stylesheets } = registered.appearance
   const sheets = stylesheets.map((sheet) => `import ${literal(sheet)}`)
+  const themes = registered.themes.map(
+    (theme) => `import ${literal(`${theme.package}/scoped.css`)}`,
+  )
   const wraps =
     provider === undefined
       ? 'export default ({ children }) => children'
       : `export { default } from ${literal(provider)}`
 
-  return `${[...sheets, wraps].join('\n')}\n`
+  return `${[...sheets, ...themes, wraps].join('\n')}\n`
 }
 
 /**

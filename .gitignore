@@ -4,6 +4,10 @@ coverage/
 storybook-static/
 *.tsbuildinfo
 
+# Written by a package's own emit step, from the one file that is its source
+*.gen.css
+*.gen.ts
+
 # A package's tsconfig includes only src, so a declaration build never reaches a config.
 # The pattern keeps the artefact out of a commit if one ever does.
 *.config.d.ts

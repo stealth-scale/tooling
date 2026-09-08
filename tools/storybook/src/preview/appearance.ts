@@ -1,9 +1,12 @@
 /**
- * @fileoverview Turns what the workspace registered and what the toolbars say into what a
- * document is drawn from: every theme solved from its recipe, the stylesheet that carries
- * them, and the appearance the six toolbars describe. The preview holds no appearance state
- * of its own: the toolbars are the only writer, and `core-appearance` decides what each one
- * means, so a story sees exactly what a host would put on the document.
+ * @fileoverview Turns what the toolbars say into what a document is drawn from. The preview
+ * holds no appearance state of its own: the toolbars are the only writer, and
+ * `core-appearance` decides what each one means, so a story sees exactly what a host would
+ * put on the document.
+ *
+ * Nothing here solves a palette. A theme solves its own in its own build and this reads the
+ * table, so the browser carries no solver and every consumer of a theme reads what that
+ * theme shipped.
  */
 
 import {
@@ -12,8 +15,7 @@ import {
   machine,
   type Offered,
 } from '@stealthscale/core-appearance'
-import { safeParse } from '@stealthscale/core-schema'
-import { buildPalette, emitScoped, recipeSchema, type ThemeValues } from '@stealthscale/core-theme'
+import { type ThemeValues } from '@stealthscale/core-theme'
 
 /**
  * Names the two values the motion toolbar writes. A toolbar carries strings, and an
@@ -22,33 +24,7 @@ import { buildPalette, emitScoped, recipeSchema, type ThemeValues } from '@steal
 export const MOTION = { full: 'full', reduced: 'reduced' } as const
 
 /**
- * Names the element the theme stylesheet is written into, so it is written once.
- */
-const STYLE_ID = 'stealth-themes'
-
-/**
- * Describes one theme as the workspace registered it, before it is solved.
- */
-export interface RegisteredTheme {
-  /**
-   * Carries the recipe module's default export, as written. It is held to the recipe schema
-   * before a palette is built from it.
-   */
-  recipe: unknown
-
-  /**
-   * Carries the name a person picks the theme by.
-   */
-  title: string
-}
-
-/**
- * Names every theme a workspace registered, keyed by the value a document writes.
- */
-export type RegisteredThemes = Readonly<Record<string, RegisteredTheme>>
-
-/**
- * Describes one theme the preview can draw with.
+ * Describes one theme the preview can draw with, as its package shipped it.
  */
 export interface Theme {
   /**
@@ -57,63 +33,15 @@ export interface Theme {
   title: string
 
   /**
-   * Carries every token in both modes, solved from the theme's recipe.
+   * Carries every token in both modes, solved when the theme was built.
    */
   values: ThemeValues
 }
 
 /**
- * Names every theme a workspace registered, solved, keyed by the value a document writes.
+ * Names every theme a workspace registered, keyed by the value a document writes.
  */
 export type Themes = Readonly<Record<string, Theme>>
-
-/**
- * Describes the document the theme stylesheet is written into, in the members it uses.
- */
-export interface Sheets {
-  /**
-   * Creates the element the themes are written into.
-   */
-  createElement: (tag: 'style') => HTMLStyleElement
-
-  /**
-   * Holds where the stylesheet goes.
-   */
-  head: HTMLHeadElement
-
-  /**
-   * Finds the stylesheet, when it has been written already.
-   */
-  querySelector: (selector: string) => unknown
-}
-
-/**
- * Solves every registered theme from its recipe.
- *
- * A recipe is TypeScript in the theme's own package and only the bundler evaluates it, so it
- * arrives here as whatever the module exported. It is held to the recipe schema first, so a
- * theme that cannot be drawn fails at boot naming the theme and the field, instead of
- * drawing something odd.
- *
- * @param {RegisteredThemes} registered - Every theme the workspace registered.
- * @returns {Themes} Every theme, solved.
- * @throws {Error} When a recipe fails its schema. The message names the theme and every
- *     field at fault.
- */
-export function solveThemes(registered: RegisteredThemes): Themes {
-  return Object.fromEntries(
-    Object.entries(registered).map(([name, { recipe, title }]) => {
-      const read = safeParse(recipeSchema(), recipe)
-      if (!read.ok) {
-        const reasons = read.failure.map((issue) => `${issue.path}: ${issue.reason}`)
-        throw new Error(
-          `Theme ${name} registers a recipe no palette builds from: ${reasons.join('; ')}`,
-        )
-      }
-      return [name, { title, values: buildPalette(read.value) }]
-    }),
-  )
-}
 
 /**
  * Reads one toolbar's value, ignoring anything that is not a string.
@@ -159,35 +87,4 @@ export function appearanceFrom(
   }
 
   return appearanceFor(offered, machine(), overrides)
-}
-
-/**
- * Writes every theme's tokens as one stylesheet, each scoped to the value a document carries.
- *
- * Every theme is written rather than only the one on, so switching a toolbar changes an
- * attribute rather than reloading a stylesheet, and a docs page showing two themes at once
- * has both.
- *
- * @param {Themes} themes - Every theme the workspace registered.
- * @returns {string} The stylesheet. It is empty where the workspace registered no theme.
- */
-export function themeStylesheet(themes: Themes): string {
-  return Object.entries(themes)
-    .map(([name, theme]) => emitScoped(theme.values, name))
-    .join('\n')
-}
-
-/**
- * Writes every theme's tokens into the document, once.
- *
- * @param {Themes} themes - The themes the workspace registered.
- * @param {Sheets} into - The document being drawn into.
- */
-export function writeThemes(themes: Themes, into: Sheets): void {
-  if (into.querySelector(`#${STYLE_ID}`) !== null) return
-
-  const style = into.createElement('style')
-  style.id = STYLE_ID
-  style.textContent = themeStylesheet(themes)
-  into.head.append(style)
 }

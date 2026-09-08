@@ -54,17 +54,20 @@ function refusalsOf(scratch: ScratchWorkspace): string[] {
 }
 
 describe('registrations', () => {
-  it('finds every theme, names it after its directory and resolves its recipe', () => {
+  it('finds every theme and names it after the directory that holds it', () => {
     const scratch = workspaceOf({
-      'themes/kalon': { theme: { recipe: './src/recipe.ts', title: 'Kalon' } },
-      'themes/thesmos': { theme: { recipe: './src/recipe.ts', title: 'Thesmos' } },
+      'themes/kalon': { theme: { title: 'Kalon' } },
+      'themes/thesmos': { theme: { title: 'Thesmos' } },
     })
 
     const { themes } = readingOf(scratch)
 
     expect(themes.map(({ name }) => name)).toEqual(['kalon', 'thesmos'])
     expect(themes.map(({ title }) => title)).toEqual(['Kalon', 'Thesmos'])
-    expect(themes[0]?.recipe).toBe(scratch.path('themes/kalon/src/recipe.ts'))
+    expect(themes.map(({ package: name }) => name)).toEqual([
+      '@t/themes-kalon',
+      '@t/themes-thesmos',
+    ])
     scratch.remove()
   })
 
@@ -126,12 +129,12 @@ describe('registrations', () => {
   it('reports a malformed theme and a malformed appearance in one reading', () => {
     const scratch = workspaceOf({
       'foundations/theme': { appearance: { densities: 'compact' } },
-      'themes/kalon': { theme: { title: 'Kalon' } },
+      'themes/kalon': { theme: { title: 12 } },
     })
 
     expect(refusalsOf(scratch)).toEqual([
       '@t/foundations-theme.stealth.appearance.densities: array',
-      '@t/themes-kalon.stealth.theme.recipe: loose_object',
+      '@t/themes-kalon.stealth.theme.title: string',
     ])
     scratch.remove()
   })
@@ -139,7 +142,7 @@ describe('registrations', () => {
   it('refuses a malformed appearance while every theme is well formed', () => {
     const scratch = workspaceOf({
       'foundations/theme': { appearance: { provider: 12 } },
-      'themes/kalon': { theme: { recipe: './src/recipe.ts', title: 'Kalon' } },
+      'themes/kalon': { theme: { title: 'Kalon' } },
     })
 
     expect(refusalsOf(scratch)).toEqual([
@@ -151,7 +154,7 @@ describe('registrations', () => {
   it('reports what it registered, so a build says what it found rather than only failing', () => {
     const scratch = workspaceOf({
       'foundations/theme': DESIGN_SYSTEM,
-      'themes/kalon': { theme: { recipe: './src/recipe.ts', title: 'Kalon' } },
+      'themes/kalon': { theme: { title: 'Kalon' } },
     })
     const log = recordingLogger()
 
@@ -170,7 +173,7 @@ describe('offeredBy', () => {
   it('offers the densities and locales declared, and every theme found', () => {
     const scratch = workspaceOf({
       'foundations/theme': DESIGN_SYSTEM,
-      'themes/kalon': { theme: { recipe: './src/recipe.ts', title: 'Kalon' } },
+      'themes/kalon': { theme: { title: 'Kalon' } },
     })
 
     expect(offeredBy(readingOf(scratch))).toEqual({

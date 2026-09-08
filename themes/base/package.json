@@ -1,0 +1,52 @@
+{
+  "name": "@stealthscale/theme-base",
+  "version": "0.0.0",
+  "description": "Solves the base theme a stealth product starts from, and ships its stylesheets and its tokens.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stealth-scale/tooling.git",
+    "directory": "themes/base"
+  },
+  "files": [
+    "dist",
+    "src/*.css"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "imports": {
+    "#*": "./src/*"
+  },
+  "exports": {
+    ".": {
+      "tooling-source": "./src/index.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json",
+    "./scoped.css": "./src/scoped.gen.css",
+    "./tokens.css": "./src/tokens.gen.css"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.mjs",
+      "./package.json": "./package.json",
+      "./scoped.css": "./src/scoped.gen.css",
+      "./tokens.css": "./src/tokens.gen.css"
+    },
+    "access": "public"
+  },
+  "scripts": {
+    "build": "bun emit.ts && vp pack src/index.ts"
+  },
+  "dependencies": {
+    "@stealthscale/core-theme": "workspace:^"
+  },
+  "devDependencies": {
+    "@stealthscale/tool-config": "workspace:^"
+  },
+  "stealth": {
+    "theme": {
+      "title": "Base"
+    }
+  }
+}

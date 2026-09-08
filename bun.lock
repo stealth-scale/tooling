@@ -7,6 +7,7 @@
       "devDependencies": {
         "@arethetypeswrong/core": "catalog:",
         "@changesets/cli": "catalog:",
+        "@stealthscale/theme-base": "workspace:^",
         "@stealthscale/tool-cli": "workspace:^",
         "@stealthscale/tool-storybook": "workspace:^",
         "@storybook/addon-a11y": "catalog:",
@@ -89,6 +90,16 @@
       "version": "0.0.0",
       "dependencies": {
         "@stealthscale/core-schema": "workspace:^",
+      },
+      "devDependencies": {
+        "@stealthscale/tool-config": "workspace:^",
+      },
+    },
+    "themes/base": {
+      "name": "@stealthscale/theme-base",
+      "version": "0.0.0",
+      "dependencies": {
+        "@stealthscale/core-theme": "workspace:^",
       },
       "devDependencies": {
         "@stealthscale/tool-config": "workspace:^",
@@ -687,6 +698,8 @@
     "@stealthscale/core-schema": ["@stealthscale/core-schema@workspace:core/schema"],
 
     "@stealthscale/core-theme": ["@stealthscale/core-theme@workspace:core/theme"],
+
+    "@stealthscale/theme-base": ["@stealthscale/theme-base@workspace:themes/base"],
 
     "@stealthscale/tool-cli": ["@stealthscale/tool-cli@workspace:tools/cli"],
 

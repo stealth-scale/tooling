@@ -14,8 +14,7 @@ const REGISTERED: Registrations = {
   themes: [
     {
       name: 'kalon',
-      package: '@t/theme-kalon',
-      recipe: '/ws/themes/kalon/src/recipe.ts',
+      package: '@t/themes-kalon',
       title: 'Kalon',
     },
   ],
@@ -53,24 +52,38 @@ describe('virtualModules', () => {
     expect(plugin.load('react'), 'a module it never claimed').toBeUndefined()
   })
 
-  it('carries every theme as its recipe and title, keyed by what a document writes', () => {
+  it('carries every theme solved, keyed by what a document writes', () => {
     const source = String(sourceOf(REGISTERED, MODULES.themes))
 
-    expect(source).toContain(`import recipe0 from "/ws/themes/kalon/src/recipe.ts"`)
-    expect(source).toContain(`"kalon": { recipe: recipe0, title: "Kalon" }`)
-    expect(source, 'the recipes are the only imports, so the module resolves anywhere').not.toMatch(
-      /^import (?!recipe\d)/mu,
-    )
+    expect(source).toContain(`import { values as values0 } from "@t/themes-kalon"`)
+    expect(source).toContain(`"kalon": { title: "Kalon", values: values0 }`)
+    expect(
+      source,
+      'a theme solved its own palette, so nothing here reaches for the solver',
+    ).not.toContain('buildPalette')
   })
 
   it('wraps every story in the registered provider, under every registered stylesheet', () => {
     const source = String(sourceOf(REGISTERED, MODULES.provider))
 
-    expect(source.trim().split('\n')).toEqual([
+    expect(
+      source.trim().split('\n'),
+      "the design system's rules first, then each theme's tokens behind its own attribute",
+    ).toEqual([
       `import "/ws/foundations/theme/src/base.css"`,
       `import "/ws/components/library/src/keyframes.css"`,
+      `import "@t/themes-kalon/scoped.css"`,
       `export { default } from "/ws/foundations/theme/src/provider.tsx"`,
     ])
+  })
+
+  it('loads every registered theme, so switching one changes an attribute and nothing else', () => {
+    const source = String(sourceOf(REGISTERED, MODULES.provider))
+
+    expect(source, 'the scoped stylesheet, not the one that claims the document').not.toContain(
+      'index.css',
+    )
+    expect(source).toContain('@t/themes-kalon/scoped.css')
   })
 
   it('draws the story and nothing around it where no package registers a provider', () => {

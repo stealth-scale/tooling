@@ -22,8 +22,10 @@ export default defineConfig({
     layers: [
       {
         because: 'a core package is what a tool builds on, so nothing in core imports a tool',
-        except: ['@stealthscale/tool-testing'],
-        files: ['core/**'],
+        // A specification reaches for the test helpers and a package's own config for the
+        // preset; neither is something the package ships.
+        except: ['@stealthscale/tool-config', '@stealthscale/tool-testing'],
+        files: ['core/**', 'themes/**'],
         forbid: ['@stealthscale/tool-*'],
       },
     ],

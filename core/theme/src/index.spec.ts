@@ -58,6 +58,7 @@ describe('the package barrel', () => {
         'declarations',
         'emit',
         'emitScoped',
+        'emitTheme',
         'fillsFor',
         'glowOf',
         'hex',

@@ -4,8 +4,8 @@ import { act, render } from '@testing-library/react'
 import { describe, expect, it } from 'vite-plus/test'
 
 import { type Appearance } from '@stealthscale/core-appearance'
+import { emitTheme } from '@stealthscale/core-theme'
 
-import { solveThemes } from '#preview/appearance.ts'
 import { preview } from '#preview/store.ts'
 
 import { type CurrentTheme, Themed } from './theme.tsx'
@@ -45,7 +45,7 @@ describe('Themed', () => {
   })
 
   it('draws the block from the theme the document is in, and follows the toolbars', () => {
-    const themes = solveThemes({ kalon: { recipe: RECIPE, title: 'Kalon' } })
+    const themes = { kalon: { title: 'Kalon', values: emitTheme(RECIPE, 'kalon').values } }
     const { container } = render(<Themed>{Printed}</Themed>)
 
     act(() => {

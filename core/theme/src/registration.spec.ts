@@ -27,11 +27,11 @@ describe('THEME_CONTRIBUTION', () => {
 
     expect(read.ok).toBe(true)
     if (!read.ok) return
-    expect(read.value.recipe).toBe('./src/recipe.ts')
+    expect(read.value.title).toBe('Thesmos')
   })
 
-  it('refuses an entry missing either word, and says which', () => {
-    const read = safeParse(THEME_CONTRIBUTION, { recipe: './src/recipe.ts' })
+  it('refuses an entry that names no title, and says so', () => {
+    const read = safeParse(THEME_CONTRIBUTION, {})
 
     expect(read.ok).toBe(false)
     if (read.ok) return
@@ -39,12 +39,12 @@ describe('THEME_CONTRIBUTION', () => {
   })
 
   it('refuses a word that is not a string, with a code and no words of its own', () => {
-    const read = safeParse(THEME_CONTRIBUTION, { recipe: 12, title: 'Thesmos' })
+    const read = safeParse(THEME_CONTRIBUTION, { title: 12 })
 
     expect(read.ok).toBe(false)
     if (read.ok) return
     expect(read.failure[0]?.code).toBe('string')
-    expect(read.failure[0]?.path).toBe('recipe')
+    expect(read.failure[0]?.path).toBe('title')
   })
 
   it('refuses an entry that is not an object at all', () => {

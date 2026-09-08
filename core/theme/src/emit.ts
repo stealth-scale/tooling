@@ -7,6 +7,11 @@
  * authored CSS the design system ships, which every theme's stylesheet imports first.
  */
 
+import { safeParse } from '@stealthscale/core-schema'
+
+import { assertComplete } from '#assert.ts'
+import { buildPalette } from '#palette.ts'
+import { recipeSchema } from '#recipe.ts'
 import {
   BLUR,
   DROP_SHADOW,
@@ -287,4 +292,53 @@ ${declarationLines(values, 'light')}
 ${declarationLines(values, 'dark')}
 }
 `
+}
+
+/**
+ * Describes everything a theme package writes out when it is built.
+ */
+export interface EmittedTheme {
+  /**
+   * Carries the stylesheet that claims `:root`, which an app links for the one theme it draws.
+   */
+  root: string
+
+  /**
+   * Carries the stylesheet behind `[data-theme]`, which a page drawing several themes at once
+   * loads one of per theme.
+   */
+  scoped: string
+
+  /**
+   * Carries every token in both modes, for whatever reads a theme as data rather than as CSS.
+   */
+  values: ThemeValues
+}
+
+/**
+ * Turns a theme's recipe into everything its package ships.
+ *
+ * A theme solves its palette once, where it is built, so no consumer carries the solver and
+ * every one of them reads the same table. A recipe that cannot be drawn fails the theme's own
+ * build, naming the field or the token, rather than failing a catalogue at boot or an app in
+ * front of a person.
+ *
+ * @param {unknown} recipe - The recipe module's default export, as the package wrote it. It
+ *     is held to the recipe schema before a palette is built from it.
+ * @param {string} name - The value a document writes for this theme, which is the basename of
+ *     the package's directory.
+ * @returns {EmittedTheme} The two stylesheets and the solved values.
+ * @throws {Error} When the recipe fails its schema, naming every field at fault.
+ */
+export function emitTheme(recipe: unknown, name: string): EmittedTheme {
+  const read = safeParse(recipeSchema(), recipe)
+  if (!read.ok) {
+    const reasons = read.failure.map((issue) => `${issue.path}: ${issue.reason}`)
+    throw new Error(`Theme ${name} writes a recipe no palette builds from: ${reasons.join('; ')}`)
+  }
+
+  const values = buildPalette(read.value)
+  assertComplete(values)
+
+  return { root: emit(values), scoped: emitScoped(values, name), values }
 }

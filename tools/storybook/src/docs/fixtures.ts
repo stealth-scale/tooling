@@ -1,8 +1,9 @@
 import { act } from '@testing-library/react'
 
 import { type Appearance } from '@stealthscale/core-appearance'
+import { emitTheme } from '@stealthscale/core-theme'
 
-import { solveThemes, type Themes } from '#preview/appearance.ts'
+import { type Themes } from '#preview/appearance.ts'
 import { preview } from '#preview/store.ts'
 
 /**
@@ -11,9 +12,12 @@ import { preview } from '#preview/store.ts'
 export const RECIPE = { accent: 200, chart: [258, 152, 292, 45, 12], neutral: 260, primary: 258 }
 
 /**
- * Holds the one theme the specifications register, solved.
+ * Holds the one theme the specifications draw with, solved the way a theme package solves
+ * its own when it is built.
  */
-export const THEMES: Themes = solveThemes({ kalon: { recipe: RECIPE, title: 'Kalon' } })
+export const THEMES: Themes = {
+  kalon: { title: 'Kalon', values: emitTheme(RECIPE, 'kalon').values },
+}
 
 /**
  * Holds the registered theme with its light foreground painted over its background, so every

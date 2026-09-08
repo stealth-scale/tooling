@@ -18,15 +18,11 @@ export const THEME_KEY = 'theme'
  *
  * The value written to the document's theme attribute is not here: it is the basename of the
  * package's directory, so two themes cannot claim one name and no package repeats where it
- * already is.
+ * already is. The recipe is not here either. A theme solves its palette in its own build and
+ * exports the result at `./index.css`, `./catalogue.css` and its barrel, so a consumer reads
+ * an artefact rather than reaching into the package for a module to evaluate.
  */
 export interface ThemeContribution {
-  /**
-   * Names the module whose default export is the palette recipe, relative to the package:
-   * `./src/recipe.ts`.
-   */
-  recipe: string
-
   /**
    * Carries the name a person picks the theme by, as they read it: `Thesmos`.
    */
@@ -40,6 +36,5 @@ export interface ThemeContribution {
  * toolchain reads is not refused by this one.
  */
 export const THEME_CONTRIBUTION: SchemaOf<ThemeContribution> = looseObject({
-  recipe: string(),
   title: string(),
 })

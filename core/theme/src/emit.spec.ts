@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test'
 
-import { boxShadowOf, emit, emitScoped, glowOf, radiusOf } from '#emit.ts'
+import { boxShadowOf, emit, emitScoped, emitTheme, glowOf, radiusOf } from '#emit.ts'
 import { GLOW, OWNED_NAMESPACES, RADIUS, SHADOW, TEXT } from '#scales.ts'
 import { declarations } from '#stylesheet.ts'
 import { COLOR_TOKENS, REQUIRED_TOKENS, type ThemeValues } from '#tokens.ts'
@@ -116,5 +116,41 @@ describe('emitScoped', () => {
     expect(css).toContain("[data-theme='probe'].dark,")
     expect(css).not.toContain('@theme')
     expect(declarations(css, "[data-theme='probe'] {")['radius']).toBe('light-radius')
+  })
+})
+
+/**
+ * Names a recipe with every required member and nothing else, so a case states only what it
+ * is about.
+ */
+const RECIPE = { accent: 250, chart: [10, 80, 150, 220, 290], neutral: 260, primary: 265 }
+
+describe('emitTheme', () => {
+  it('answers both stylesheets and the values a theme package ships', () => {
+    const emitted = emitTheme(RECIPE, 'base')
+
+    expect(Object.keys(emitted).toSorted()).toEqual(['root', 'scoped', 'values'])
+    expect(emitted.values.light['background'], 'the palette was solved').toBeDefined()
+    expect(emitted.values.dark['background']).toBeDefined()
+  })
+
+  it('scopes one stylesheet to the name a document writes, and roots the other', () => {
+    const { root, scoped } = emitTheme(RECIPE, 'thesmos')
+
+    expect(scoped).toContain("[data-theme='thesmos']")
+    expect(root, 'the one an app links claims the document').toContain(':root')
+  })
+
+  it('solves the same palette every time, so a baseline does not move under a rebuild', () => {
+    expect(emitTheme(RECIPE, 'base').root).toBe(emitTheme(RECIPE, 'base').root)
+  })
+
+  it('refuses a recipe no palette builds from, naming the theme and the field', () => {
+    expect(() => emitTheme({ ...RECIPE, primary: 400 }, 'base')).toThrow(/base/u)
+    expect(() => emitTheme({ ...RECIPE, primary: 400 }, 'base')).toThrow(/primary/u)
+  })
+
+  it('refuses a recipe missing a member, rather than drawing something odd', () => {
+    expect(() => emitTheme({ accent: 250 }, 'base')).toThrow(/no palette builds from/u)
   })
 })
