@@ -1,0 +1,62 @@
+import { Canvas, Controls, Description, Meta, Primary, Title } from '@storybook/addon-docs/blocks'
+
+import * as Stories from './grid.stories.tsx'
+
+<Meta of={Stories} />
+
+<Title />
+
+<Description />
+
+<Primary />
+
+<Controls of={Stories.Playground} />
+
+## Every crossing is drawn
+
+A variant story that lays out its own cells drifts the day somebody adds a variant: the recipe
+gains it, the story does not, and the screenshot suite never sees the gap. Passing both axes in
+means the grid is the recipe rather than a copy of it, and the play counts the cells against the
+two axes it was given.
+
+<Canvas of={Stories.EveryCrossingIsDrawn} />
+
+## An axis of one
+
+A matrix with a single row is where a hand-drawn grid stops labelling, because one row looks
+self-evident to whoever wrote it. Both edges keep their legend however short the axis is.
+
+<Canvas of={Stories.AnAxisOfOneStillLabelsBothEdges} />
+
+## A cell needs no role
+
+`cell` returns a `ReactNode`, so a matrix of swatches, avatars, timestamps or plain text needs
+no wrapper pretending to be a control. Only the play changes: a cell with no role is queried by
+text, and the query says so.
+
+<Canvas of={Stories.ACellNeedsNoRole} />
+
+## Usage
+
+```tsx
+import { Grid } from '@stealthscale/tool-storybook'
+
+import { SIZES, TONES } from './button.tsx'
+
+export const EveryToneAtEverySize = {
+  ...example,
+  render: () => (
+    <Grid cell={(tone, size) => <Button size={size} tone={tone} />} columns={SIZES} rows={TONES} />
+  ),
+}
+```
+
+`SIZES` and `TONES` are the component's own unions, so a variant added there reaches the page
+without an edit here.
+
+## Accessibility
+
+The legends are presentational text. A grid carries no landmark, no heading and no table
+semantics, because it is a layout for a documentation page rather than a data table a reader
+navigates. What the cells announce is the component's own business, and the play functions query
+by role so a cell that stopped announcing itself fails the story.

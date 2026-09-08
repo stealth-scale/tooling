@@ -1,0 +1,70 @@
+import { Canvas, Controls, Description, Meta, Primary, Title } from '@storybook/addon-docs/blocks'
+
+import * as Stories from './states.stories.tsx'
+
+<Meta of={Stories} />
+
+<Title />
+
+<Description />
+
+<Primary />
+
+<Controls of={Stories.Playground} />
+
+## Every designed state is drawn
+
+`STATES` names the six a control is designed for, and `FORCED` is total over it, so a state
+added to the list without a way to reach it is a type error rather than a blank column. The play
+counts the cells against the rows and the states, which catches the other direction: a cell that
+stopped rendering in one state.
+
+<Canvas of={Stories.EveryDesignedStateIsDrawn} />
+
+## Forced rather than mimed
+
+Three states are reached with a prop and hold on their own. The other three are reached with a
+class that does nothing until a pseudo-state addon rewrites it into the matching pseudo-class,
+because a cursor cannot be held still for a screenshot and a class can.
+
+`forcedBy` is the only thing a story calls, so no story learns the addon's class names, and
+`disabled` and `aria-invalid` stay real attributes rather than a red ring nothing announces.
+
+<Canvas of={Stories.StatesAreForcedRatherThanMimed} />
+
+## A play that drives is wrapped
+
+Storybook plays every story a docs page mounts. A play that asserts what is already on screen
+costs nothing and is the fastest way to notice the scene has broken, so it runs unwrapped. A
+play that drives the component is wrapped in `interactive()`, or opening this page sets every
+grid on it going at once.
+
+The count under the grid is the state mirror: the play asserts its text, and a reader sees at a
+glance what the assertion is about.
+
+<Canvas of={Stories.APlayThatDrivesIsWrapped} />
+
+## Usage
+
+```tsx
+import { forcedBy, StateGrid } from '@stealthscale/tool-storybook'
+
+import { TONES } from './button.tsx'
+
+export const EveryToneInEveryState = {
+  ...example,
+  render: () => (
+    <StateGrid cell={(tone, state) => <Button tone={tone} {...forcedBy(state)} />} rows={TONES} />
+  ),
+}
+```
+
+The repository adds the pseudo-state addon through `storybookConfig`'s `addons`. Without it the
+three class-driven columns render at rest, and the grid says so by drawing them unchanged rather
+than by failing.
+
+## Accessibility
+
+`aria-invalid` is the attribute the recipes style on and the one assistive technology reads, so
+a control that looks invalid always announces that it is. The play asserts the attribute rather
+than the border, which is what keeps the two from drifting apart.
