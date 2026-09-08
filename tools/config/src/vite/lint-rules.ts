@@ -115,12 +115,12 @@ export const MARKUP_RULES: BuiltinRules = {
 }
 
 /**
- * Everything sortable is sorted, so a diff shows a change rather than a reordering.
+ * Sorts everything sortable, so a diff shows a change rather than a reordering.
  *
- * A blank line starts a new block, which is what keeps a deliberate grouping — a manifest's
- * `name` before its `version`, a union's happy case before its failures — from being
- * alphabetised away. A type's own members are the exception: the docblock standard puts a
- * blank line between every one of them, so partitioning there would turn the rule off.
+ * A blank line starts a new block, so a deliberate grouping survives: a manifest's `name`
+ * before its `version`, a union's happy case before its failures. A type's own members are
+ * the exception, because the docblock standard puts a blank line between every one of them
+ * and partitioning there would turn the rule off.
  *
  * @param {string} internalScope - The npm scope whose imports group as internal, as a
  *     regular expression source: `^@stealthscale/.*`.

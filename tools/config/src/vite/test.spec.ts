@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vite-plus/test'
 
 import { testConfig } from './test.ts'
 
-/** A project entry, as far as this spec reads it. */
+/**
+ * Describes a project entry, as far as this spec reads it.
+ */
 interface Project {
   test?: { environment?: string; exclude?: string[]; name?: string; setupFiles?: string[] }
 }

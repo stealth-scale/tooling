@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Holds every block of a vite-plus config at its shared value, so a root config
+ * spreads one object rather than calling eight builders.
+ */
+
 import { type UserConfig } from 'vite-plus'
 
 import { formatConfig } from './format.ts'
@@ -9,12 +14,16 @@ import { stagedConfig } from './staged.ts'
 import { testConfig } from './test.ts'
 
 /**
- * Every block at its shared value, for a root config to spread.
+ * Holds every block at its shared value, for a root config to spread.
  *
  * A repository that needs nothing of its own is `defineConfig({ ...stealthDefaults })`. One
  * that does spreads these and replaces the blocks it configures, calling that block's builder
  * with its options.
  *
+ * A replaced block is replaced whole rather than merged, which is why each builder returns a
+ * complete block and takes the options instead.
+ *
+ * @example
  * ```ts
  * export default defineConfig({
  *   ...stealthDefaults,
@@ -22,9 +31,6 @@ import { testConfig } from './test.ts'
  *   test: testConfig({ dom: true }),
  * })
  * ```
- *
- * A replaced block is replaced whole rather than merged, which is why each builder returns a
- * complete block and takes the options instead.
  */
 export const stealthDefaults: UserConfig = {
   fmt: formatConfig(),

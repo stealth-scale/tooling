@@ -5,7 +5,9 @@ import { GENERATED } from './generated.ts'
 import { MARKUP_RULES } from './lint-rules.ts'
 import { lintConfig } from './lint.ts'
 
-/** An override, as far as this spec reads it. */
+/**
+ * Describes an override, as far as this spec reads it.
+ */
 interface Override {
   env?: { node?: boolean }
   files?: string[]

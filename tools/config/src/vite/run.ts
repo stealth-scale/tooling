@@ -1,12 +1,17 @@
+/**
+ * @fileoverview Holds the task graph every stealth repository runs, and what `vp run ci` does
+ * in one that only builds libraries.
+ */
+
 import { type UserConfig } from 'vite-plus'
 
 /**
- * The `run` block of a vite-plus config.
+ * Names the `run` block of a vite-plus config.
  */
 type RunBlock = NonNullable<UserConfig['run']>
 
 /**
- * What `vp run ci` does in a repository that only builds libraries.
+ * Lists what `vp run ci` does in a repository that only builds libraries.
  *
  * The tree comes first, before anything is built out of it: the lockfile has to be the one
  * that was reviewed, and nothing in it may carry a known advisory. Both are cheap and both
@@ -23,22 +28,22 @@ const CI_COMMAND = [
 ]
 
 /**
- * What a repository may change about its tasks.
+ * Describes what a repository may change about its tasks.
  */
 export interface RunOptions {
   /**
-   * The `ci` task's commands, in order. Defaults to the library repository's.
+   * Lists the `ci` task's commands, in order. Default: the library repository's.
    */
   ci?: readonly string[] | undefined
 
   /**
-   * Tasks beside `ci`, merged in.
+   * Holds tasks beside `ci`, merged in.
    */
   tasks?: RunBlock['tasks'] | undefined
 }
 
 /**
- * The task graph every stealth repository runs.
+ * Builds the task graph every stealth repository runs.
  *
  * A `package.json` script is cached on the same terms as a task: both are fingerprinted from
  * their inputs, so a second run is free. `ci` is not cached, because its point is to prove

@@ -1,27 +1,33 @@
+/**
+ * @fileoverview Holds the pre-commit pass: one command over the staged files, and the
+ * extensions it runs on.
+ */
+
 import { type UserConfig } from 'vite-plus'
 
 /**
- * The `staged` block of a vite-plus config.
+ * Names the `staged` block of a vite-plus config.
  */
 type StagedBlock = NonNullable<UserConfig['staged']>
 
 /**
- * The extensions `vp check --fix` runs over before a commit.
+ * Lists the extensions `vp check --fix` runs over before a commit.
  */
 const STAGED_EXTENSIONS = ['ts', 'tsx', 'js', 'mjs', 'cjs', 'json', 'css', 'md', 'yaml', 'yml']
 
 /**
- * What a repository may change about its pre-commit pass.
+ * Describes what a repository may change about its pre-commit pass.
  */
 export interface StagedOptions {
   /**
-   * Extensions to check, without dots. Defaults to every text format the repositories hold.
+   * Lists the extensions to check, without dots. Default: every text format the repositories
+   * hold.
    */
   extensions?: readonly string[] | undefined
 }
 
 /**
- * What runs over staged files before a commit.
+ * Builds the pre-commit pass that runs over staged files.
  *
  * One command, `vp check --fix`: the formatter and the linter in a single pass, applying what
  * they can fix and failing on what they cannot.

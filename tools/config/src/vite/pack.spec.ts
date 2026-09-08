@@ -3,7 +3,9 @@ import { describe, expect, it } from 'vite-plus/test'
 import { packConfig, stylesheetExports } from './pack.ts'
 import { SOURCE_CONDITION } from './source.ts'
 
-/** The callback form of `customExports`, which is what the automatic derivation is. */
+/**
+ * Names the callback form of `customExports`, which is what the automatic derivation is.
+ */
 type Derive = (
   exports: Record<string, unknown>,
   packed: { pkg: { files?: readonly string[] | undefined } },
@@ -71,7 +73,7 @@ describe('packConfig', () => {
     expect(derive({ '.': './dist/index.mjs' }, { pkg: {} })).toEqual({ '.': './dist/index.mjs' })
   })
 
-  it('names the commands a package installs, and leaves the naming alone when it names none', () => {
+  it('names the commands a package installs, and leaves the naming alone with none', () => {
     const bin = { stealth: './src/bin/stealth.ts' }
 
     expect(asExports(packConfig({ bin }).exports).bin).toEqual(bin)

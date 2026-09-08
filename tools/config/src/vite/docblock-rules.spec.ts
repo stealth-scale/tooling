@@ -28,7 +28,7 @@ describe('DOC_RULES', () => {
     expect(DOC_RULES['jsdoc-js/check-param-names']).toEqual(['error', { checkDestructured: false }])
   })
 
-  it('keeps the type on every tag, which the standard asks for and the compiler does not read', () => {
+  it('keeps the type on every tag, which the standard asks for and tsc ignores', () => {
     expect(DOC_RULES['jsdoc-js/require-param-type']).toBe('error')
     expect(DOC_RULES['jsdoc-js/require-returns-type']).toBe('error')
     expect(DOC_RULES['jsdoc-js/require-throws-type'], 'the signature cannot say it').toBe('error')

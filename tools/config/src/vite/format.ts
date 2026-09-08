@@ -1,29 +1,34 @@
+/**
+ * @fileoverview Holds how every stealth repository formats its files: the width, the quotes,
+ * and what a build wrote.
+ */
+
 import { type UserConfig } from 'vite-plus'
 
 import { generatedGlobs } from './generated.ts'
 
 /**
- * The `fmt` block of a vite-plus config.
+ * Names the `fmt` block of a vite-plus config.
  */
 type FormatBlock = NonNullable<UserConfig['fmt']>
 
 /**
- * What a repository may change about how its files are formatted.
+ * Describes what a repository may change about how its files are formatted.
  */
 export interface FormatOptions {
   /**
-   * Globs for what this repository generates, appended to the shared list.
+   * Lists globs for what this repository generates, appended to the shared list.
    */
   ignore?: readonly string[] | undefined
 
   /**
-   * Columns to wrap at. Defaults to 100, which is the width the docblock rules assume.
+   * Sets the columns to wrap at. Default: 100, which is the width the docblock rules assume.
    */
   printWidth?: number | undefined
 }
 
 /**
- * How every stealth repository formats its files.
+ * Builds the `fmt` block every stealth repository formats its files with.
  *
  * Taste is settled here so no repository argues it again: no semicolons, single quotes, one
  * hundred columns, and manifests sorted. The formatter does not wrap comments, so a docblock

@@ -1,9 +1,14 @@
+/**
+ * @fileoverview Holds how a library is packed: the declaration build, the checks a registry
+ * and a consumer would run, and the exports a package ships but a build does not write.
+ */
+
 import { type UserConfig } from 'vite-plus'
 
 import { SOURCE_CONDITION } from './source.ts'
 
 /**
- * The `pack` block of a vite-plus config.
+ * Names the `pack` block of a vite-plus config.
  *
  * The field takes one config or a list of them; this is the single one, so a caller reading
  * the result back does not have to narrow a union first.
@@ -11,41 +16,42 @@ import { SOURCE_CONDITION } from './source.ts'
 type PackBlock = Exclude<NonNullable<UserConfig['pack']>, readonly unknown[]>
 
 /**
- * An exports map as the pack step builds it, before and after this config adds to it.
+ * Names an exports map as the pack step builds it, before and after this config adds to it.
  */
 type ExportMap = Record<string, unknown>
 
 /**
- * The manifest fields the pack step exposes while it rewrites a package's exports.
+ * Describes the manifest fields the pack step exposes while it rewrites a package's exports.
  */
 interface PackedManifest {
   /**
-   * What the package ships, as `files` declares it, which is what names its stylesheets.
+   * Lists what the package ships, as `files` declares it, which is what names its
+   * stylesheets.
    */
   files?: readonly string[] | undefined
 }
 
 /**
- * What the pack step tells `customExports` about the package it is packing.
+ * Describes what the pack step tells `customExports` about the package it is packing.
  */
 interface PackedPackage {
   /**
-   * The manifest being packed.
+   * Carries the manifest being packed.
    */
   pkg: PackedManifest
 }
 
 /**
- * A stylesheet at a package's root, as `files` names it: `source.css`, `styles.css`.
+ * Matches a stylesheet at a package's root, as `files` names it: `source.css`, `styles.css`.
  */
 const ROOT_STYLESHEET = /^[\w-]+\.css$/u
 
 /**
- * What a repository or a package may change about how its libraries are packed.
+ * Describes what a repository or a package may change about how its libraries are packed.
  */
 export interface PackOptions {
   /**
-   * Each command the package installs mapped to the source file that runs it. The pack step
+   * Maps each command the package installs to the source file that runs it. The pack step
    * writes both forms of `bin` from this: the source path for the workspace, and the built
    * path for the tarball. Left out, it names one command after the package, which is right
    * only where the package is named for its command.
@@ -53,18 +59,18 @@ export interface PackOptions {
   bin?: Readonly<Record<string, string>> | undefined
 
   /**
-   * Export paths mapped to the static files that serve them, for what a package ships but a
-   * build does not write — a stylesheet, a tsconfig. The pack step rewrites `exports` from
-   * what it built, so anything not built is dropped unless it is named here. Given, these
-   * replace the automatic derivation; omitted, every root stylesheet the manifest's `files`
-   * names is exported at its own path.
+   * Maps export paths to the static files that serve them, for what a package ships but a
+   * build does not write, such as a stylesheet or a tsconfig. The pack step rewrites
+   * `exports` from what it built, so anything not built is dropped unless it is named here.
+   * These replace the automatic derivation. Default: every root stylesheet the manifest's
+   * `files` names, exported at its own path.
    */
   staticExports?: Readonly<Record<string, string>> | undefined
 }
 
 /**
- * The exports a package's shipped stylesheets need: one per stylesheet at its root, at the
- * same path.
+ * Builds the exports a package's shipped stylesheets need: one per stylesheet at its root,
+ * at the same path.
  *
  * `files` is the one thing the manifest already declares that says the stylesheet is there,
  * which is what makes this derivable rather than a list somebody keeps.
@@ -81,10 +87,10 @@ export function stylesheetExports(files: readonly string[] = []): Record<string,
 }
 
 /**
- * How a library is packed: per-file ESM, declarations from tsgo, and the `exports` map
- * written back into the manifest so it cannot drift.
+ * Builds the `pack` block a library is packed by: per-file ESM, declarations from tsgo, and
+ * the `exports` map written back into the manifest so it cannot drift.
  *
- * The map names two conditions — the workspace's own, pointing at the source, and `default`,
+ * The map names two conditions: the workspace's own, pointing at the source, and `default`,
  * pointing at what was packed. Every pack is then read the way a registry and a consumer
  * would read it: publint reads the manifest, arethetypeswrong resolves the declarations. The
  * profile is `esm-only` because that is what these packages are; a `main`-less ESM package
