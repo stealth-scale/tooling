@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/core-result",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Success or refusal as a value: the shape a step answers with when refusing is an outcome rather than a fault.",
   "license": "MIT",
   "repository": {
