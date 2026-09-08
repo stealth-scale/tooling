@@ -1,11 +1,14 @@
 /**
  * @fileoverview Parses a value at a boundary. Every refusal takes one shape whatever rule
- * refused, and a schema applies in three ways: by result, by exception and by narrowing.
+ * refused, and a schema applies in three ways: by result, by exception and by narrowing. The
+ * result is `@stealthscale/core-result`'s, so a parse joins a chain of steps as it stands.
  */
 
 import * as v from 'valibot'
 
-import type { Infer, InputOf, Schema } from './builders.ts'
+import { refused, type Result, succeeded } from '@stealthscale/core-result'
+
+import { type Infer, type InputOf, type Schema } from './builders.ts'
 
 /**
  * Describes one refusal of one field, in the shape a form renders and a log records.
@@ -33,35 +36,6 @@ export interface FieldIssue {
    */
   reason: string
 }
-
-/**
- * Reports what `safeParse` found: the value, or every issue with it.
- *
- * @template Value - The type the schema parses to.
- */
-export type Parsed<Value> =
-  | {
-      /**
-       * Lists every refusal in the order the schema reported them.
-       */
-      issues: readonly FieldIssue[]
-
-      /**
-       * Marks the refusal, so a caller narrows on it.
-       */
-      ok: false
-    }
-  | {
-      /**
-       * Marks the success, so a caller narrows on it.
-       */
-      ok: true
-
-      /**
-       * Carries the parsed value. Every transform in the schema has run.
-       */
-      value: Value
-    }
 
 /**
  * Reports a value that failed its schema. `parse` throws it; a form renders `issues`; a log
@@ -136,13 +110,16 @@ export function fieldIssuesOf(issues: readonly v.BaseIssue<unknown>[]): FieldIss
  * @param {S} schema - The schema to check the value against.
  * @param {unknown} value - The value to check. It comes from a boundary: a request body, a
  *     parsed manifest, an environment variable.
- * @returns {Parsed<Infer<S>>} `ok: true` with the parsed value, or `ok: false` with every
- *     issue.
+ * @returns {Result<Infer<S>, readonly FieldIssue[]>} The parsed value under `value`, or every
+ *     refusal under `failure`, in the order the schema reported them.
  */
-export function safeParse<S extends Schema>(schema: S, value: unknown): Parsed<Infer<S>> {
+export function safeParse<S extends Schema>(
+  schema: S,
+  value: unknown,
+): Result<Infer<S>, readonly FieldIssue[]> {
   const result = v.safeParse(schema, value)
-  if (result.success) return { ok: true, value: result.output }
-  return { issues: fieldIssuesOf(result.issues), ok: false }
+  if (result.success) return succeeded(result.output)
+  return refused(fieldIssuesOf(result.issues))
 }
 
 /**

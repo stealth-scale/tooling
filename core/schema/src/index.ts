@@ -51,7 +51,6 @@ export {
   InvalidValueError,
   matches,
   parse,
-  type Parsed,
   safeParse,
 } from './parse.ts'
 export {

@@ -10,7 +10,7 @@ import { safeParse } from './parse.ts'
  * @returns {string[]} The codes in the schema's order. Empty when the schema accepted the value.
  */
 function codesOf(result: ReturnType<typeof safeParse>): string[] {
-  return result.ok ? [] : result.issues.map((issue) => issue.code)
+  return result.ok ? [] : result.failure.map((issue) => issue.code)
 }
 
 describe('existsOnTheCalendar', () => {
@@ -60,7 +60,7 @@ describe('day', () => {
     const result = safeParse(day(), '2026-02-30')
 
     expect(codesOf(result)).toEqual(['calendar_day'])
-    expect(result.ok ? [] : result.issues.map((issue) => issue.params)).toEqual([
+    expect(result.ok ? [] : result.failure.map((issue) => issue.params)).toEqual([
       { received: '"2026-02-30"' },
     ])
   })

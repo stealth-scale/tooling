@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vite-plus/test'
 
+import { andThen, mapFailure, refused, succeeded } from '@stealthscale/core-result'
+
 import { email, minLength, object, pipe, string, transform } from './builders.ts'
 import { fieldIssuesOf, InvalidValueError, matches, parse, safeParse } from './parse.ts'
 
@@ -17,7 +19,7 @@ describe('safeParse', () => {
 
   it('reports every issue with its code, its scalars and its path', () => {
     expect(safeParse(person, { name: 'A' })).toEqual({
-      issues: [
+      failure: [
         {
           code: 'min_length',
           params: { expected: '>=2', received: '1', requirement: 2 },
@@ -29,11 +31,25 @@ describe('safeParse', () => {
     })
   })
 
+  it('answers the shape core-result builds, so a parse joins a chain of steps', () => {
+    const trimmed = pipe(
+      string(),
+      transform((value) => value.trim()),
+    )
+
+    expect(andThen(safeParse(trimmed, ' Anouk '), (name) => succeeded(name.length))).toEqual(
+      succeeded(5),
+    )
+    expect(mapFailure(safeParse(person, { name: 'A' }), (issues) => issues.length)).toEqual(
+      refused(1),
+    )
+  })
+
   it('gives the root an empty path', () => {
     const result = safeParse(string(), 42)
 
     expect(result.ok).toBe(false)
-    expect(result.ok ? [] : result.issues).toMatchObject([
+    expect(result.ok ? [] : result.failure).toMatchObject([
       { code: 'string', params: { expected: 'string', received: '42' }, path: '' },
     ])
   })
@@ -41,7 +57,7 @@ describe('safeParse', () => {
   it('leaves out an expectation the rule does not state and a requirement that is not a scalar', () => {
     const result = safeParse(pipe(string(), email()), 'nope')
 
-    expect(result.ok ? [] : result.issues.map((issue) => issue.params)).toEqual([
+    expect(result.ok ? [] : result.failure.map((issue) => issue.params)).toEqual([
       { received: '"nope"' },
     ])
   })

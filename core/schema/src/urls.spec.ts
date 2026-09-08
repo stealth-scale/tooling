@@ -85,7 +85,7 @@ describe('link', () => {
     const result = safeParse(link(), 'javascript:alert(1)')
 
     expect(result.ok).toBe(false)
-    expect(result.ok ? [] : result.issues).toEqual([
+    expect(result.ok ? [] : result.failure).toEqual([
       {
         code: 'navigable_url',
         params: { received: '"javascript:alert(1)"' },
@@ -98,6 +98,6 @@ describe('link', () => {
   it('refuses a value that is not a string with that code alone, and adds nothing of its own', () => {
     const result = safeParse(link(), 42)
 
-    expect(result.ok ? [] : result.issues.map((issue) => issue.code)).toEqual(['string'])
+    expect(result.ok ? [] : result.failure.map((issue) => issue.code)).toEqual(['string'])
   })
 })

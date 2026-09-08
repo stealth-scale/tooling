@@ -33,6 +33,13 @@
         "@stealthscale/tool-config": "workspace:^",
       },
     },
+    "core/logging": {
+      "name": "@stealthscale/core-logging",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@stealthscale/tool-config": "workspace:^",
+      },
+    },
     "core/result": {
       "name": "@stealthscale/core-result",
       "version": "0.0.0",
@@ -44,6 +51,7 @@
       "name": "@stealthscale/core-schema",
       "version": "0.0.0",
       "dependencies": {
+        "@stealthscale/core-result": "workspace:^",
         "valibot": "catalog:",
       },
       "devDependencies": {
@@ -347,6 +355,8 @@
     "@stealthscale/core-env": ["@stealthscale/core-env@workspace:core/env"],
 
     "@stealthscale/core-locale": ["@stealthscale/core-locale@workspace:core/locale"],
+
+    "@stealthscale/core-logging": ["@stealthscale/core-logging@workspace:core/logging"],
 
     "@stealthscale/core-result": ["@stealthscale/core-result@workspace:core/result"],
 

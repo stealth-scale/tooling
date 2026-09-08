@@ -137,7 +137,7 @@ type RawManifest = Infer<typeof RAW_MANIFEST>
 function read(file: string): RawManifest {
   const result = safeParse(RAW_MANIFEST, JSON.parse(readFileSync(file, 'utf8')))
   if (result.ok) return result.value
-  const reasons = result.issues.map((issue) => `${issue.path}: ${issue.reason}`).join('; ')
+  const reasons = result.failure.map((issue) => `${issue.path}: ${issue.reason}`).join('; ')
   throw new Error(`${file} is not a manifest: ${reasons}`)
 }
 
