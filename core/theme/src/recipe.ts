@@ -5,6 +5,19 @@
  * recipe keeps the relationships between tokens intact when a hue moves.
  */
 
+import {
+  exactOptional,
+  maxValue,
+  minValue,
+  number,
+  picklist,
+  pipe,
+  type SchemaOf,
+  strictObject,
+  strictTuple,
+  string,
+} from '@stealthscale/core-schema'
+
 import { type ContrastLevel, ladderFor, type Outcome } from '#ladder.ts'
 import { type ThemeMode } from '#tokens.ts'
 
@@ -114,6 +127,61 @@ export interface PaletteRecipe {
    * hairlines is two hues, and one `neutral` cannot be both. Default: `neutral`.
    */
   surfaceHue?: number
+}
+
+/**
+ * Accepts a hue as the colour wheel names it, 0 to 360.
+ */
+const HUE = pipe(number(), minValue(0), maxValue(360))
+
+/**
+ * Accepts a lightness as a percentage, 0 to 100.
+ */
+const LIGHTNESS = pipe(number(), minValue(0), maxValue(100))
+
+/**
+ * Accepts a chroma, which has no ceiling: what a display can show is settled by the gamut
+ * mapping rather than by a number here.
+ */
+const CHROMA = pipe(number(), minValue(0))
+
+/**
+ * Builds the schema a recipe read from a file is held to.
+ *
+ * A recipe is written by hand in a package the toolchain loads, so every way of getting it
+ * wrong is a refusal with a code rather than a palette that comes out looking odd: a hue past
+ * the wheel, a lightness past 100, a chart with four series instead of five, and a key that
+ * is not a member at all, which is how a typo in an optional name would otherwise do nothing
+ * in silence.
+ *
+ * @returns {SchemaOf<PaletteRecipe>} The schema. It refuses a missing member and an unknown
+ *     key alike with the code `strict_object` on that key's path, a number outside its range
+ *     with `min_value` or `max_value`, and a sixth chart series with `strict_tuple`.
+ */
+export function recipeSchema(): SchemaOf<PaletteRecipe> {
+  return strictObject({
+    accent: HUE,
+    chart: strictTuple([HUE, HUE, HUE, HUE, HUE]),
+    chroma: exactOptional(CHROMA),
+    contrast: exactOptional(picklist(['AA', 'AAA'])),
+    fonts: exactOptional(strictObject({ mono: string(), sans: string() })),
+    ink: exactOptional(LIGHTNESS),
+    neutral: HUE,
+    neutralChroma: exactOptional(CHROMA),
+    paper: exactOptional(LIGHTNESS),
+    primary: HUE,
+    radius: exactOptional(string()),
+    status: exactOptional(
+      strictObject({
+        destructive: exactOptional(HUE),
+        info: exactOptional(HUE),
+        success: exactOptional(HUE),
+        warning: exactOptional(HUE),
+      }),
+    ),
+    surfaceChroma: exactOptional(CHROMA),
+    surfaceHue: exactOptional(HUE),
+  })
 }
 
 /**

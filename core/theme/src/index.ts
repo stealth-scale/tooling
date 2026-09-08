@@ -16,12 +16,13 @@ export {
   RATIOS,
 } from '#ladder.ts'
 export { NAMED } from '#named.ts'
-export { parseColor } from '#notation.ts'
+export { hex, parseColor } from '#notation.ts'
 export { buildPalette } from '#palette.ts'
 export {
   DEFAULT_FONTS,
   type FontFamilies,
   type PaletteRecipe,
+  recipeSchema,
   STATUS_HUES,
   type StatusHues,
 } from '#recipe.ts'

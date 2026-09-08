@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vite-plus/test'
 
 import { type Rgb } from '#convert.ts'
 import { NAMED } from '#named.ts'
-import { parseColor } from '#notation.ts'
+import { hex, parseColor } from '#notation.ts'
 
 /**
  * Writes a colour as the 0 to 255 channels a designer reads, rounded.
@@ -16,7 +16,7 @@ function bytes(color: Rgb | undefined): string | undefined {
     : [color.r, color.g, color.b].map((channel) => Math.round(channel * 255)).join(',')
 }
 
-describe('hex', () => {
+describe('the hex notations', () => {
   it('reads the long form, and the short form as the long one doubled', () => {
     expect(bytes(parseColor('#3b82f6'))).toBe('59,130,246')
     expect(bytes(parseColor('#abc'))).toBe(bytes(parseColor('#aabbcc')))
@@ -156,5 +156,31 @@ describe('what is not a colour', () => {
 
   it('ignores the whitespace around a value', () => {
     expect(parseColor('  #fff  ')).toEqual(parseColor('#fff'))
+  })
+})
+
+describe('hex', () => {
+  it('writes each channel as two lower-case digits', () => {
+    expect(hex({ b: 0, g: 0, r: 0 })).toBe('#000000')
+    expect(hex({ b: 1, g: 1, r: 1 })).toBe('#ffffff')
+    expect(hex({ b: 0, g: 0, r: 1 })).toBe('#ff0000')
+    expect(hex({ b: 1 / 255, g: 0, r: 0 }), 'a channel under a byte still fills two').toBe(
+      '#000001',
+    )
+  })
+
+  it('rounds a channel to the nearest byte rather than cutting it off', () => {
+    expect(hex({ b: 0, g: 0, r: 0.5 })).toBe('#800000')
+    expect(hex({ b: 0, g: 0, r: 0.499 })).toBe('#7f0000')
+  })
+
+  it('clamps a channel a solve pushed outside the gamut', () => {
+    expect(hex({ b: -0.2, g: 1.4, r: 2 })).toBe('#ffff00')
+  })
+
+  it('writes what parseColor reads back, so the two ends agree', () => {
+    const written = { b: 0.2, g: 100 / 255, r: 40 / 255 }
+
+    expect(bytes(parseColor(hex(written)))).toBe(bytes(written))
   })
 })

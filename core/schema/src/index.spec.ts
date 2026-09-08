@@ -48,6 +48,8 @@ describe('the package barrel', () => {
       'record',
       'regex',
       'safeParse',
+      'strictObject',
+      'strictTuple',
       'string',
       'timestamp',
       'transform',

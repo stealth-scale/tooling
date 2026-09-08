@@ -80,6 +80,12 @@ A recipe asks for `AAA` or `AA` on its fills. Text on a surface is held to `AAA`
 asks for. A field's outline and the focus ring are solved to 3:1 against what they sit on,
 which is the floor WCAG 1.4.11 puts on any boundary a person needs to find a control.
 
+A recipe is written by hand in a package a tool loads, so `recipeSchema()` holds one to its
+contract before the palette is built: a hue past the wheel, a lightness past 100 and a chart
+that is not five series are each refused with a code. It refuses a key that is no member as
+well, because a typo in an optional name would otherwise leave the default in place and say
+nothing.
+
 ## The colour maths
 
 `parseColor` reads every notation CSS can express and sRGB can hold: hex with or without an
@@ -96,6 +102,10 @@ standard says the page shows. A wide-gamut space such as `display-p3` is refused
 because sRGB cannot hold it.
 `transparent` is refused because it has no colour to measure, and `contrast` answers 0 for
 anything unreadable, so a caller tells "unreadable" from "not measured".
+
+`hex` writes the other way, as `#rrggbb`. A theme's own values are `oklch()`, and a tool that
+draws chrome around the product rather than inside it parses colours with a library that
+predates CSS Color 4; hand it this.
 
 ## Declaring a package a theme
 

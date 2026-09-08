@@ -32,6 +32,8 @@ export {
   pipe,
   record,
   regex,
+  strictObject,
+  strictTuple,
   string,
   transform,
   union,

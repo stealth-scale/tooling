@@ -1,7 +1,8 @@
 /**
- * @fileoverview Reads the notations CSS writes a colour in. A stylesheet this package
- * generates writes `oklch()`, and a browser reporting a computed style answers `rgb()` or
- * `color(srgb …)`, so both ends of the round trip are read here and converted once.
+ * @fileoverview Reads the notations CSS writes a colour in, and writes the one notation that
+ * every reader outside CSS understands. A stylesheet this package generates writes `oklch()`,
+ * and a browser reporting a computed style answers `rgb()` or `color(srgb …)`, so both ends of
+ * the round trip are read here and converted once.
  *
  * An alpha channel is read past. WCAG defines contrast between two opaque colours, and a
  * caller measuring a translucent one is asking about a colour that depends on what is behind
@@ -137,8 +138,8 @@ export function parseColor(value: string): Rgb | undefined {
   const named = NAMED[text]
   if (named !== undefined) return fromPacked(named)
 
-  const hex = fromHex(text)
-  if (hex !== undefined) return hex
+  const triplet = fromHex(text)
+  if (triplet !== undefined) return triplet
 
   const call = FUNCTION.exec(text)
   if (call === null) return undefined
@@ -151,4 +152,25 @@ export function parseColor(value: string): Rgb | undefined {
 
   const parsed = read(args)
   return Number.isNaN(parsed.r + parsed.g + parsed.b) ? undefined : parsed
+}
+
+/**
+ * Writes a colour as `#rrggbb`, which is the notation a reader outside a browser understands.
+ *
+ * A theme's own values are `oklch()`, and a tool that renders chrome around the product
+ * rather than inside it parses colours with a library that predates CSS Color 4. Hand it
+ * this. A channel outside the unit interval is clamped, so a colour that came from a solve
+ * beyond the gamut still writes a colour a parser reads.
+ *
+ * @param {Rgb} color - The colour in sRGB, each channel between 0 and 1.
+ * @returns {string} The colour as `#rrggbb`, in lower case. The alpha channel is not written,
+ *     because this package measures and writes opaque colours only.
+ */
+export function hex(color: Rgb): string {
+  const written = [color.r, color.g, color.b].map((channel) =>
+    Math.round(unit(channel) * 255)
+      .toString(16)
+      .padStart(2, '0'),
+  )
+  return `#${written.join('')}`
 }

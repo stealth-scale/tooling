@@ -29,6 +29,8 @@ export {
   regex,
   type Schema,
   type SchemaOf,
+  strictObject,
+  strictTuple,
   string,
   transform,
   union,

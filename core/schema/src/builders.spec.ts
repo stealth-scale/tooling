@@ -44,6 +44,8 @@ describe('the builders', () => {
       'pipe',
       'record',
       'regex',
+      'strictObject',
+      'strictTuple',
       'string',
       'transform',
       'union',
