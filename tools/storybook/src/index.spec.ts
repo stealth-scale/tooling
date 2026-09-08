@@ -12,6 +12,7 @@ describe('the package barrel', () => {
       'example',
       'forcedBy',
       'interactive',
+      'localeOf',
       'underTest',
     ])
   })

@@ -1,0 +1,161 @@
+import { Edges, Inks, Pairs, Series, Swatches, Syntax } from '@stealthscale/tool-storybook/docs'
+
+# Colours
+
+Every colour a component may use is a token, and every theme defines all of them in both
+modes. A component never writes a colour: it writes `bg-card` or `text-muted-foreground`, and
+the theme decides what that is.
+
+Everything below reads the theme and the mode the toolbar is on, so switching either changes
+it. Where two colours are meant to be read together, the page prints the ratio they measure
+against each other and the level it reaches: AAA is 7:1, AA is 4.5:1. Every theme holds text
+on a surface to AAA. A fill clears the level the theme's recipe asked for, and the surfaces,
+inks and edges do not move with it.
+
+## Three ways a colour is used
+
+A token is one of three things, and a component uses it as that thing:
+
+- A **pair** is a fill and the text meant to sit on it: `bg-primary text-primary-foreground`.
+  A component never takes a fill from one pair and a label from another.
+- An **ink** is a tone as text on the page: `text-destructive-ink` for a soft badge, an
+  alert's words, or a number that went the wrong way. A fill is solved to carry its own label,
+  and at AA it is too light to be read as text, so a component never writes a fill as text.
+- An **edge** separates, outlines or marks focus: `border-border`, `border-input`,
+  `ring-ring`.
+
+## Surfaces
+
+The planes a screen is built from, back to front: the page, a card raised off it, a popover
+raised off that. In light the three are near-white and a shadow does the separating; in dark
+they climb a ladder and a hairline does.
+
+<Pairs
+  pairs={[
+    ['background', 'foreground'],
+    ['background', 'muted-foreground'],
+    ['card', 'card-foreground'],
+    ['popover', 'popover-foreground'],
+  ]}
+/>
+
+<Swatches of="surface" />
+
+## Emphasis
+
+Four levels, from the one action a screen asks for down to text that is merely present.
+`primary-ink` is the primary as text: a link, or the label of a soft badge. The theme solves
+it against the page rather than against white.
+
+<Pairs
+  pairs={[
+    ['primary', 'primary-foreground'],
+    ['secondary', 'secondary-foreground'],
+    ['muted', 'muted-foreground'],
+    ['accent', 'accent-foreground'],
+  ]}
+/>
+
+<Inks tokens={['primary-ink']} />
+
+<Swatches of="emphasis" />
+
+## Status
+
+Outcomes. A theme keeps these hues unless its recipe names its own, because a warning that
+changes colour with the brand is a warning nobody learns to read. Each outcome is a pair for a
+solid fill and an ink for everything else. The ink is what a soft badge, an alert and a delta
+draw with, in both modes, with no component choosing per mode.
+
+<Pairs
+  pairs={[
+    ['destructive', 'destructive-foreground'],
+    ['success', 'success-foreground'],
+    ['warning', 'warning-foreground'],
+    ['info', 'info-foreground'],
+  ]}
+/>
+
+<Inks tokens={['destructive-ink', 'success-ink', 'warning-ink', 'info-ink']} />
+
+<Swatches of="status" />
+
+## Outline
+
+What separates a surface, what outlines a field, and what marks focus. `input` and `ring`
+clear 3:1 against the surface they sit on, which is what a person needs to find a control.
+`border` is decorative and stays a hairline. `ring` takes the primary's hue in every theme.
+
+<Edges />
+
+## Charts
+
+Five series colours, in the order a chart assigns them, and three tones for a value that
+carries a judgement. The series are not the emphasis colours: a series is data, not a call to
+action. The tones are not the status colours either: a status fill is built to carry white
+text, and as an arc in a chart it reads as brown.
+
+<Series />
+
+## Code
+
+Eight syntax roles, solved against `muted` rather than the page, because that is the surface a
+code block sits on. A colour that passes on the page and fails on `muted` fails in the only
+place it is used.
+
+<Syntax />
+
+<Swatches of="code" />
+
+## Sidebar
+
+A sidebar is usually a different plane from the page beside it, so it has its own surface,
+border, accent and ring. A sidebar that inherits the page's surface disappears.
+
+<Pairs
+  pairs={[
+    ['sidebar', 'sidebar-foreground'],
+    ['sidebar-primary', 'sidebar-primary-foreground'],
+    ['sidebar-accent', 'sidebar-accent-foreground'],
+  ]}
+/>
+
+<Swatches of="sidebar" />
+
+## Effects
+
+What a page draws over itself. `overlay` is the scrim under a dialog, and it is a token because
+a black scrim at half opacity disappears on a dark page. `selection` is what the browser paints
+behind selected text, and `highlight` is a search match. Both carry a foreground solved to
+AAA, because selected text is still text.
+
+<Pairs
+  pairs={[
+    ['selection', 'selection-foreground'],
+    ['highlight', 'highlight-foreground'],
+  ]}
+/>
+
+<Swatches of="effect" />
+
+## Gradient and glow
+
+Three stops at one lightness, differing only in hue, from the primary to the accent. That is
+what reads as a gradient; a band between two colours solved for contrast reads as a fade. The
+glow is the colour a `shadow-glow-*` is thrown in.
+
+<Swatches of="gradient" />
+
+## Shadow ink
+
+Every shadow mixes from `shadow`, with the opacity the mode allows. `shadow-highlight` is the
+light along the top edge of a raised surface in dark mode, where a shadow is ink on ink and
+what reads as an edge is light catching the top. In light it is transparent.
+
+<Swatches of="shadow" />
+
+## Adding one
+
+A colour that is not on this page does not exist. Adding one means adding it to the contract,
+which makes every theme fail to build until it has an answer. That failure is the point: it is
+how a token stays defined everywhere.

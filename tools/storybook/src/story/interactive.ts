@@ -14,16 +14,16 @@ export type Play<Context> = (context: Context) => Promise<void> | void
  * Returns `true` when the test runner is watching rather than a person.
  *
  * The Vitest browser runner sets this on the window before it composes a story, and the
- * catalogue never does. That is the one honest difference between the two.
+ * Storybook never does. That is the one honest difference between the two.
  *
- * @returns {boolean} `true` under the test run, and `false` in the catalogue.
+ * @returns {boolean} `true` under the test run, and `false` in Storybook.
  */
 export function underTest(): boolean {
   return Reflect.get(globalThis, '__vitest_browser__') === true
 }
 
 /**
- * Wraps a play function so it runs under the test run and stays still in the catalogue.
+ * Wraps a play function so it runs under the test run and stays still in Storybook.
  *
  * Storybook plays every story it renders, and the `autoplay` flag it exposes governs
  * documentation pages, where play is already off. That suits a play function that measures

@@ -1,0 +1,50 @@
+import { Guarantees } from '@stealthscale/tool-storybook/docs'
+
+# Accessibility
+
+Three things are decided by the theme rather than per component: what contrast a colour
+guarantees, which way text runs, and what happens when a reader asks for less motion. A
+component built from the tokens gets all three; one that writes its own colours gets none.
+
+## Contrast
+
+Three kinds of colour, three guarantees. **Text on a surface**, which is the page, a card, a
+popover, muted and the sidebar, clears AAA in every theme and both modes. An **ink**, a tone as
+text on the page, clears AAA too; that is what a soft badge, an alert's words and a delta are
+drawn with. **A label on a fill**, which is the primary, the four outcomes and the sidebar's
+primary, clears the level the theme's recipe asked for: AAA keeps 7:1, and AA lets a saturated
+fill carry white text in both modes. An **edge** a person has to find, a field's outline or a
+focus ring, clears 3:1 against the surface it sits on.
+
+The rule that follows: a fill is never used as text. `text-destructive` on the page is the
+fill's colour, solved to carry white, and at AA it is too light to read; `text-destructive-ink`
+is solved to be read there.
+
+Every guarantee, measured against the theme and the mode on the toolbar. Switch either and every
+ratio is recomputed from the solved colours, not from a table someone wrote down once.
+
+<Guarantees />
+
+A row that fails here is a defect in the theme, not in the component that used the pair. Fix
+the token, and every screen using that pair moves with it. The palette's own specification
+holds every built theme to these floors before it ships.
+
+## Direction
+
+Every story can be rendered right to left from the **Direction** toolbar, and every locale
+whose script runs right to left flips it by itself. Layout is written with logical properties,
+`ms-*`, `pe-*` and `text-start`, so the same markup works both ways. A component that hardcodes
+left and right looks wrong the moment the toolbar flips.
+
+## Motion
+
+The **Motion** toolbar forces the reduced path without changing your system settings. A design
+system honours it by collapsing every animation and transition to almost nothing rather than to
+zero, so a component that waits for an animation to end still completes.
+
+## What the gates check
+
+- Every story runs axe in a real browser, and a violation fails the story rather than a panel.
+  That includes the contrast of the text the story draws, on the surface it draws it on.
+- The palette's specification holds every built theme to the floors above, in both modes.
+- Nothing checks a theme written by hand, which is why this page measures it.

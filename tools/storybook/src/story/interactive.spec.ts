@@ -18,7 +18,7 @@ function runnerIs(watching: boolean): void {
 }
 
 describe('underTest', () => {
-  it('answers false in the catalogue, which sets no flag', () => {
+  it('answers false in Storybook, which sets no flag', () => {
     expect(underTest()).toBe(false)
   })
 
@@ -45,7 +45,7 @@ describe('interactive', () => {
     expect(play).toHaveBeenCalledTimes(1)
   })
 
-  it('leaves the story still in the catalogue, so it does not thrash on the page', async () => {
+  it('leaves the story still in Storybook, so it does not thrash on the page', async () => {
     const play = vi.fn<(context: unknown) => void>()
 
     await interactive(play)({})

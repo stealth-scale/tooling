@@ -1,0 +1,39 @@
+import { Durations, Easings } from '@stealthscale/tool-storybook/docs'
+
+# Motion
+
+Motion says what kind of thing is happening: something arriving, something leaving, something
+answering a press. That meaning should not change between products, so the curves and the
+durations are the same in every theme.
+
+## Easing
+
+Four curves. Run them together: a curve is invisible in a table of `cubic-bezier` values, and
+the only way to tell `ease-out` from `ease-spring` is to watch them start and stop side by
+side.
+
+<Easings />
+
+- `ease-out` is for anything arriving. It starts fast and settles, which reads as the thing
+  already being on its way.
+- `ease-in` is for anything leaving. Slow to commit, then gone.
+- `ease-in-out` is for something moving between two places on screen, where both ends matter.
+- `ease-spring` is for a direct answer to a press or a drag, where a small overshoot reads as
+  physical rather than as a glitch.
+
+## Duration
+
+<Durations />
+
+`fast` is for a state change on something already under the pointer, such as a hover or a
+press. `normal` is the default for anything appearing or disappearing. `slow` is for something
+large enough that the eye has to follow it across the screen. Anything past a third of a
+second reads as waiting rather than as motion.
+
+## Reduced motion
+
+The **Motion** toolbar forces the reduced path without changing your system settings, and a
+design system honours it by collapsing every animation and transition to almost nothing rather
+than to zero. That distinction matters: an animation still fires `animationstart` and
+`animationend`, so a component that waits for one before unmounting still completes instead of
+hanging open. Check any component whose meaning depends on movement with the toolbar on.

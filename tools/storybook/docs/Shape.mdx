@@ -1,0 +1,33 @@
+import { Radii, Shadows } from '@stealthscale/tool-storybook/docs'
+
+# Shape
+
+Two decisions make a system feel soft or precise: how much its corners are rounded, and how
+things lift off the page. Both come from one value of the theme's each, so they cannot drift
+apart.
+
+## Radius
+
+A theme sets one `--radius`. Every step below is a multiple of it, which is why a theme cannot
+round its cards and leave its buttons square. Switch the theme in the toolbar to see the whole
+scale move.
+
+<Radii />
+
+A component picks a step by meaning, not by measurement: `rounded-md` on a control,
+`rounded-lg` on a container, `rounded-full` on an avatar. A pixel value survives a theme change
+unchanged and stands out.
+
+## Elevation
+
+Every shadow mixes from the theme's shadow ink, so a shadow that lifts a card off white does
+not vanish against near-black. In dark mode every box shadow also carries a hairline of light
+along its top edge, because there a shadow is ink on ink and what reads as an edge is light
+catching the top. A glow is thrown in the theme's glow colour rather than its ink: no offset
+and a wide blur, so it reads as light coming off a surface.
+
+<Shadows />
+
+Use `shadow-sm` for something resting on the page, `shadow-md` for something temporarily above
+it, `shadow-lg` for something that has taken over, such as a dialog or a popover with real
+content.

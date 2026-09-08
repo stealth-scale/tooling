@@ -16,6 +16,7 @@ How a stealth repository is built. Read this if you are setting one up.
 | [`tools/cli`](tools/cli)             | cli     | the `stealth` bin                                         |
 | [`tools/config`](tools/config)       | kit     | the toolchain config and the tsconfig bases               |
 | [`tools/fixtures`](tools/fixtures)   | kit     | seeded sample values, the same every run, in any locale   |
+| [`tools/storybook`](tools/storybook) | kit     | the Storybook a repository ships, derived from its tree   |
 | [`tools/testing`](tools/testing)     | kit     | the scratch workspace a spec reads a tree from            |
 | [`tools/workspace`](tools/workspace) | kit     | what a workspace holds, read off its manifests            |
 
@@ -34,7 +35,8 @@ bun install
 vp check          # format and lint, with --fix to apply
 vp test           # the specs, at a 100% floor
 vp run -r build   # pack every library
-vp run ci         # what CI runs: install, audit, build, check, test
+vp run storybook  # Storybook at http://localhost:6006, configured from the packed kit
+vp run ci         # what CI runs: install, audit, build, check, test, storybook build
 ```
 
 Every package resolves to its source through the `stealth-source` export condition, so there

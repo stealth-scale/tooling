@@ -3,7 +3,7 @@
 A **kit**: another repository takes it at development time.
 
 Reads a workspace off its manifests. It answers which packages the root names, what each one
-declares, and the order their dependencies put them in, so a release, a guard and a catalogue
+declares, and the order their dependencies put them in, so a release, a guard and a Storybook
 all work from one reading of the tree rather than a list somebody keeps in step.
 
 ```ts
@@ -41,7 +41,7 @@ and every malformed package is reported at once, each issue pointing at
 `@scope/pkg.stealth.theme.title`.
 
 This package knows the field exists and nothing about what a package may put in it. The words
-a theme, a catalogue or a set of messages is declared with belong to whatever owns those
+a theme, an appearance or a set of messages is declared with belong to whatever owns those
 words, and adding a kind of contribution changes nothing here.
 
 ## Install

@@ -1,6 +1,7 @@
 node_modules/
 dist/
 coverage/
+storybook-static/
 *.tsbuildinfo
 
 # A package's tsconfig includes only src, so a declaration build never reaches a config.

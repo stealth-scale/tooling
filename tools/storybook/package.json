@@ -1,7 +1,7 @@
 {
   "name": "@stealthscale/tool-storybook",
   "version": "0.0.0",
-  "description": "Builds the catalogue a repository ships: what a story is written with, the Storybook config, and the toolbars that drive the document.",
+  "description": "Builds a repository's Storybook: what a story is written with, the config derived from the workspace, the toolbars that drive the document, and the pages that document a theme.",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -9,10 +9,16 @@
     "directory": "tools/storybook"
   },
   "files": [
-    "dist"
+    "dist",
+    "docs"
   ],
   "type": "module",
-  "sideEffects": false,
+  "sideEffects": [
+    "./src/manager.ts",
+    "./src/preview/index.ts",
+    "./dist/manager.mjs",
+    "./dist/preview/index.mjs"
+  ],
   "imports": {
     "#*": "./src/*"
   },
@@ -21,42 +27,85 @@
       "stealth-source": "./src/index.ts",
       "default": "./dist/index.mjs"
     },
+    "./config": {
+      "stealth-source": "./src/config/index.ts",
+      "default": "./dist/config/index.mjs"
+    },
+    "./docs": {
+      "stealth-source": "./src/docs/index.ts",
+      "default": "./dist/docs/index.mjs"
+    },
+    "./manager": {
+      "stealth-source": "./src/manager.ts",
+      "default": "./dist/manager.mjs"
+    },
+    "./preset": {
+      "stealth-source": "./src/preset.ts",
+      "default": "./dist/preset.mjs"
+    },
+    "./preview": {
+      "stealth-source": "./src/preview/index.ts",
+      "default": "./dist/preview/index.mjs"
+    },
     "./package.json": "./package.json"
   },
   "publishConfig": {
     "exports": {
       ".": "./dist/index.mjs",
+      "./config": "./dist/config/index.mjs",
+      "./docs": "./dist/docs/index.mjs",
+      "./manager": "./dist/manager.mjs",
+      "./preset": "./dist/preset.mjs",
+      "./preview": "./dist/preview/index.mjs",
       "./package.json": "./package.json"
     },
     "access": "public"
   },
   "scripts": {
-    "build": "vp pack src/index.ts"
+    "build": "vp pack src/index.ts src/config/index.ts src/docs/index.ts src/manager.ts src/preset.ts src/preview/index.ts"
   },
   "dependencies": {
+    "@stealthscale/core-appearance": "workspace:^",
+    "@stealthscale/core-logging": "workspace:^",
+    "@stealthscale/core-result": "workspace:^",
+    "@stealthscale/core-schema": "workspace:^",
+    "@stealthscale/core-theme": "workspace:^",
+    "@stealthscale/tool-config": "workspace:^",
+    "@stealthscale/tool-workspace": "workspace:^",
+    "magic-string": "catalog:",
+    "react-docgen": "catalog:",
+    "remark-gfm": "catalog:"
+  },
+  "devDependencies": {
+    "@stealthscale/tool-testing": "workspace:^",
     "@storybook/addon-a11y": "catalog:",
     "@storybook/addon-docs": "catalog:",
     "@storybook/addon-vitest": "catalog:",
-    "@vitest/browser-playwright": "catalog:",
-    "magic-string": "catalog:",
-    "playwright": "catalog:",
-    "react-docgen": "catalog:",
-    "storybook-addon-pseudo-states": "catalog:"
-  },
-  "devDependencies": {
-    "@stealthscale/tool-config": "workspace:^",
-    "@stealthscale/tool-testing": "workspace:^",
     "@storybook/react-vite": "catalog:",
+    "@tailwindcss/vite": "catalog:",
     "@testing-library/react": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
+    "@vitest/browser-playwright": "catalog:",
+    "playwright": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "storybook": "catalog:"
+    "storybook": "catalog:",
+    "storybook-addon-pseudo-states": "catalog:",
+    "vite-plus": "catalog:"
   },
   "peerDependencies": {
+    "@storybook/addon-a11y": "catalog:",
+    "@storybook/addon-docs": "catalog:",
+    "@storybook/addon-vitest": "catalog:",
     "@storybook/react-vite": "catalog:",
+    "@tailwindcss/vite": "catalog:",
+    "@vitest/browser-playwright": "catalog:",
+    "playwright": "catalog:",
     "react": "catalog:",
-    "storybook": "catalog:"
+    "react-dom": "catalog:",
+    "storybook": "catalog:",
+    "storybook-addon-pseudo-states": "catalog:",
+    "vite-plus": "catalog:"
   }
 }

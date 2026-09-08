@@ -1,7 +1,7 @@
 /**
  * @fileoverview Reads one kind of contribution out of the `stealth` field of every manifest.
  * The caller names the key and hands over the schema for what it expects under it, so nothing
- * here learns what a theme, a catalogue or a set of words is: it finds the field, checks it is
+ * here learns what a theme, an appearance or a set of words is: it finds the field, checks it is
  * an object, and holds one key of it to somebody else's schema. A kind of contribution is
  * therefore added by the package that owns those words, and this module does not change.
  */
@@ -63,7 +63,7 @@ function prefixed(issues: readonly FieldIssue[], prefix: string): FieldIssue[] {
  *
  * @template Value - What the schema parses the contribution to.
  * @param {Manifest} manifest - The package's manifest.
- * @param {string} key - The key inside the `stealth` field: `theme`, `catalogue`, `messages`.
+ * @param {string} key - The key inside the `stealth` field: `theme`, `appearance`, `messages`.
  * @param {SchemaOf<Value>} schema - The schema for what sits under that key.
  * @returns {Collected<Registered<Value>, FieldIssue>} One entry when the package registered
  *     this kind, and none when it registered nothing or registered another kind. A `stealth`
@@ -97,7 +97,7 @@ function contributionOf<Value>(
  * @template Value - What the schema parses the contribution to.
  * @param {readonly Manifest[]} manifests - The workspace's manifests, as `workspaceManifests`
  *     read them. Their order is the result's order.
- * @param {string} key - The key inside the `stealth` field: `theme`, `catalogue`, `messages`.
+ * @param {string} key - The key inside the `stealth` field: `theme`, `appearance`, `messages`.
  * @param {SchemaOf<Value>} schema - The schema for what sits under that key. It belongs to the
  *     package that owns those words.
  * @returns {Collected<Registered<Value>, FieldIssue>} Every package that registered this kind,

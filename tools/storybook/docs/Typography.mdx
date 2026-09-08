@@ -1,0 +1,48 @@
+import { Leading, Mono, Scale, Tracking, Weights } from '@stealthscale/tool-storybook/docs'
+
+# Typography
+
+Two families, which the theme names: one for text and one for anything a reader might retype,
+such as an identifier, a duration or a hash. The scale, the weights and the spacing below are
+the same in every theme, because a product with a different rhythm is a different system
+rather than a different brand.
+
+Every specimen renders in the families the theme on the toolbar names, so switching the theme
+changes them.
+
+## Scale
+
+Every step comes with a line height paired to it. A component picks a step and never sets a
+pixel size, which is what keeps two screens built by two people looking like one product.
+
+<Scale />
+
+## Weights
+
+A variable font renders every weight from 100 to 900, which is exactly why a system has to say
+which ones it uses. Semibold is the heaviest weight in running text; bold is for the single
+word that has to win.
+
+<Weights />
+
+## Tracking
+
+Letter spacing: tight for a heading, wide for the small capitals in a label. The default is
+`tracking-normal`, and anything else needs a reason.
+
+<Tracking />
+
+## Leading
+
+Line height for the cases the scale's own pairing does not cover: a heading that wraps, a
+paragraph meant to be read slowly. The page shows it on enough text to wrap, because that is
+the only place line height is visible.
+
+<Leading />
+
+## Monospace
+
+For anything a reader might copy or compare character by character. It is not a decorative
+choice: proportional digits make two numbers of the same magnitude look like different lengths.
+
+<Mono />

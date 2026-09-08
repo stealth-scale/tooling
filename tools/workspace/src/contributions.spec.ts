@@ -12,13 +12,13 @@ interface Theme {
   title: string
 }
 
-/** What a package writes to say what a catalogue draws with, in the members this file needs. */
-interface Catalogue {
+/** What a package writes to say what a appearance draws with, in the members this file needs. */
+interface Appearance {
   stylesheets: readonly string[]
 }
 
 const THEME: SchemaOf<Theme> = looseObject({ recipe: string(), title: string() })
-const CATALOGUE: SchemaOf<Catalogue> = looseObject({ stylesheets: array(string()) })
+const APPEARANCE: SchemaOf<Appearance> = looseObject({ stylesheets: array(string()) })
 
 /**
  * Reads a workspace whose packages register the fields given, and removes it afterwards.
@@ -49,7 +49,7 @@ describe('contributions', () => {
     const read = reading(
       {
         alpha: { theme: { recipe: './src/recipe.ts', title: 'Alpha' } },
-        beta: { catalogue: { stylesheets: ['./src/base.css'] } },
+        beta: { appearance: { stylesheets: ['./src/base.css'] } },
         gamma: { theme: { recipe: './recipe.ts', title: 'Gamma' } },
       },
       'theme',
@@ -65,11 +65,11 @@ describe('contributions', () => {
   it('reads another key of the same field without minding what the others hold', () => {
     const read = reading(
       {
-        alpha: { catalogue: { stylesheets: ['./src/base.css'] }, theme: { title: 47 } },
+        alpha: { appearance: { stylesheets: ['./src/base.css'] }, theme: { title: 47 } },
         beta: {},
       },
-      'catalogue',
-      CATALOGUE,
+      'appearance',
+      APPEARANCE,
     )
 
     expect(read.ok).toBe(true)
