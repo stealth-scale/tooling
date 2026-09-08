@@ -8,9 +8,13 @@ import { serverSourceConditions, sourceConditions } from './source.ts'
 import { stagedConfig } from './staged.ts'
 import { testConfig } from './test.ts'
 
+const CONDITION = 'ui-source'
+
+const defaults = stealthDefaults({ sourceCondition: CONDITION })
+
 describe('stealthDefaults', () => {
   it('carries every block a repository would otherwise have to configure itself', () => {
-    expect(Object.keys(stealthDefaults).toSorted()).toEqual([
+    expect(Object.keys(defaults).toSorted()).toEqual([
       'fmt',
       'lint',
       'pack',
@@ -23,32 +27,41 @@ describe('stealthDefaults', () => {
   })
 
   it('is each builder at its shared value, so there is one source of truth', () => {
-    expect(stealthDefaults.fmt).toEqual(formatConfig())
-    expect(stealthDefaults.lint).toEqual(lintConfig())
-    expect(stealthDefaults.run).toEqual(runConfig())
-    expect(stealthDefaults.staged).toEqual(stagedConfig())
-    expect(stealthDefaults.test).toEqual(testConfig())
-    expect(stealthDefaults.resolve?.conditions).toEqual(sourceConditions())
+    expect(defaults.fmt).toEqual(formatConfig())
+    expect(defaults.lint).toEqual(lintConfig())
+    expect(defaults.run).toEqual(runConfig())
+    expect(defaults.staged).toEqual(stagedConfig())
+    expect(defaults.test).toEqual(testConfig())
+    expect(defaults.resolve?.conditions).toEqual(sourceConditions(CONDITION))
     expect(
-      stealthDefaults.ssr?.resolve?.conditions,
+      defaults.ssr?.resolve?.conditions,
       'a spec loads another package through the node resolver',
-    ).toEqual(serverSourceConditions())
+    ).toEqual(serverSourceConditions(CONDITION))
+  })
+
+  it('gives both resolvers and the pack step the one condition it was told', () => {
+    const { exports } = defaults.pack as { exports: { devExports?: unknown } }
+
+    expect(exports.devExports, 'what the pack step writes into every manifest').toBe(CONDITION)
+    expect(defaults.resolve?.conditions?.[0]).toBe(CONDITION)
+    expect(stealthDefaults({ sourceCondition: 'platform-source' }).resolve?.conditions?.[0]).toBe(
+      'platform-source',
+    )
   })
 
   it('packs the way the pack builder does, deriving stylesheets per package', () => {
-    expect(stealthDefaults.pack).toMatchObject({ dts: { tsgo: true }, publint: true })
+    expect(defaults.pack).toMatchObject({ dts: { tsgo: true }, publint: true })
     expect(
-      typeof (stealthDefaults.pack as { exports?: { customExports?: unknown } }).exports
-        ?.customExports,
+      typeof (defaults.pack as { exports?: { customExports?: unknown } }).exports?.customExports,
       'the automatic derivation, not a fixed map',
     ).toBe('function')
   })
 
   it('assumes nothing renders, which is what a repository overrides when something does', () => {
     expect(
-      stealthDefaults.lint?.overrides,
+      defaults.lint?.overrides,
       'what a tool default-exports, a Storybook config and a specification',
     ).toHaveLength(3)
-    expect(stealthDefaults.test?.projects, 'no jsdom project').toHaveLength(1)
+    expect(defaults.test?.projects, 'no jsdom project').toHaveLength(1)
   })
 })

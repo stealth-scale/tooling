@@ -21,11 +21,11 @@
   },
   "exports": {
     ".": {
-      "stealth-source": "./src/index.ts",
+      "tooling-source": "./src/index.ts",
       "default": "./dist/index.mjs"
     },
     "./bin/stealth": {
-      "stealth-source": "./src/bin/stealth.ts",
+      "tooling-source": "./src/bin/stealth.ts",
       "default": "./dist/bin/stealth.mjs"
     },
     "./package.json": "./package.json"

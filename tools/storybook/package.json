@@ -24,27 +24,27 @@
   },
   "exports": {
     ".": {
-      "stealth-source": "./src/index.ts",
+      "tooling-source": "./src/index.ts",
       "default": "./dist/index.mjs"
     },
     "./config": {
-      "stealth-source": "./src/config/index.ts",
+      "tooling-source": "./src/config/index.ts",
       "default": "./dist/config/index.mjs"
     },
     "./docs": {
-      "stealth-source": "./src/docs/index.ts",
+      "tooling-source": "./src/docs/index.ts",
       "default": "./dist/docs/index.mjs"
     },
     "./manager": {
-      "stealth-source": "./src/manager.ts",
+      "tooling-source": "./src/manager.ts",
       "default": "./dist/manager.mjs"
     },
     "./preset": {
-      "stealth-source": "./src/preset.ts",
+      "tooling-source": "./src/preset.ts",
       "default": "./dist/preset.mjs"
     },
     "./preview": {
-      "stealth-source": "./src/preview/index.ts",
+      "tooling-source": "./src/preview/index.ts",
       "default": "./dist/preview/index.mjs"
     },
     "./package.json": "./package.json"

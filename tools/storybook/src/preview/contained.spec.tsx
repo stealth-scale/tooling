@@ -36,10 +36,13 @@ describe('Contained', () => {
     expect(fireEvent.click(link as Element), 'the default was prevented').toBe(false)
   })
 
+  // These two let the click through, which is the point of them. The href is a fragment so
+  // that jsdom has somewhere to go it implements: a path would make it report a navigation it
+  // cannot perform, on every run, for a case that is passing.
   it('leaves a modified click alone, which is somebody asking for a new tab', () => {
     const { container } = render(
       <Contained>
-        <a href="/elsewhere">go</a>
+        <a href="#elsewhere">go</a>
       </Contained>,
     )
     const link = container.querySelector('a')
@@ -50,7 +53,7 @@ describe('Contained', () => {
   it('leaves a middle click alone, which opens a tab in every browser', () => {
     const { container } = render(
       <Contained>
-        <a href="/elsewhere">go</a>
+        <a href="#elsewhere">go</a>
       </Contained>,
     )
     const link = container.querySelector('a')

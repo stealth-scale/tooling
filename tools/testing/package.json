@@ -18,7 +18,7 @@
   },
   "exports": {
     ".": {
-      "stealth-source": "./src/index.ts",
+      "tooling-source": "./src/index.ts",
       "default": "./dist/index.mjs"
     },
     "./package.json": "./package.json"

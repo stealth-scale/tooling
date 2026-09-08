@@ -10,7 +10,6 @@ describe('the vite barrel', () => {
       'MARKUP_RULES',
       'SAFETY_RULES',
       'SIZE_RULES',
-      'SOURCE_CONDITION',
       'STYLE_RULES',
       'docblocksOff',
       'formatConfig',
@@ -35,7 +34,6 @@ describe('the vite barrel', () => {
     for (const name of builders) {
       expect(typeof exported.get(name), name).toBe('function')
     }
-    expect(vite.SOURCE_CONDITION).toBe('stealth-source')
     expect(typeof vite.SIZE_RULES, 'a rule set is data a caller can read').toBe('object')
   })
 })

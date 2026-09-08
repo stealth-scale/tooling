@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "_comment": "What every package in this repository compiles under: the toolchain's base, plus this repository's own source condition, so the type checker reads a workspace package's source exactly as the bundler does. By relative path for the same reason vite.config.ts imports the preset that way: this repository is where tool-config lives. Every other repository extends '@stealthscale/tool-config/tsconfig/base.json' here instead.",
+  "extends": "./tools/config/tsconfig/base.json",
+  "compilerOptions": {
+    "customConditions": ["tooling-source"]
+  }
+}

@@ -26,13 +26,21 @@ type ViteConfig = Parameters<NonNullable<StorybookConfig['viteFinal']>>[0]
  * to what it last built, and a story would draw a stale component.
  *
  * @param {Registrations} registered - The reading of the workspace.
+ * @param {string} sourceCondition - This repository's source condition, which its own Vite
+ *     config names too.
  * @returns {(vite: ViteConfig) => ViteConfig} The `viteFinal` a configuration hands Storybook.
  */
-export function viteFinal(registered: Registrations): (vite: ViteConfig) => ViteConfig {
+export function viteFinal(
+  registered: Registrations,
+  sourceCondition: string,
+): (vite: ViteConfig) => ViteConfig {
   return (vite) => ({
     ...vite,
     plugins: [...(vite.plugins ?? []), tailwind(), virtualModules(registered), stealthDocgen()],
-    resolve: { ...vite.resolve, conditions: sourceConditions() },
-    ssr: { ...vite.ssr, resolve: { ...vite.ssr?.resolve, conditions: serverSourceConditions() } },
+    resolve: { ...vite.resolve, conditions: sourceConditions(sourceCondition) },
+    ssr: {
+      ...vite.ssr,
+      resolve: { ...vite.ssr?.resolve, conditions: serverSourceConditions(sourceCondition) },
+    },
   })
 }

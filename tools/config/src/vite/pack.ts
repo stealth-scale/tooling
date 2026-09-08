@@ -5,8 +5,6 @@
 
 import { type UserConfig } from 'vite-plus'
 
-import { SOURCE_CONDITION } from './source.ts'
-
 /**
  * Names the `pack` block of a vite-plus config.
  *
@@ -59,6 +57,21 @@ export interface PackOptions {
   bin?: Readonly<Record<string, string>> | undefined
 
   /**
+   * Lists what the bundler leaves as an import rather than resolving it, such as a virtual
+   * module a plugin supplies at run time. Without it the bundler reports the import
+   * unresolved and externalises it anyway, so a broken import reads the same as a deliberate
+   * one.
+   */
+  neverBundle?: readonly (RegExp | string)[] | undefined
+
+  /**
+   * Names this repository's source condition, which the pack step writes into every manifest
+   * it packs. `sourceConditions` documents why it is named after the repository, and every
+   * Vite config in one repository names the same one.
+   */
+  sourceCondition: string
+
+  /**
    * Maps export paths to the static files that serve them, for what a package ships but a
    * build does not write, such as a stylesheet or a tsconfig. The pack step rewrites
    * `exports` from what it built, so anything not built is dropped unless it is named here.
@@ -101,11 +114,12 @@ export function stylesheetExports(files: readonly string[] = []): Record<string,
  *     is documented on `PackOptions`, and anything absent takes the shared value.
  * @returns {PackBlock} The `pack` block, ready to hand to `defineConfig`.
  */
-export function packConfig(options: Readonly<PackOptions> = {}): PackBlock {
-  const { bin, staticExports } = options
+export function packConfig(options: Readonly<PackOptions>): PackBlock {
+  const { bin, neverBundle, sourceCondition, staticExports } = options
 
   return {
     attw: { excludeEntrypoints: [/\.css$/u], profile: 'esm-only' },
+    ...(neverBundle === undefined ? {} : { deps: { neverBundle: [...neverBundle] } }),
     dts: { tsgo: true },
     exports: {
       ...(bin === undefined ? {} : { bin: { ...bin } }),
@@ -118,7 +132,7 @@ export function packConfig(options: Readonly<PackOptions> = {}): PackBlock {
             ...exports,
             ...stylesheetExports(pkg.files),
           }),
-      devExports: SOURCE_CONDITION,
+      devExports: sourceCondition,
     },
     publint: true,
   }

@@ -13,6 +13,8 @@ import { PAGES } from '#pages.ts'
 
 import { pagesDirectory, presetPath, storybookConfig } from './config.ts'
 
+const CONDITION = 'tooling-source'
+
 /** One entry an indexer reports, in the fields these cases read. */
 interface Entry {
   [field: string]: unknown
@@ -76,7 +78,8 @@ async function indexed(
   file: string,
   entries: Entry[],
 ): Promise<Entry[]> {
-  const wrap = storybookConfig({ root: scratch.root }).experimental_indexers as unknown as Wrap
+  const wrap = storybookConfig({ root: scratch.root, sourceCondition: CONDITION })
+    .experimental_indexers as unknown as Wrap
   const [wrapped] = wrap([indexerFor(entries)])
 
   return (await wrapped?.createIndex(file, {})) ?? []
@@ -86,7 +89,7 @@ describe('storybookConfig', () => {
   it('looks for stories in every package that keeps a source, and in its own pages', () => {
     const scratch = workspace()
 
-    const { stories } = storybookConfig({ root: scratch.root })
+    const { stories } = storybookConfig({ root: scratch.root, sourceCondition: CONDITION })
 
     expect(stories).toEqual([
       { directory: '../components/library/src', files: '**/*.@(stories.tsx|mdx)' },
@@ -98,7 +101,11 @@ describe('storybookConfig', () => {
   it('writes every place relative to the directory a repository names for its configuration', () => {
     const scratch = workspace()
 
-    const { stories } = storybookConfig({ configDir: 'storybook/config', root: scratch.root })
+    const { stories } = storybookConfig({
+      configDir: 'storybook/config',
+      root: scratch.root,
+      sourceCondition: CONDITION,
+    })
 
     expect(stories).toEqual([
       { directory: '../../components/library/src', files: '**/*.@(stories.tsx|mdx)' },
@@ -115,18 +122,21 @@ describe('storybookConfig', () => {
     const scratch = workspace()
     const own = [{ directory: '../elsewhere', files: '**/*.stories.tsx' }]
 
-    expect(storybookConfig({ root: scratch.root, stories: own }).stories).toEqual([
-      ...own,
-      pagesEntry(scratch),
-    ])
+    expect(
+      storybookConfig({ root: scratch.root, sourceCondition: CONDITION, stories: own }).stories,
+    ).toEqual([...own, pagesEntry(scratch)])
     scratch.remove()
   })
 
   it('registers its own preset first, then the shared addons, then what a repository adds', () => {
     const scratch = workspace()
 
-    const shared = addonsOf({ root: scratch.root })
-    const extended = addonsOf({ addons: ['my-addon'], root: scratch.root })
+    const shared = addonsOf({ root: scratch.root, sourceCondition: CONDITION })
+    const extended = addonsOf({
+      addons: ['my-addon'],
+      root: scratch.root,
+      sourceCondition: CONDITION,
+    })
 
     expect(shared[0]).toBe(presetPath())
     expect(shared).toContain('@storybook/addon-a11y')
@@ -138,8 +148,12 @@ describe('storybookConfig', () => {
   it('reports nothing outward and serves nothing extra unless asked', () => {
     const scratch = workspace()
 
-    const bare = storybookConfig({ root: scratch.root })
-    const serving = storybookConfig({ root: scratch.root, staticDirs: ['./public'] })
+    const bare = storybookConfig({ root: scratch.root, sourceCondition: CONDITION })
+    const serving = storybookConfig({
+      root: scratch.root,
+      sourceCondition: CONDITION,
+      staticDirs: ['./public'],
+    })
 
     expect(bare.core).toEqual({ disableTelemetry: true, disableWhatsNewNotifications: true })
     expect(bare.staticDirs).toBeUndefined()
@@ -210,7 +224,7 @@ describe('storybookConfig', () => {
   })
 
   it('reads the workspace the command was run in when a repository names none', () => {
-    const { stories } = storybookConfig()
+    const { stories } = storybookConfig({ sourceCondition: CONDITION })
 
     expect(
       stories,
@@ -220,9 +234,11 @@ describe('storybookConfig', () => {
 
   it('carries the workspace and the source condition into what Storybook assembled', () => {
     const scratch = workspace()
-    const final = storybookConfig({ root: scratch.root }).viteFinal as unknown as (
-      config: Record<string, unknown>,
-    ) => { plugins: { name?: string }[]; resolve: { conditions: string[] } }
+    const final = storybookConfig({ root: scratch.root, sourceCondition: CONDITION })
+      .viteFinal as unknown as (config: Record<string, unknown>) => {
+      plugins: { name?: string }[]
+      resolve: { conditions: string[] }
+    }
 
     const vite = final({ plugins: [{ name: 'storybook:its-own' }] })
 
@@ -231,7 +247,7 @@ describe('storybookConfig', () => {
       'its own first, then ours',
     ).toContain('stealth:modules')
     expect(vite.plugins[0]?.name).toBe('storybook:its-own')
-    expect(vite.resolve.conditions[0], "a story reads a package's source").toBe('stealth-source')
+    expect(vite.resolve.conditions[0], "a story reads a package's source").toBe(CONDITION)
     expect(final({}).plugins, 'a configuration carrying no plugins of its own').not.toHaveLength(0)
     scratch.remove()
   })
@@ -242,15 +258,16 @@ describe('storybookConfig', () => {
       ...packageFiles('themes/broken', { name: '@t/theme-broken', stealth: { theme: {} } }),
     })
 
-    expect(() => storybookConfig({ root: scratch.root })).toThrow('Storybook cannot draw')
+    expect(() => storybookConfig({ root: scratch.root, sourceCondition: CONDITION })).toThrow(
+      'Storybook cannot draw',
+    )
     scratch.remove()
   })
 
   it('wraps nothing when Storybook hands it no indexers', () => {
     const scratch = workspace()
-    const wrap = storybookConfig({ root: scratch.root }).experimental_indexers as (
-      existing: unknown,
-    ) => unknown[]
+    const wrap = storybookConfig({ root: scratch.root, sourceCondition: CONDITION })
+      .experimental_indexers as (existing: unknown) => unknown[]
 
     expect(wrap('nothing to wrap')).toEqual([])
     scratch.remove()

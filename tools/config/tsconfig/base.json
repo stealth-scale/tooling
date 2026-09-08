@@ -1,12 +1,11 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-  "_comment": "What every stealth package compiles under. A package extends this and adds only its `include`. `customConditions` is the same string the pack step writes into every exports map, so the type checker reads a workspace package's source exactly as the bundler does.",
+  "_comment": "What every stealth package compiles under. A repository extends this once, in its own `tsconfig.base.json`, and adds the `customConditions` naming its source condition; a package extends that and adds only its `include`. The condition is not set here because it is named after the repository, not shared between them, for the reason `sourceConditions` gives.",
   "compilerOptions": {
     "target": "es2023",
     "lib": ["es2023"],
     "module": "esnext",
     "moduleResolution": "bundler",
-    "customConditions": ["stealth-source"],
     "types": ["node"],
     "moduleDetection": "force",
     "allowImportingTsExtensions": true,

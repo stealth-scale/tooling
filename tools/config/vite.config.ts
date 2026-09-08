@@ -14,6 +14,7 @@ import { packConfig } from './src/index.ts'
  */
 export default defineConfig({
   pack: packConfig({
+    sourceCondition: 'tooling-source',
     staticExports: {
       './tsconfig/base.json': './tsconfig/base.json',
       './tsconfig/react.json': './tsconfig/react.json',

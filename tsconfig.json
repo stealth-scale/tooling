@@ -1,6 +1,5 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-  "_comment": "By relative path for the same reason vite.config.ts imports the preset that way: this repository is where tool-config lives. Every other repository extends '@stealthscale/tool-config/tsconfig/base.json'.",
-  "extends": "./tools/config/tsconfig/base.json",
+  "extends": "./tsconfig.base.json",
   "include": ["vite.config.ts"]
 }

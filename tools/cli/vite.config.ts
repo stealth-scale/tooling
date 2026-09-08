@@ -11,5 +11,5 @@ import { packConfig } from '@stealthscale/tool-config'
  * from the root, and a run's cache is a root setting that a package may not carry.
  */
 export default defineConfig({
-  pack: packConfig({ bin: { stealth: './src/bin/stealth.ts' } }),
+  pack: packConfig({ bin: { stealth: './src/bin/stealth.ts' }, sourceCondition: 'tooling-source' }),
 })

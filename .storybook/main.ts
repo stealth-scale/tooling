@@ -4,4 +4,4 @@
 // own loader, which corrupts the coverage of every file it touches.
 import { storybookConfig } from '@stealthscale/tool-storybook/config'
 
-export default storybookConfig()
+export default storybookConfig({ sourceCondition: 'tooling-source' })

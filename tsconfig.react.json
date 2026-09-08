@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "_comment": "What a package in this repository that renders compiles under: the toolchain's react base, plus this repository's source condition. The condition is repeated from tsconfig.base.json because a tsconfig cannot hold a variable; a guard holds every tsconfig in the repository to one condition.",
+  "extends": "./tools/config/tsconfig/react.json",
+  "compilerOptions": {
+    "customConditions": ["tooling-source"]
+  }
+}

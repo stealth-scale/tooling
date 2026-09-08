@@ -14,7 +14,7 @@ import { storiesProject } from './tools/storybook/src/config/index.ts'
  * beside it, built by that block's own function, carries what is true only of this one.
  */
 export default defineConfig({
-  ...stealthDefaults,
+  ...stealthDefaults({ sourceCondition: 'tooling-source' }),
 
   // Only the story kit renders, so it alone takes the `web` rules; `tools/` is where the
   // console is the interface rather than a leftover.

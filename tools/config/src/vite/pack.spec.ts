@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vite-plus/test'
 
 import { packConfig, stylesheetExports } from './pack.ts'
-import { SOURCE_CONDITION } from './source.ts'
+
+const CONDITION = 'ui-source'
 
 /**
  * Names the callback form of `customExports`, which is what the automatic derivation is.
@@ -44,7 +45,7 @@ describe('stylesheetExports', () => {
 
 describe('packConfig', () => {
   it('checks a pack the way a registry and a consumer read it', () => {
-    const pack = packConfig()
+    const pack = packConfig({ sourceCondition: CONDITION })
 
     expect(pack.attw, 'a CSS subpath resolves in no mode, and these are ESM-only').toEqual({
       excludeEntrypoints: [/\.css$/u],
@@ -55,12 +56,15 @@ describe('packConfig', () => {
   })
 
   it('writes the source condition into every exports map', () => {
-    expect(asExports(packConfig().exports).devExports).toBe(SOURCE_CONDITION)
-    expect(asExports(packConfig({ staticExports: {} }).exports).devExports).toBe(SOURCE_CONDITION)
+    expect(asExports(packConfig({ sourceCondition: CONDITION }).exports).devExports).toBe(CONDITION)
+    expect(
+      asExports(packConfig({ sourceCondition: CONDITION, staticExports: {} }).exports).devExports,
+    ).toBe(CONDITION)
   })
 
   it('derives a stylesheet export from the manifest when a package names none', () => {
-    const derive = asExports(packConfig().exports).customExports as Derive
+    const derive = asExports(packConfig({ sourceCondition: CONDITION }).exports)
+      .customExports as Derive
 
     expect(derive({ '.': './dist/index.mjs' }, { pkg: { files: ['dist', 'source.css'] } })).toEqual(
       { '.': './dist/index.mjs', './source.css': './source.css' },
@@ -68,7 +72,8 @@ describe('packConfig', () => {
   })
 
   it('keeps what the build wrote when a package ships no stylesheet at all', () => {
-    const derive = asExports(packConfig().exports).customExports as Derive
+    const derive = asExports(packConfig({ sourceCondition: CONDITION }).exports)
+      .customExports as Derive
 
     expect(derive({ '.': './dist/index.mjs' }, { pkg: {} })).toEqual({ '.': './dist/index.mjs' })
   })
@@ -76,16 +81,31 @@ describe('packConfig', () => {
   it('names the commands a package installs, and leaves the naming alone with none', () => {
     const bin = { stealth: './src/bin/stealth.ts' }
 
-    expect(asExports(packConfig({ bin }).exports).bin).toEqual(bin)
+    expect(asExports(packConfig({ bin, sourceCondition: CONDITION }).exports).bin).toEqual(bin)
     expect(
-      asExports(packConfig().exports).bin,
+      asExports(packConfig({ sourceCondition: CONDITION }).exports).bin,
       'the pack step then names the command after the package',
     ).toBeUndefined()
+  })
+
+  it('leaves what a plugin supplies at run time as an import, where a package names it', () => {
+    const virtual = /^virtual:stealth\//u
+
+    expect(packConfig({ neverBundle: [virtual], sourceCondition: CONDITION })).toMatchObject({
+      deps: { neverBundle: [virtual] },
+    })
+    expect(
+      packConfig({ sourceCondition: CONDITION }),
+      'a package that names none bundles everything it imports',
+    ).not.toHaveProperty('deps')
   })
 
   it('takes a package at its word, so a file no build writes survives the rewrite', () => {
     const named = { './tsconfig/base.json': './tsconfig/base.json' }
 
-    expect(asExports(packConfig({ staticExports: named }).exports).customExports).toEqual(named)
+    expect(
+      asExports(packConfig({ sourceCondition: CONDITION, staticExports: named }).exports)
+        .customExports,
+    ).toEqual(named)
   })
 })

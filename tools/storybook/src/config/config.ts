@@ -6,7 +6,7 @@
  */
 
 import { type StorybookConfig } from '@storybook/react-vite'
-import { existsSync } from 'node:fs'
+import { existsSync, readdirSync } from 'node:fs'
 import { extname, join, relative, resolve } from 'node:path'
 import remarkGfm from 'remark-gfm'
 
@@ -59,6 +59,28 @@ const PAGES_DIRECTORY = 'docs'
 type StoriesEntry = Extract<NonNullable<StorybookConfig['stories']>, readonly unknown[]>[number]
 
 /**
+ * Matches the file names `FILES` matches, for reading a directory rather than globbing it.
+ */
+const STORY_FILE = /\.(?:mdx|stories\.tsx)$/u
+
+/**
+ * Returns `true` when a package holds a story or a page somewhere below its source.
+ *
+ * Storybook warns once for every entry that matches nothing, on the test run and again on
+ * the build, so naming a package that carries no stories costs two warnings a run and hides
+ * the ones worth reading. A repository where most packages render nothing is the ordinary
+ * case, not the exception.
+ *
+ * @param {string} source - The package's `src`, absolute.
+ * @returns {boolean} `true` when at least one story or page sits below it.
+ */
+function holdsStories(source: string): boolean {
+  return readdirSync(source, { recursive: true }).some(
+    (entry) => typeof entry === 'string' && STORY_FILE.test(entry),
+  )
+}
+
+/**
  * Describes what a repository may change about its Storybook.
  */
 export interface ConfigOptions {
@@ -77,6 +99,13 @@ export interface ConfigOptions {
    * Names the workspace to read. Default: the one the command was run in.
    */
   root?: string
+
+  /**
+   * Names this repository's source condition, the same one its own Vite config names.
+   * Storybook assembles a Vite configuration of its own, which inherits nothing from the
+   * repository's, so a story would otherwise draw whatever each package last built.
+   */
+  sourceCondition: string
 
   /**
    * Lists directories served beside the stories, such as fonts or a fixture's images.
@@ -141,7 +170,7 @@ function storiesIn(root: string, configDir: string): StoriesEntry[] {
   return workspacePatterns(root)
     .flatMap((pattern) => expandWorkspacePattern(root, pattern))
     .map((directory) => join(directory, 'src'))
-    .filter((source) => existsSync(source))
+    .filter((source) => existsSync(source) && holdsStories(source))
     .map((directory) => ({ directory: relative(configDir, directory), files: FILES }))
 }
 
@@ -159,7 +188,7 @@ function storiesIn(root: string, configDir: string): StoriesEntry[] {
  * @throws {Error} When a package registers something Storybook cannot draw, naming every
  *     field at fault. A Storybook that started anyway would draw the wrong thing quietly.
  */
-export function storybookConfig(options: Readonly<ConfigOptions> = {}): StorybookConfig {
+export function storybookConfig(options: Readonly<ConfigOptions>): StorybookConfig {
   const root = options.root ?? workspaceRoot(process.cwd())
   const configDir = resolve(root, options.configDir ?? CONFIG_DIR)
   const read = registrations(root)
@@ -187,7 +216,7 @@ export function storybookConfig(options: Readonly<ConfigOptions> = {}): Storyboo
     // writes the same shape.
     typescript: { reactDocgen: false },
 
-    viteFinal: viteFinal(read.value),
+    viteFinal: viteFinal(read.value, options.sourceCondition),
     ...(options.staticDirs === undefined ? {} : { staticDirs: [...options.staticDirs] }),
   }
 }
