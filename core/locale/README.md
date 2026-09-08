@@ -30,13 +30,17 @@ it**, because that string is a file name.
 `preferences` drops what the client cannot use: the wildcard, anything that is not a tag, and
 a tag at `q=0`, which RFC 9110 defines as "not acceptable" rather than as a weak preference.
 
+`directionOf` reads which way a tag's text runs from its script, so `ar` and `ur` are `rtl`,
+`ar-Latn` is `ltr`, and a string that is not a tag is `ltr` as the ordinary case.
+
 ## No locale library
 
 `@formatjs/intl-localematcher` is the usual answer and it is 58 KB, almost all of it the
 likely-subtags data. The engine already has that data: `Intl.Locale.prototype.maximize()`
 turns `zh` into `zh-Hans-CN`, `Intl.getCanonicalLocales` fixes subtag case, and `Intl.Locale`
-takes a tag apart. So this package carries no data at all — it is the lookup algorithm over
-what `Intl` already knows.
+takes a tag apart. So this package is the lookup algorithm over what `Intl` already knows, and
+carries one table of its own: the right-to-left scripts, because the engines agree on a
+language's likely script and disagree on what `getTextInfo` says about it.
 
 ## Install
 

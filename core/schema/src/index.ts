@@ -54,6 +54,14 @@ export {
   safeParse,
 } from './parse.ts'
 export {
+  isLanguageTag,
+  languageTag,
+  type LanguageTagAction,
+  type LanguageTagIssue,
+  locale,
+  type LocaleSchema,
+} from './tags.ts'
+export {
   BLOCKED_URL,
   isNavigableUrl,
   link,

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test'
 
-import { canonical, chain, parts, widened, widenedChain } from './tags.ts'
+import { canonical, chain, directionOf, parts, widened, widenedChain } from './tags.ts'
 
 describe('canonical', () => {
   it('corrects the case of each subtag as BCP-47 writes it', () => {
@@ -61,6 +61,30 @@ describe('chain', () => {
 
   it('gives nothing for a string that is not a tag', () => {
     expect(chain('not a tag')).toEqual([])
+  })
+})
+
+describe('directionOf', () => {
+  it('reads right to left off the script a language is likely written in', () => {
+    for (const tag of ['ar', 'he', 'fa', 'ur', 'dv', 'ug', 'yi', 'ps']) {
+      expect(directionOf(tag), tag).toBe('rtl')
+    }
+  })
+
+  it('reads left to right for every other script', () => {
+    for (const tag of ['en', 'nl', 'ja', 'zh-Hant-TW', 'ku']) {
+      expect(directionOf(tag), tag).toBe('ltr')
+    }
+  })
+
+  it('lets a script the tag names win over the likely one', () => {
+    expect(directionOf('ar-Latn'), 'Arabic in Latin letters').toBe('ltr')
+    expect(directionOf('sd-Arab'), 'Sindhi in Arabic letters').toBe('rtl')
+  })
+
+  it('reads a string that is not a tag as left to right, which is the ordinary case', () => {
+    expect(directionOf('not a tag')).toBe('ltr')
+    expect(directionOf('')).toBe('ltr')
   })
 })
 

@@ -1,8 +1,9 @@
 /**
  * @fileoverview Reads a BCP-47 language tag with the engine's own ECMA-402 implementation:
- * canonicalising it, taking it apart, and walking it from most specific to least. Nothing
- * here carries locale data. `Intl` already has it, including the likely subtags a `zh` to
- * `zh-Hans-CN` widening needs.
+ * canonicalising it, taking it apart, walking it from most specific to least, and reading
+ * the direction its text runs in. `Intl` carries the locale data, including the likely
+ * subtags a `zh` to `zh-Hans-CN` widening needs; the one table here is the right-to-left
+ * scripts, for the reason `directionOf` gives.
  */
 
 /**
@@ -102,6 +103,48 @@ export function chain(tag: string): Tag[] {
   }
 
   return walked
+}
+
+/**
+ * Names the direction a script's text runs in.
+ */
+export type Direction = 'ltr' | 'rtl'
+
+/**
+ * Lists the scripts written right to left that a living language widens to, as CLDR's
+ * script metadata marks them. The engines answer `getTextInfo` differently, Bun's ICU calling
+ * Thaana and Hanifi Rohingya left to right, while every engine agrees on the likely script,
+ * so the script decides.
+ */
+const RIGHT_TO_LEFT: ReadonlySet<string> = new Set([
+  'Adlm',
+  'Arab',
+  'Aran',
+  'Hebr',
+  'Mand',
+  'Nkoo',
+  'Rohg',
+  'Samr',
+  'Syrc',
+  'Thaa',
+  'Yezi',
+])
+
+/**
+ * Reads the direction a tag's text runs in, from the script the tag names or the one the
+ * engine considers likely for its language.
+ *
+ * @param {string} tag - The tag to read.
+ * @returns {Direction} `rtl` for `ar`, `he`, `fa`, `ur` and `dv`. `ltr` for every other
+ *     script, for `ar-Latn`, and for a string that is not a tag at all.
+ */
+export function directionOf(tag: string): Direction {
+  try {
+    const script = new Intl.Locale(tag).maximize().script
+    return script !== undefined && RIGHT_TO_LEFT.has(script) ? 'rtl' : 'ltr'
+  } catch {
+    return 'ltr'
+  }
 }
 
 /**

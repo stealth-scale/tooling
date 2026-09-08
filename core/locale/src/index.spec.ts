@@ -7,6 +7,7 @@ describe('the package barrel', () => {
     expect(Object.keys(locale).toSorted()).toEqual([
       'canonical',
       'chain',
+      'directionOf',
       'negotiate',
       'parts',
       'preferences',
