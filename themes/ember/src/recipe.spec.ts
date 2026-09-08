@@ -30,19 +30,23 @@ describe('the Ember recipe', () => {
   it('changes something in four of the five groups, which is what a house style is', () => {
     expect(recipe.color.primary).toBe('#d9480f')
     expect(recipe.effect?.depth).toBe(0.5)
-    expect(recipe.font?.sans?.family).toBe('Figtree Variable')
+    expect(recipe.font?.sans?.family).toBe('Jost Variable')
     expect(recipe.motion?.speed).toBe(0.8)
     expect(recipe.size?.density?.default).toBe('compact')
   })
 
-  it('brings its own text face and keeps the base’s monospace', () => {
+  it('sets all three roles in faces of its own, and shares none with the base', () => {
     const { font } = resolveRecipe(recipe)
+    const plain = resolveRecipe(base).font
 
-    expect(font.sans).toContain("'Figtree Variable'")
-    expect(font.mono, 'the family it did not name').toBe(resolveRecipe(base).font.mono)
-    expect(font.sources, 'and it loads both').toEqual([
-      '@fontsource-variable/figtree/wght.css',
-      '@fontsource-variable/jetbrains-mono/wght.css',
+    expect(font.sans).toContain("'Jost Variable'")
+    expect(font.display).toContain("'Bricolage Grotesque Variable'")
+    expect(font.mono).toContain("'Fira Code Variable'")
+    expect([font.sans, font.display, font.mono], 'nothing carried over').not.toContain(plain.sans)
+    expect(font.sources, 'and it loads all three').toEqual([
+      '@fontsource-variable/jost/wght.css',
+      '@fontsource-variable/fira-code/wght.css',
+      '@fontsource-variable/bricolage-grotesque/wght.css',
     ])
   })
 

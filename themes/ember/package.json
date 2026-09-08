@@ -40,8 +40,9 @@
     "build": "vp pack src/index.ts"
   },
   "dependencies": {
-    "@fontsource-variable/figtree": "catalog:",
-    "@fontsource-variable/jetbrains-mono": "catalog:",
+    "@fontsource-variable/bricolage-grotesque": "catalog:",
+    "@fontsource-variable/fira-code": "catalog:",
+    "@fontsource-variable/jost": "catalog:",
     "@stealthscale/core-theme": "workspace:^",
     "@stealthscale/theme-base": "workspace:^",
     "@tailwindcss/typography": "catalog:",

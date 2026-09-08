@@ -18,9 +18,9 @@ const FACED: Themes = Object.fromEntries(
         dark: theme.values.dark,
         light: {
           ...theme.values.light,
-          'font-display': "'Newsreader Variable', Georgia, serif",
-          'font-mono': "'JetBrains Mono Variable', ui-monospace, monospace",
-          'font-sans': "'DM Sans Variable', ui-sans-serif, system-ui, sans-serif",
+          'font-display': "'Fraunces Variable', Georgia, serif",
+          'font-mono': "'Source Code Pro Variable', ui-monospace, monospace",
+          'font-sans': "'Literata Variable', Georgia, serif",
         },
       },
     },
@@ -43,7 +43,7 @@ describe('firstFamily', () => {
       'Inter Variable',
     )
     expect(firstFamily('ui-monospace, monospace')).toBe('ui-monospace')
-    expect(firstFamily('"DM Sans Variable", sans-serif')).toBe('DM Sans Variable')
+    expect(firstFamily('"Space Grotesk Variable", sans-serif')).toBe('Space Grotesk Variable')
   })
 })
 
@@ -63,9 +63,9 @@ describe('Families', () => {
     previewWrote({}, FACED)
 
     expect(named(container)).toEqual([
-      'Newsreader Variable',
-      'DM Sans Variable',
-      'JetBrains Mono Variable',
+      'Fraunces Variable',
+      'Literata Variable',
+      'Source Code Pro Variable',
     ])
   })
 

@@ -23,14 +23,16 @@ describe('the Harbor recipe', () => {
     expect(recipe.effect, 'the depth').toEqual(base.effect)
   })
 
-  it('sets text in a face of its own and leaves the base’s code family alone', () => {
+  it('sets text and code in a grotesque and its monospace sibling', () => {
     const { font } = resolveRecipe(recipe)
 
-    expect(font.sans).toContain("'DM Sans Variable'")
-    expect(font.mono, 'the family it did not name').toBe(resolveRecipe(base).font.mono)
-    expect(font.sources, 'and it loads the file it asked for').toContain(
-      '@fontsource-variable/dm-sans/wght.css',
-    )
+    expect(font.sans).toContain("'Space Grotesk Variable'")
+    expect(font.mono).toContain("'Spline Sans Mono Variable'")
+    expect(font.display, 'no heading face, so a heading draws in the text family').toBe(font.sans)
+    expect(font.sources, 'and it loads both').toEqual([
+      '@fontsource-variable/space-grotesk/wght.css',
+      '@fontsource-variable/spline-sans-mono/wght.css',
+    ])
   })
 
   it('reads the brand teal as a hue and a chroma, and lets the solver set the lightness', () => {

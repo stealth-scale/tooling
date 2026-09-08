@@ -45,12 +45,27 @@ export const recipe: Recipe = extendRecipe(base, {
   },
 
   font: {
-    // A serif for headings alone, loaded from this theme's own package. The base's text and
-    // code families stay, so a heading is set in it and the prose under it is not.
+    // A high-contrast serif with tapered, slightly wonky stems. It carries a headline where a
+    // reading face would go quiet.
     display: {
       fallback: 'Georgia, serif',
-      family: 'Newsreader Variable',
-      source: '@fontsource-variable/newsreader/wght.css',
+      family: 'Fraunces Variable',
+      source: '@fontsource-variable/fraunces/wght.css',
+    },
+
+    // A narrow, upright monospace, so a code block sits inside a measure of prose rather than
+    // pushing it wider.
+    mono: {
+      family: 'Source Code Pro Variable',
+      source: '@fontsource-variable/source-code-pro/wght.css',
+    },
+
+    // A serif for the body too, cut for screens with sturdy slabs and a large x-height. This
+    // is the change a reader sees first: every other theme sets prose in a sans.
+    sans: {
+      fallback: 'Georgia, serif',
+      family: 'Literata Variable',
+      source: '@fontsource-variable/literata/wght.css',
     },
   },
 

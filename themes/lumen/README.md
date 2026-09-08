@@ -2,8 +2,9 @@
 
 A **library**: an app links it, and a Storybook draws it beside the other themes.
 
-Draws an editorial product: a violet the brand owns, a face of its own for headings, prose at
-seventeen pixels and a heavier hand with elevation.
+Draws an editorial product: a violet the brand owns, prose set in a serif at seventeen pixels, a
+display serif over it and a heavier hand with elevation. It is the one theme here that sets body
+text in a serif, so a page tells itself apart from the other three before a word is read.
 
 ```ts
 import { extendRecipe } from '@stealthscale/core-theme'
@@ -15,7 +16,11 @@ export const recipe = extendRecipe(base, {
     stated: { dark: { primary: '#7c3aed' }, light: { primary: '#7c3aed' } },
   },
   effect: { depth: 1.5 },
-  font: { display: { fallback: 'Georgia, serif', family: 'Iowan Old Style' } },
+  font: {
+    display: { fallback: 'Georgia, serif', family: 'Fraunces Variable', source: '…/fraunces' },
+    mono: { family: 'Source Code Pro Variable', source: '…/source-code-pro/wght.css' },
+    sans: { fallback: 'Georgia, serif', family: 'Literata Variable', source: '…/literata' },
+  },
   size: { text: { base: '17px' } },
 })
 ```

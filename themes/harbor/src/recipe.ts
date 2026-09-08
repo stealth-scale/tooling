@@ -39,10 +39,18 @@ export const recipe: Recipe = extendRecipe(base, {
     surface: { chroma: 0.016, hue: 195 },
   },
 
-  // A geometric face with open counters, which stays legible at arm's length and on a screen
-  // somebody is looking at through safety glass. The base's monospace stays.
+  // A wide grotesque with squared bowls and a single-storey g. It sets this theme apart from
+  // the base's Inter at a glance, and its width holds up at arm's length and behind safety
+  // glass. Its monospace sibling carries the same skeleton into code.
   font: {
-    sans: { family: 'DM Sans Variable', source: '@fontsource-variable/dm-sans/wght.css' },
+    mono: {
+      family: 'Spline Sans Mono Variable',
+      source: '@fontsource-variable/spline-sans-mono/wght.css',
+    },
+    sans: {
+      family: 'Space Grotesk Variable',
+      source: '@fontsource-variable/space-grotesk/wght.css',
+    },
   },
 
   size: {

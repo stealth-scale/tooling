@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test'
 
 import { DEFAULT_TABLES, emitTheme, resolveRecipe } from '@stealthscale/core-theme'
-import { recipe as base } from '@stealthscale/theme-base'
 
 import { recipe } from './recipe.ts'
 
@@ -28,15 +27,19 @@ describe('the Lumen recipe', () => {
     expect(emitted.values.light['ring'], 'and so is the ring').toBe(solved.values.light['ring'])
   })
 
-  it('draws a heading in a face of its own and leaves the base’s text family alone', () => {
+  it('sets prose in a serif, which is the one thing no other theme does', () => {
     const { font } = resolveRecipe(recipe)
 
-    expect(font.display).toContain("'Newsreader Variable'")
+    expect(font.sans).toContain("'Literata Variable'")
+    expect(font.sans, 'a serif rather than the base’s sans').toContain('Georgia, serif')
+    expect(font.display, 'and a display serif over it').toContain("'Fraunces Variable'")
     expect(font.display).not.toBe(font.sans)
-    expect(font.sans, 'the family it did not name').toBe(resolveRecipe(base).font.sans)
-    expect(font.sources, 'and it loads the file it asked for').toContain(
-      '@fontsource-variable/newsreader/wght.css',
-    )
+    expect(font.mono).toContain("'Source Code Pro Variable'")
+    expect(font.sources, 'and it loads all three').toEqual([
+      '@fontsource-variable/literata/wght.css',
+      '@fontsource-variable/source-code-pro/wght.css',
+      '@fontsource-variable/fraunces/wght.css',
+    ])
   })
 
   it('reads at seventeen pixels, and the whole type scale follows the one number', () => {

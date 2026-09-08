@@ -40,8 +40,8 @@
     "build": "vp pack src/index.ts"
   },
   "dependencies": {
-    "@fontsource-variable/dm-sans": "catalog:",
-    "@fontsource-variable/jetbrains-mono": "catalog:",
+    "@fontsource-variable/space-grotesk": "catalog:",
+    "@fontsource-variable/spline-sans-mono": "catalog:",
     "@stealthscale/core-theme": "workspace:^",
     "@stealthscale/theme-base": "workspace:^",
     "@tailwindcss/typography": "catalog:",

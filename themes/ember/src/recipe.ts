@@ -42,11 +42,25 @@ export const recipe: Recipe = extendRecipe(base, {
   },
 
   font: {
-    // A face of its own, loaded from the package this theme depends on. The base's monospace
-    // stays, because nothing here disagrees with it.
+    // A grotesque cut with ink traps, which gives a heading the bite this theme's orange
+    // already has.
+    display: {
+      family: 'Bricolage Grotesque Variable',
+      source: '@fontsource-variable/bricolage-grotesque/wght.css',
+    },
+
+    // A programming face with a wide, even colour, so a compact table of code stays even.
+    mono: {
+      family: 'Fira Code Variable',
+      source: '@fontsource-variable/fira-code/wght.css',
+    },
+
+    // A geometric face built on circles, with a small x-height and wide-open counters. Against
+    // the base's Inter it reads rounder and lighter at the same size, which is the difference
+    // a person sees before they read a word.
     sans: {
-      family: 'Figtree Variable',
-      source: '@fontsource-variable/figtree/wght.css',
+      family: 'Jost Variable',
+      source: '@fontsource-variable/jost/wght.css',
     },
   },
 

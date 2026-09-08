@@ -13,11 +13,19 @@ import { recipe as base } from '@stealthscale/theme-base'
 
 export const recipe = extendRecipe(base, {
   color: { contrast: 'AAA', primary: '#0f766e' },
+  font: {
+    mono: { family: 'Spline Sans Mono Variable', source: '…/spline-sans-mono/wght.css' },
+    sans: { family: 'Space Grotesk Variable', source: '…/space-grotesk/wght.css' },
+  },
   size: { density: { default: 'touch' }, radius: '1rem' },
 })
 ```
 
-That is the whole theme. `src/recipe.ts` is the only file a person wrote; everything under
+Space Grotesk is wide and squared where the base's Inter is narrow and round, and it holds that
+width at arm's length or behind safety glass. Its monospace sibling carries the same skeleton
+into code, so a table of readings and the prose around it read as one face.
+
+`src/recipe.ts` is the only file a person wrote; everything under
 `dist` is written by `writeTheme` when the package is built. The brand's teal goes in as the
 hex the brand writes, and the solver keeps its hue and its saturation while setting the
 lightness per mode, which is what lets one teal carry a readable label on paper and on a
