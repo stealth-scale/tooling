@@ -155,6 +155,36 @@ export const TEXT_SHADOW: Readonly<Record<string, readonly ShadowLayer[]>> = {
 }
 
 /**
+ * Sets each glow, which is a shadow thrown in the theme's glow colour rather than its ink.
+ *
+ * A glow reads as light coming off a surface, so it has no offset and a wide blur, and it
+ * joins the `--shadow-*` namespace under a `glow-` prefix so `shadow-glow-md` is a utility
+ * like any other.
+ */
+export const GLOW: Readonly<Record<string, readonly ShadowLayer[]>> = {
+  lg: [
+    { fraction: 100, geometry: '0 0 48px -4px' },
+    { fraction: 60, geometry: '0 0 16px -2px' },
+  ],
+  md: [
+    { fraction: 90, geometry: '0 0 24px -2px' },
+    { fraction: 50, geometry: '0 0 8px -1px' },
+  ],
+  sm: [{ fraction: 80, geometry: '0 0 12px -2px' }],
+}
+
+/**
+ * Sets each perspective, at Tailwind's steps, for the 3D transforms a card effect uses.
+ */
+export const PERSPECTIVE: Readonly<Record<string, number>> = {
+  distant: 1200,
+  dramatic: 100,
+  midrange: 800,
+  near: 300,
+  normal: 500,
+}
+
+/**
  * Sets each blur, in pixels, at Tailwind's steps.
  */
 export const BLUR: Readonly<Record<string, number>> = {
@@ -247,4 +277,5 @@ export const OWNED_NAMESPACES: readonly string[] = [
   'text-shadow',
   'blur',
   'ease',
+  'perspective',
 ]

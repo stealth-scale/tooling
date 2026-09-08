@@ -329,7 +329,10 @@ function effects(recipe: PaletteRecipe, which: ThemeMode): Record<string, string
   const hues = statusHues(recipe)
   const selection = oklch(ladder.selection, chromaOf(recipe) * 0.5, primary)
   const highlight = oklch(ladder.highlight, 0.12, hues.warning)
+  const card = which === 'dark' ? ladder.page + 4 : ladder.page + 3
   return {
+    glass: oklch(card, surfaceTint(recipe) * 0.8, surfaceHue(recipe), ladder.glassAlpha),
+    'glass-border': oklch(ladder.text, tintOf(recipe), neutral, ladder.glassBorderAlpha),
     highlight,
     'highlight-foreground': textOn(recipe, which, highlight),
     overlay: oklch(ladder.overlay, tintOf(recipe) * 2, neutral, ladder.overlayAlpha),
@@ -338,6 +341,30 @@ function effects(recipe: PaletteRecipe, which: ThemeMode): Record<string, string
     shadow: oklch(ladder.shadow, 0.08, neutral, ladder.shadowAlpha),
     'shadow-highlight':
       which === 'dark' ? oklch(98, 0.005, neutral, ladder.shadowHighlightAlpha) : 'transparent',
+  }
+}
+
+/**
+ * Builds the three gradient stops and the colour a glow is thrown in.
+ *
+ * The stops share one lightness and differ only in hue, walking the short way round from the
+ * primary to the accent, so the band reads as a gradient rather than as a fade. The glow is
+ * the primary at the mode's glow lightness, carrying the alpha its largest step takes.
+ *
+ * @param {PaletteRecipe} recipe - The theme's recipe.
+ * @param {ThemeMode} which - The mode.
+ * @returns {Record<string, string>} The gradient and glow tokens.
+ */
+function gradient(recipe: PaletteRecipe, which: ThemeMode): Record<string, string> {
+  const { accent, primary } = recipe
+  const chroma = chromaOf(recipe)
+  const ladder = ladderFor(which)
+  const apart = ((accent - primary + 540) % 360) - 180
+  return {
+    glow: oklch(ladder.glow, chroma, primary, ladder.glowAlpha),
+    'gradient-1': oklch(ladder.gradient, chroma, primary),
+    'gradient-2': oklch(ladder.gradient, chroma, primary + apart / 2),
+    'gradient-3': oklch(ladder.gradient, chroma, accent),
   }
 }
 
@@ -367,6 +394,7 @@ function tokensFor(recipe: PaletteRecipe, which: ThemeMode): Record<TokenName, s
     ...chartAndSidebar(recipe, which),
     ...syntax(recipe, which),
     ...effects(recipe, which),
+    ...gradient(recipe, which),
     ...scalars(recipe),
   })
 }

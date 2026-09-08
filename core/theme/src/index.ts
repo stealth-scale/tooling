@@ -1,5 +1,6 @@
 export { assertComplete, completeTokens, isComplete } from '#assert.ts'
-export { contrast, luminance, type Oklch, parseColor, type Rgb } from '#color.ts'
+export { contrast, luminance } from '#color.ts'
+export { type Lab, type Rgb } from '#convert.ts'
 export { emit, emitScoped } from '#emit.ts'
 export {
   type ContrastLevel,
@@ -14,6 +15,8 @@ export {
   type Outcome,
   RATIOS,
 } from '#ladder.ts'
+export { NAMED } from '#named.ts'
+export { parseColor } from '#notation.ts'
 export { buildPalette } from '#palette.ts'
 export {
   DEFAULT_FONTS,
@@ -28,9 +31,11 @@ export {
   DURATION,
   EASE,
   FONT_WEIGHT,
+  GLOW,
   INSET_SHADOW,
   LEADING,
   OWNED_NAMESPACES,
+  PERSPECTIVE,
   RADIUS,
   SHADOW,
   type ShadowLayer,
@@ -50,6 +55,7 @@ export {
   EMPHASIS_TOKENS,
   FONT_TOKENS,
   type GeometryToken,
+  GRADIENT_TOKENS,
   MODES,
   OUTLINE_TOKENS,
   RADIUS_TOKENS,

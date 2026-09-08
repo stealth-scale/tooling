@@ -134,7 +134,9 @@ export const SIDEBAR_TOKENS = [
  * `overlay` is the scrim under a dialog, and it is a token because a black scrim at half
  * opacity disappears on a dark page. `selection` is what the browser paints behind selected
  * text, and `highlight` is a search match or a `<mark>`; both carry a foreground solved to
- * AAA, because selected and highlighted text is still text.
+ * AAA, because selected and highlighted text is still text. `glass` and `glass-border` carry
+ * the alpha their mode needs, because a translucent card that reads right on paper reads as
+ * a smear on a near-black page.
  */
 export const EFFECT_TOKENS = [
   'overlay',
@@ -142,7 +144,19 @@ export const EFFECT_TOKENS = [
   'selection-foreground',
   'highlight',
   'highlight-foreground',
+  'glass',
+  'glass-border',
 ] as const
+
+/**
+ * Names the three stops of the theme's own gradient, and the colour a glow is thrown in.
+ *
+ * The stops are tokens rather than a composition of `primary` and `accent`, because those two
+ * sit at whatever lightness their contrast demanded. A band from a 45 per cent primary to a
+ * 93 per cent accent is not a gradient, it is a fade to white. The three here sit at one
+ * lightness and differ only in hue, which is what reads as a gradient.
+ */
+export const GRADIENT_TOKENS = ['gradient-1', 'gradient-2', 'gradient-3', 'glow'] as const
 
 /**
  * Names the two colours every shadow is mixed from.
@@ -166,6 +180,7 @@ export const COLOR_TOKENS = [
   ...CODE_TOKENS,
   ...SIDEBAR_TOKENS,
   ...EFFECT_TOKENS,
+  ...GRADIENT_TOKENS,
   ...SHADOW_TOKENS,
 ] as const
 

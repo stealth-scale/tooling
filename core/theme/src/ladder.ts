@@ -56,6 +56,32 @@ export interface Ladder {
   chart: number
 
   /**
+   * Sets the alpha a translucent surface carries.
+   */
+  glassAlpha: number
+
+  /**
+   * Sets the alpha the hairline around a translucent surface carries.
+   */
+  glassBorderAlpha: number
+
+  /**
+   * Sets how light a glow is thrown.
+   */
+  glow: number
+
+  /**
+   * Sets the alpha of a glow at its largest step. Every step takes a share of it.
+   */
+  glowAlpha: number
+
+  /**
+   * Sets where the three gradient stops sit. All three share it, so the band reads as one
+   * gradient rather than as a fade.
+   */
+  gradient: number
+
+  /**
    * Sets where the highlight behind a search match starts.
    */
   highlight: number
@@ -188,6 +214,11 @@ export const LIGHT: Ladder = {
   border: 89,
   card: 100,
   chart: 58,
+  glassAlpha: 0.72,
+  glassBorderAlpha: 0.45,
+  glow: 62,
+  glowAlpha: 0.45,
+  gradient: 60,
   highlight: 90,
   input: 80,
   muted: 94,
@@ -216,6 +247,11 @@ export const DARK: Ladder = {
   border: 27,
   card: 17,
   chart: 68,
+  glassAlpha: 0.6,
+  glassBorderAlpha: 0.28,
+  glow: 72,
+  glowAlpha: 0.6,
+  gradient: 68,
   highlight: 40,
   input: 40,
   muted: 23,

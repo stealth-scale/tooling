@@ -6,9 +6,11 @@ import {
   DURATION,
   EASE,
   FONT_WEIGHT,
+  GLOW,
   INSET_SHADOW,
   LEADING,
   OWNED_NAMESPACES,
+  PERSPECTIVE,
   RADIUS,
   SHADOW,
   TEXT,
@@ -76,9 +78,17 @@ describe('the shadows', () => {
     expect(bySize(Object.keys(TEXT_SHADOW))).toEqual(['2xs', 'xs', 'sm', 'md', 'lg'])
   })
 
+  it('throw a glow with no offset, so it reads as light rather than as a shadow', () => {
+    expect(Object.keys(GLOW).toSorted()).toEqual(['lg', 'md', 'sm'])
+    for (const layers of Object.values(GLOW)) {
+      for (const { geometry } of layers) expect(geometry.startsWith('0 0 ')).toBe(true)
+    }
+  })
+
   it('take a share of the ink between nothing and all of it', () => {
     const layers = [
       ...Object.values(SHADOW).flat(),
+      ...Object.values(GLOW).flat(),
       ...Object.values(INSET_SHADOW),
       ...Object.values(DROP_SHADOW).flat(),
       ...Object.values(TEXT_SHADOW).flat(),
@@ -103,6 +113,14 @@ describe('the remaining scales', () => {
     expect(Object.keys(FONT_WEIGHT)).toHaveLength(9)
   })
 
+  it('name the five perspectives Tailwind names, nearest first', () => {
+    expect(Object.keys(PERSPECTIVE).toSorted()).toEqual(
+      ['dramatic', 'near', 'normal', 'midrange', 'distant'].toSorted(),
+    )
+    expect(PERSPECTIVE['dramatic']).toBeLessThan(PERSPECTIVE['near'] ?? 0)
+    expect(PERSPECTIVE['midrange']).toBeLessThan(PERSPECTIVE['distant'] ?? 0)
+  })
+
   it('name three durations and four easings, the spring among them', () => {
     expect(Object.keys(DURATION).toSorted()).toEqual(['fast', 'normal', 'slow'])
     expect(DURATION['fast']).toBeLessThan(DURATION['normal'] ?? 0)
@@ -113,7 +131,16 @@ describe('the remaining scales', () => {
 
 describe('the owned namespaces', () => {
   it('cover every scale the emitter writes and leave layout to the design system', () => {
-    for (const namespace of ['color', 'font', 'text', 'radius', 'shadow', 'blur', 'ease']) {
+    for (const namespace of [
+      'color',
+      'font',
+      'text',
+      'radius',
+      'shadow',
+      'blur',
+      'ease',
+      'perspective',
+    ]) {
       expect(OWNED_NAMESPACES).toContain(namespace)
     }
     expect(OWNED_NAMESPACES).not.toContain('breakpoint')

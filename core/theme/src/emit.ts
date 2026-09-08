@@ -13,9 +13,11 @@ import {
   DURATION,
   EASE,
   FONT_WEIGHT,
+  GLOW,
   INSET_SHADOW,
   LEADING,
   OWNED_NAMESPACES,
+  PERSPECTIVE,
   RADIUS,
   SHADOW,
   type ShadowLayer,
@@ -58,10 +60,11 @@ function lines(namespace: string, steps: Readonly<Record<string, string>>): stri
  * Writes one shadow layer, taking its share of the theme's shadow ink.
  *
  * @param {ShadowLayer} layer - The layer's geometry and share.
+ * @param {string} [ink] - The variable the layer mixes from. Default: the theme's shadow ink.
  * @returns {string} The layer as CSS.
  */
-function layer({ fraction, geometry }: ShadowLayer): string {
-  return `${geometry} color-mix(in oklch, var(--shadow) ${String(fraction)}%, transparent)`
+function layer({ fraction, geometry }: ShadowLayer, ink = '--shadow'): string {
+  return `${geometry} color-mix(in oklch, var(${ink}) ${String(fraction)}%, transparent)`
 }
 
 /**
@@ -72,12 +75,16 @@ function layer({ fraction, geometry }: ShadowLayer): string {
  */
 function boxShadows(): string {
   const highlight = 'inset 0 1px 0 0 var(--shadow-highlight)'
-  const steps = Object.fromEntries(
-    Object.entries(SHADOW).map(([step, layers]): [string, string] => [
+  const steps = Object.fromEntries([
+    ...Object.entries(SHADOW).map(([step, layers]): [string, string] => [
       step,
       [highlight, ...layers.map((one) => layer(one))].join(', '),
     ]),
-  )
+    ...Object.entries(GLOW).map(([step, layers]): [string, string] => [
+      `glow-${step}`,
+      layers.map((one) => layer(one, '--glow')).join(', '),
+    ]),
+  ])
   return lines('shadow', steps)
 }
 
@@ -181,6 +188,8 @@ ${layeredShadows('drop-shadow', DROP_SHADOW)}
 ${layeredShadows('text-shadow', TEXT_SHADOW)}
 
 ${lines('blur', numbered(BLUR, 'px'))}
+
+${lines('perspective', numbered(PERSPECTIVE, 'px'))}
 
 ${lines('ease', EASE)}
 

@@ -25,6 +25,18 @@ describe('the ladders', () => {
     expect(DARK.shadowHighlightAlpha).toBeGreaterThan(0)
   })
 
+  it('throw a brighter glow and lean on less glass in dark, where a page swallows both', () => {
+    expect(DARK.glowAlpha).toBeGreaterThan(LIGHT.glowAlpha)
+    expect(DARK.glow).toBeGreaterThan(LIGHT.glow)
+    expect(DARK.glassAlpha).toBeLessThan(LIGHT.glassAlpha)
+    expect(DARK.glassBorderAlpha).toBeLessThan(LIGHT.glassBorderAlpha)
+  })
+
+  it('put the gradient band where a chart series sits, well clear of both pages', () => {
+    expect(LIGHT.gradient).toBeLessThan(LIGHT.page)
+    expect(DARK.gradient).toBeGreaterThan(DARK.page)
+  })
+
   it('are picked by mode', () => {
     expect(ladderFor('light')).toBe(LIGHT)
     expect(ladderFor('dark')).toBe(DARK)

@@ -7,6 +7,7 @@ import {
   EFFECT_TOKENS,
   EMPHASIS_TOKENS,
   FONT_TOKENS,
+  GRADIENT_TOKENS,
   MODES,
   OUTLINE_TOKENS,
   RADIUS_TOKENS,
@@ -19,7 +20,7 @@ import {
 } from '#tokens.ts'
 
 describe('the colour tokens', () => {
-  it('are the nine groups in order, each name once', () => {
+  it('are the ten groups in order, each name once', () => {
     expect([...COLOR_TOKENS]).toEqual([
       ...SURFACE_TOKENS,
       ...EMPHASIS_TOKENS,
@@ -29,6 +30,7 @@ describe('the colour tokens', () => {
       ...CODE_TOKENS,
       ...SIDEBAR_TOKENS,
       ...EFFECT_TOKENS,
+      ...GRADIENT_TOKENS,
       ...SHADOW_TOKENS,
     ])
     expect(new Set(COLOR_TOKENS).size).toBe(COLOR_TOKENS.length)
@@ -51,14 +53,20 @@ describe('the colour tokens', () => {
     }
   })
 
-  it('name the scrim, the selection and the highlight, and the two colours a shadow mixes from', () => {
+  it('name the scrim, the selection, the highlight and the glass, each with what it needs', () => {
     expect([...EFFECT_TOKENS]).toEqual([
       'overlay',
       'selection',
       'selection-foreground',
       'highlight',
       'highlight-foreground',
+      'glass',
+      'glass-border',
     ])
+  })
+
+  it('name the three gradient stops, the glow, and the two colours a shadow mixes from', () => {
+    expect([...GRADIENT_TOKENS]).toEqual(['gradient-1', 'gradient-2', 'gradient-3', 'glow'])
     expect([...SHADOW_TOKENS]).toEqual(['shadow', 'shadow-highlight'])
   })
 })

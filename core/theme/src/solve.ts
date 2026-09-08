@@ -6,8 +6,9 @@
  * moves.
  */
 
-import { contrast, luminance, parseColor } from '#color.ts'
+import { contrast, luminance } from '#color.ts'
 import { RATIOS } from '#ladder.ts'
+import { parseColor } from '#notation.ts'
 
 /**
  * Carries a colour the solver walks from, with the lightness as a percentage.
