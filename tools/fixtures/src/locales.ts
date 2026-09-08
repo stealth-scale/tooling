@@ -14,15 +14,44 @@ import { canonical, negotiate } from '@stealthscale/core-locale'
 export const DEFAULT_LOCALE = 'en'
 
 /**
- * Maps each locale the sample data ships to its definitions.
+ * Maps the keys faker spells in its own way to the tag each stands for. Faker writes a script
+ * as a trailing word, `sr_RS_latin`, and a Kurdish variety as a subtag of `ku`; the tag is
+ * the ISO code with the script where BCP-47 puts it, so a request for the script reaches it.
+ * Kurmanji is `ku` here rather than `kmr`, because CLDR aliases the one to the other and
+ * Node's ICU applies the alias where Bun's does not.
+ */
+const RESPELLED: Readonly<Record<string, string>> = {
+  ku_ckb: 'ckb',
+  ku_kmr_latin: 'ku-Latn',
+  mn_MN_cyrl: 'mn-Cyrl-MN',
+  sr_RS_latin: 'sr-Latn-RS',
+  uz_UZ_latin: 'uz-Latn-UZ',
+}
+
+/**
+ * Lists the keys nothing should ask for: the language-independent base every locale sits on,
+ * and faker's two joke locales.
+ */
+const DROPPED: ReadonlySet<string> = new Set(['base', 'en_AU_ocker', 'en_BORK'])
+
+/**
+ * Reads the tag a faker key stands for.
  *
- * The keys are written with an underscore, `nl_BE`, so they are restated as tags here. A key
- * that is no tag at all, such as the joke locale `en_BORK`, drops out: nothing can ask for it
- * and nothing should.
+ * @param {string} key - The key as faker names it: `nl_BE`.
+ * @returns {string | undefined} The canonical tag, or `undefined` for a key nothing should
+ *     ask for.
+ */
+function tagOf(key: string): string | undefined {
+  if (DROPPED.has(key)) return undefined
+  return canonical(RESPELLED[key] ?? key.replaceAll('_', '-'))
+}
+
+/**
+ * Maps each locale the sample data ships to its definitions, keyed by canonical tag.
  */
 const SHIPPED = new Map(
   Object.entries(allLocales)
-    .map(([key, definition]) => [canonical(key.replaceAll('_', '-')), definition] as const)
+    .map(([key, definition]) => [tagOf(key), definition] as const)
     .filter((entry): entry is [string, LocaleDefinition] => entry[0] !== undefined),
 )
 

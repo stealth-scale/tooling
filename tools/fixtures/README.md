@@ -38,9 +38,10 @@ the nearest locale the sample data ships answers it. `nl-NL` reaches `nl`, `zh-H
 `zh-CN`, and a tag nothing answers falls back to `en` rather than throwing, because a fixture
 that refuses to build fails a specification about something else.
 
-`LOCALES` lists all 73, so a story that renders in each of them reads the list rather than
-restating it. A layout that survives `Noor Haddad` may still break on a German compound or an
-Arabic right-to-left label, and this is how a story shows that before a customer does.
+`LOCALES` lists every locale the sample data ships, as canonical tags, so a story that renders
+in each of them reads the list rather than restating it. A layout that survives `Noor Haddad`
+may still break on a German compound or an Arabic right-to-left label, and this is how a story
+shows that before a customer does.
 
 ## What belongs here, and what does not
 
