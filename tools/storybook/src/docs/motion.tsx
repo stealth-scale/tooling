@@ -1,16 +1,16 @@
 /**
- * @fileoverview Runs the easings and the durations the contract fixes for every theme, side
- * by side. A curve is invisible in a table of `cubic-bezier` values, and the only way to tell
- * one from another is to watch them start and stop together.
+ * @fileoverview Runs the easings and the durations the current theme states, side by side. A
+ * curve is invisible in a table of `cubic-bezier` values, and the only way to tell one from
+ * another is to watch them start and stop together. A theme that states a speed moves every
+ * duration at once, so what runs here is what the theme on the toolbar ships.
  */
 
 import { type CSSProperties, type JSX, useState } from 'react'
 
-import { DURATION, EASE } from '@stealthscale/core-theme'
-
 import { usePreview } from '#preview/store.ts'
 
 import { BUTTON, CAPTION, CORNER } from './styles.ts'
+import { type CurrentTheme, Themed } from './theme.tsx'
 
 /**
  * Sets the track a runner crosses.
@@ -123,12 +123,21 @@ function Runners({ rows }: Readonly<RunnersProps>): JSX.Element {
  * @returns {JSX.Element} One track per curve.
  */
 export function Easings(): JSX.Element {
-  const slowest = `${String(Math.max(...Object.values(DURATION)))}ms`
-  const rows = Object.entries(EASE).map(
-    ([name, curve]) => [`ease-${name}`, curve, slowest] as const,
-  )
+  return (
+    <Themed>
+      {({ tables }: CurrentTheme) => {
+        const slowest = `${String(Math.max(...Object.values(tables.duration)))}ms`
 
-  return <Runners rows={rows} />
+        return (
+          <Runners
+            rows={Object.entries(tables.ease).map(
+              ([name, curve]) => [`ease-${name}`, curve, slowest] as const,
+            )}
+          />
+        )
+      }}
+    </Themed>
+  )
 }
 
 /**
@@ -143,9 +152,15 @@ const ONE_CURVE = 'ease-out'
  * @returns {JSX.Element} One track per duration, fastest first.
  */
 export function Durations(): JSX.Element {
-  const rows = Object.entries(DURATION)
-    .toSorted(([, a], [, b]) => a - b)
-    .map(([name, time]) => [`duration-${name}`, ONE_CURVE, `${String(time)}ms`] as const)
-
-  return <Runners rows={rows} />
+  return (
+    <Themed>
+      {({ tables }: CurrentTheme) => (
+        <Runners
+          rows={Object.entries(tables.duration)
+            .toSorted(([, a], [, b]) => a - b)
+            .map(([name, time]) => [`duration-${name}`, ONE_CURVE, `${String(time)}ms`] as const)}
+        />
+      )}
+    </Themed>
+  )
 }

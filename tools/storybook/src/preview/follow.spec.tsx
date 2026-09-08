@@ -15,15 +15,10 @@ const OFFERED: Offered = {
 }
 
 /** Holds the one theme the workspace registered, solved as its own build would. */
-const THEMES = {
-  kalon: {
-    title: 'Kalon',
-    values: emitTheme(
-      { accent: 200, chart: [258, 152, 292, 45, 12], neutral: 260, primary: 258 },
-      'kalon',
-    ).values,
-  },
-}
+const KALON = emitTheme({ color: { primary: 258 } }, 'kalon')
+
+/** Names that theme the way the preview registers it. */
+const THEMES = { kalon: { tables: KALON.tables, title: 'Kalon', values: KALON.values } }
 
 /**
  * Builds a follower over a fresh root, store and frame, and hands back all three.

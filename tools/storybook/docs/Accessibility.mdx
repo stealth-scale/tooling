@@ -1,10 +1,11 @@
-import { Guarantees } from '@stealthscale/tool-storybook/docs'
+import { Controls, Focus, Guarantees } from '@stealthscale/tool-storybook/docs'
 
 # Accessibility
 
-Three things are decided by the theme rather than per component: what contrast a colour
-guarantees, which way text runs, and what happens when a reader asks for less motion. A
-component built from the tokens gets all three; one that writes its own colours gets none.
+Four things are decided by the theme rather than per component: what contrast a colour
+guarantees, how large a control is and where its focus ring sits, which way text runs, and what
+happens when a reader asks for less motion. A component built from the tokens gets all four;
+one that writes its own colours and its own heights gets none.
 
 ## Contrast
 
@@ -28,6 +29,25 @@ ratio is recomputed from the solved colours, not from a table someone wrote down
 A row that fails here is a defect in the theme, not in the component that used the pair. Fix
 the token, and every screen using that pair moves with it. The palette's own specification
 holds every built theme to these floors before it ships.
+
+## Target size
+
+WCAG 2.5.8 asks that a control be at least 24 by 24 pixels, and 2.5.5 asks for 44 where a
+product can manage it. A density decides that, not a component: it sets one length, the height
+of the default control, and every size step derives from it four pixels apart. A product for a
+tablet ships `touch` and clears the enhanced target without a component knowing.
+
+<Controls />
+
+`compact` puts the default at 32 pixels so its smallest still clears the minimum, `comfortable`
+at 40, which a thumb finds without aiming, and `touch` at 44. A page sets `data-density` on any
+region, so a dense table can sit inside a comfortable page.
+
+The focus ring is two pixels wide in every density, because a ring that grew with the control
+would be thinnest where controls sit closest together. What the density decides is whether
+there is room to draw it outside the control at all.
+
+<Focus />
 
 ## Direction
 

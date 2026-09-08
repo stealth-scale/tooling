@@ -1,15 +1,16 @@
 /**
- * @fileoverview Draws the type scale, the weights, the tracking and the leading the contract
- * fixes for every theme, in the families the current theme names. A theme picks families and
- * nothing else about type, so every specimen reads the scale off the contract and only its
- * family off the document.
+ * @fileoverview Draws the type scale, the weights, the tracking and the leading the current
+ * theme states, in the families it names. A theme sets the size of body text and the whole
+ * scale follows, so every specimen reads the theme's own table rather than the contract's
+ * default: switch the theme and the numbers beside each row move with the type.
  */
 
 import { type CSSProperties, type JSX, type ReactNode } from 'react'
 
-import { FONT_WEIGHT, LEADING, TEXT, TRACKING } from '@stealthscale/core-theme'
+import { bySize } from '@stealthscale/core-theme'
 
 import { CAPTION, HAIRLINE } from './styles.ts'
+import { type CurrentTheme, Themed } from './theme.tsx'
 
 /**
  * Sets the sentence every specimen is drawn with.
@@ -96,28 +97,30 @@ function Table({ children }: Readonly<TableProps>): JSX.Element {
  * @returns {JSX.Element} One row per step, smallest first.
  */
 export function Scale(): JSX.Element {
-  const steps = Object.entries(TEXT).toSorted(([, a], [, b]) => a.size - b.size)
-
   return (
-    <Table>
-      {steps.map(([step, { lineHeight, size }]) => (
-        <Row
-          key={step}
-          label={`text-${step}`}
-          note={`${String(size)}rem / ${String(lineHeight)}rem`}
-        >
-          <span
-            style={{
-              fontFamily: 'var(--font-sans)',
-              fontSize: `${String(size)}rem`,
-              lineHeight: `${String(lineHeight)}rem`,
-            }}
-          >
-            {SAMPLE}
-          </span>
-        </Row>
-      ))}
-    </Table>
+    <Themed>
+      {({ tables }: CurrentTheme) => (
+        <Table>
+          {bySize(tables.text).map(([step, { lineHeight, size }]) => (
+            <Row
+              key={step}
+              label={`text-${step}`}
+              note={`${String(size)}rem / ${String(lineHeight)}rem`}
+            >
+              <span
+                style={{
+                  fontFamily: 'var(--font-sans)',
+                  fontSize: `${String(size)}rem`,
+                  lineHeight: `${String(lineHeight)}rem`,
+                }}
+              >
+                {SAMPLE}
+              </span>
+            </Row>
+          ))}
+        </Table>
+      )}
+    </Themed>
   )
 }
 
@@ -127,20 +130,28 @@ export function Scale(): JSX.Element {
  * @returns {JSX.Element} One row per weight, lightest first.
  */
 export function Weights(): JSX.Element {
-  const weights = Object.entries(FONT_WEIGHT).toSorted(([, a], [, b]) => a - b)
-
   return (
-    <Table>
-      {weights.map(([name, weight]) => (
-        <Row key={name} label={`font-${name}`} note={String(weight)}>
-          <span
-            style={{ fontFamily: 'var(--font-sans)', fontSize: '1.125rem', fontWeight: weight }}
-          >
-            {SAMPLE}
-          </span>
-        </Row>
-      ))}
-    </Table>
+    <Themed>
+      {({ tables }: CurrentTheme) => (
+        <Table>
+          {Object.entries(tables.fontWeight)
+            .toSorted(([, a], [, b]) => a - b)
+            .map(([name, weight]) => (
+              <Row key={name} label={`font-${name}`} note={String(weight)}>
+                <span
+                  style={{
+                    fontFamily: 'var(--font-sans)',
+                    fontSize: '1.125rem',
+                    fontWeight: weight,
+                  }}
+                >
+                  {SAMPLE}
+                </span>
+              </Row>
+            ))}
+        </Table>
+      )}
+    </Themed>
   )
 }
 
@@ -150,24 +161,28 @@ export function Weights(): JSX.Element {
  * @returns {JSX.Element} One row per step, tightest first.
  */
 export function Tracking(): JSX.Element {
-  const steps = Object.entries(TRACKING).toSorted(([, a], [, b]) => a - b)
-
   return (
-    <Table>
-      {steps.map(([name, em]) => (
-        <Row key={name} label={`tracking-${name}`} note={`${String(em)}em`}>
-          <span
-            style={{
-              fontFamily: 'var(--font-sans)',
-              fontSize: '1.125rem',
-              letterSpacing: `${String(em)}em`,
-            }}
-          >
-            {SAMPLE}
-          </span>
-        </Row>
-      ))}
-    </Table>
+    <Themed>
+      {({ tables }: CurrentTheme) => (
+        <Table>
+          {Object.entries(tables.tracking)
+            .toSorted(([, a], [, b]) => a - b)
+            .map(([name, em]) => (
+              <Row key={name} label={`tracking-${name}`} note={`${String(em)}em`}>
+                <span
+                  style={{
+                    fontFamily: 'var(--font-sans)',
+                    fontSize: '1.125rem',
+                    letterSpacing: `${String(em)}em`,
+                  }}
+                >
+                  {SAMPLE}
+                </span>
+              </Row>
+            ))}
+        </Table>
+      )}
+    </Themed>
   )
 }
 
@@ -177,25 +192,29 @@ export function Tracking(): JSX.Element {
  * @returns {JSX.Element} One row per step, tightest first.
  */
 export function Leading(): JSX.Element {
-  const steps = Object.entries(LEADING).toSorted(([, a], [, b]) => a - b)
-
   return (
-    <Table>
-      {steps.map(([name, ratio]) => (
-        <Row key={name} label={`leading-${name}`} note={String(ratio)}>
-          <p
-            style={{
-              fontFamily: 'var(--font-sans)',
-              lineHeight: ratio,
-              margin: 0,
-              maxWidth: '32rem',
-            }}
-          >
-            {`${SAMPLE}. ${SAMPLE}.`}
-          </p>
-        </Row>
-      ))}
-    </Table>
+    <Themed>
+      {({ tables }: CurrentTheme) => (
+        <Table>
+          {Object.entries(tables.leading)
+            .toSorted(([, a], [, b]) => a - b)
+            .map(([name, ratio]) => (
+              <Row key={name} label={`leading-${name}`} note={String(ratio)}>
+                <p
+                  style={{
+                    fontFamily: 'var(--font-sans)',
+                    lineHeight: ratio,
+                    margin: 0,
+                    maxWidth: '32rem',
+                  }}
+                >
+                  {`${SAMPLE}. ${SAMPLE}.`}
+                </p>
+              </Row>
+            ))}
+        </Table>
+      )}
+    </Themed>
   )
 }
 

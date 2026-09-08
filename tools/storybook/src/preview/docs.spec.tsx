@@ -4,7 +4,7 @@ import { act, render } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vite-plus/test'
 
 import { type Appearance } from '@stealthscale/core-appearance'
-import { type ThemeValues } from '@stealthscale/core-theme'
+import { DEFAULT_TABLES, type ThemeValues } from '@stealthscale/core-theme'
 
 import { docsParameters, ThemedDocs } from './docs.tsx'
 import { sourceOf } from './source.ts'
@@ -64,7 +64,13 @@ describe('ThemedDocs', () => {
     act(() => {
       preview.set({
         appearance: drawnIn('kalon', 'dark'),
-        themes: { kalon: { title: 'Kalon', values: { dark: VALUES, light: VALUES } } },
+        themes: {
+          kalon: {
+            tables: DEFAULT_TABLES,
+            title: 'Kalon',
+            values: { dark: VALUES, light: VALUES },
+          },
+        },
       })
     })
 

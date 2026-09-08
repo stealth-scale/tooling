@@ -9,14 +9,21 @@ import { preview } from '#preview/store.ts'
 /**
  * Holds a recipe that states only what it must, which every block specification draws with.
  */
-export const RECIPE = { accent: 200, chart: [258, 152, 292, 45, 12], neutral: 260, primary: 258 }
+export const RECIPE = {
+  color: { accent: 200, chart: [258, 152, 292, 45, 12], neutral: 260, primary: 258 },
+}
 
 /**
- * Holds the one theme the specifications draw with, solved the way a theme package solves
- * its own when it is built.
+ * Holds the one theme the specifications draw with, solved and scaled the way a theme package
+ * does when it is built.
+ */
+const KALON = emitTheme(RECIPE, 'kalon')
+
+/**
+ * Names that theme the way the preview registers it.
  */
 export const THEMES: Themes = {
-  kalon: { title: 'Kalon', values: emitTheme(RECIPE, 'kalon').values },
+  kalon: { tables: KALON.tables, title: 'Kalon', values: KALON.values },
 }
 
 /**

@@ -15,7 +15,7 @@ import {
   machine,
   type Offered,
 } from '@stealthscale/core-appearance'
-import { type ThemeValues } from '@stealthscale/core-theme'
+import { type Tables, type ThemeValues } from '@stealthscale/core-theme'
 
 /**
  * Names the two values the motion toolbar writes. A toolbar carries strings, and an
@@ -27,6 +27,12 @@ export const MOTION = { full: 'full', reduced: 'reduced' } as const
  * Describes one theme the preview can draw with, as its package shipped it.
  */
 export interface Theme {
+  /**
+   * Carries every scale the theme states: its type sizes, its shadows, its timing and its
+   * densities. A page draws what the theme says rather than what the contract defaults to.
+   */
+  tables: Tables
+
   /**
    * Carries the name a person picks it by.
    */

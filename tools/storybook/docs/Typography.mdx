@@ -1,14 +1,28 @@
-import { Leading, Mono, Scale, Tracking, Weights } from '@stealthscale/tool-storybook/docs'
+import {
+  Families,
+  Leading,
+  Mono,
+  Scale,
+  Tracking,
+  Weights,
+} from '@stealthscale/tool-storybook/docs'
 
 # Typography
 
-Two families, which the theme names: one for text and one for anything a reader might retype,
-such as an identifier, a duration or a hash. The scale, the weights and the spacing below are
-the same in every theme, because a product with a different rhythm is a different system
-rather than a different brand.
+Three families, which the theme names: one for text, one for a heading, and one for anything a
+reader might retype, such as an identifier, a duration or a hash. A theme that names no heading
+face sets headings in its text family, so a component reaches for `font-display` without
+checking. The scale, the weights and the spacing below are the same in every theme, because a
+product with a different rhythm is a different system rather than a different brand.
 
-Every specimen renders in the families the theme on the toolbar names, so switching the theme
-changes them.
+## Families
+
+Each face set in itself, so the difference between two themes is on the page rather than in
+their manifests. A theme brings its own files: the name beside a specimen is what the theme
+asked for, and the specimen is what the browser drew, so a family that failed to load shows as
+the fallback rather than as a name that lies.
+
+<Families />
 
 ## Scale
 

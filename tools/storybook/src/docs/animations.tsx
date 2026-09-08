@@ -6,9 +6,10 @@
 
 import { type CSSProperties, type JSX, useState } from 'react'
 
-import { ANIMATION, DURATION } from '@stealthscale/core-theme'
+import { type Tables } from '@stealthscale/core-theme'
 
 import { BUTTON, CAPTION, CORNER } from './styles.ts'
+import { type CurrentTheme, Themed } from './theme.tsx'
 
 /**
  * Sets the stage one animation plays on.
@@ -48,15 +49,18 @@ const SHIMMER: CSSProperties = {
 /**
  * Names how long one animation runs, in milliseconds.
  *
- * @param {string} shorthand - The animation, as `ANIMATION` writes it.
+ * @param {string} shorthand - The animation, as the theme's table writes it.
+ * @param {Tables} tables - The theme's tables, which the duration steps are read from.
  * @returns {number} The time it takes, whether it names a duration step or its own seconds.
  */
-function millisecondsOf(shorthand: string): number {
+function millisecondsOf(shorthand: string, tables: Tables): number {
   const written = String(shorthand.split(' ')[1])
   const step = /^var\(--duration-(?<name>[a-z]+)\)$/u.exec(written)
+  if (step !== null) return Number(tables.duration[String(step[1])])
 
-  // eslint-disable-next-line unicorn/prefer-number-coercion -- `Number('1.6s')` is NaN
-  return step === null ? Number.parseFloat(written) * 1000 : Number(DURATION[String(step[1])])
+  // A loop states its own seconds rather than naming a step, because a spinner reading the
+  // theme's `slow` would change speed whenever somebody retuned how a dialog opens.
+  return Number(written.replace('s', '')) * 1000
 }
 
 /**
@@ -87,6 +91,11 @@ interface SpecimenProps {
    * Marks that every specimen is being stretched, so one can be studied.
    */
   slow: boolean
+
+  /**
+   * Carries the theme's tables, which the specimen reads its real time from.
+   */
+  tables: Tables
 }
 
 /**
@@ -101,8 +110,8 @@ interface SpecimenProps {
  *     member.
  * @returns {JSX.Element} The stage, then the utility's name and the real time.
  */
-function Specimen({ name, shorthand, slow }: Readonly<SpecimenProps>): JSX.Element {
-  const time = millisecondsOf(shorthand)
+function Specimen({ name, shorthand, slow, tables }: Readonly<SpecimenProps>): JSX.Element {
+  const time = millisecondsOf(shorthand, tables)
 
   return (
     <div style={{ display: 'grid', gap: '0.375rem' }}>
@@ -149,43 +158,48 @@ export function Animations(): JSX.Element {
   const [slow, setSlow] = useState(false)
 
   return (
-    <div style={{ display: 'grid', gap: '0.75rem', margin: '1.5rem 0' }}>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-        <button
-          onClick={() => {
-            setRun((was) => was + 1)
-          }}
-          style={BUTTON}
-          type="button"
-        >
-          Play them again
-        </button>
-        <button
-          onClick={() => {
-            setSlow((was) => !was)
-          }}
-          style={BUTTON}
-          type="button"
-        >
-          {slow ? 'Real speed' : `Slow them to a ${String(SLOWER)}th`}
-        </button>
-      </div>
-      <div
-        style={{
-          display: 'grid',
-          gap: '0.75rem',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(11rem, 1fr))',
-        }}
-      >
-        {Object.entries(ANIMATION).map(([name, shorthand]) => (
-          <Specimen
-            key={repeats(shorthand) ? name : `${name} ${String(run)}`}
-            name={name}
-            shorthand={shorthand}
-            slow={slow}
-          />
-        ))}
-      </div>
-    </div>
+    <Themed>
+      {({ tables }: CurrentTheme) => (
+        <div style={{ display: 'grid', gap: '0.75rem', margin: '1.5rem 0' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+            <button
+              onClick={() => {
+                setRun((was) => was + 1)
+              }}
+              style={BUTTON}
+              type="button"
+            >
+              Play them again
+            </button>
+            <button
+              onClick={() => {
+                setSlow((was) => !was)
+              }}
+              style={BUTTON}
+              type="button"
+            >
+              {slow ? 'Real speed' : `Slow them to a ${String(SLOWER)}th`}
+            </button>
+          </div>
+          <div
+            style={{
+              display: 'grid',
+              gap: '0.75rem',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(11rem, 1fr))',
+            }}
+          >
+            {Object.entries(tables.animation).map(([name, shorthand]) => (
+              <Specimen
+                key={repeats(shorthand) ? name : `${name} ${String(run)}`}
+                name={name}
+                shorthand={shorthand}
+                slow={slow}
+                tables={tables}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+    </Themed>
   )
 }

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vite-plus/test'
 
 import { type Appearance } from '@stealthscale/core-appearance'
-import { type ThemeValues } from '@stealthscale/core-theme'
+import { DEFAULT_TABLES, type ThemeValues } from '@stealthscale/core-theme'
 
 import { type Themes } from './appearance.ts'
 import { chromeFor, chromeFrom } from './chrome.ts'
@@ -104,7 +104,7 @@ describe('chromeFrom', () => {
 })
 
 describe('chromeFor', () => {
-  const themes: Themes = { kalon: { title: 'Kalon', values: values() } }
+  const themes: Themes = { kalon: { tables: DEFAULT_TABLES, title: 'Kalon', values: values() } }
 
   it('reads the frame out of the theme the story is drawn in', () => {
     const chrome = chromeFor(drawnIn('kalon', 'dark'), themes)

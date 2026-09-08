@@ -1,6 +1,8 @@
 export { Animations } from './animations.tsx'
 export { Guarantees } from './contrast.tsx'
+export { Controls, Focus, target } from './controls.tsx'
 export { Edges, Syntax } from './edges.tsx'
+export { Families, firstFamily } from './families.tsx'
 export { type TokenGroup, tokensOf } from './groups.ts'
 export { Durations, Easings } from './motion.tsx'
 export { Inks, type InksProps, Pairs, type PairsProps, type Reached, reached } from './pairs.tsx'

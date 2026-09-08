@@ -6,7 +6,7 @@
 
 import { type JSX, type ReactNode } from 'react'
 
-import { type ThemeMode, type TokenName } from '@stealthscale/core-theme'
+import { type Tables, type ThemeMode, type TokenName } from '@stealthscale/core-theme'
 
 import { usePreview } from '#preview/store.ts'
 
@@ -16,6 +16,12 @@ import { CAPTION, CORNER } from './styles.ts'
  * Describes the theme the document is drawn in right now, in the one mode that is on.
  */
 export interface CurrentTheme {
+  /**
+   * Names the density the document is drawn at, which decides every control's height and
+   * where its focus ring sits.
+   */
+  density: string
+
   /**
    * Names the mode the document is in.
    */
@@ -30,6 +36,12 @@ export interface CurrentTheme {
    * Marks that the motion toolbar asks for reduced motion.
    */
   reducedMotion: boolean
+
+  /**
+   * Carries every scale the theme states, so a page draws its timing and its shadows rather
+   * than the contract's.
+   */
+  tables: Tables
 
   /**
    * Carries the name a person picks the theme by.
@@ -57,9 +69,11 @@ export function useTheme(): CurrentTheme | undefined {
   if (theme === undefined) return undefined
 
   return {
+    density: appearance.density,
     mode: appearance.mode,
     name: appearance.theme,
     reducedMotion: appearance.reducedMotion,
+    tables: theme.tables,
     title: theme.title,
     tokens: theme.values[appearance.mode],
   }

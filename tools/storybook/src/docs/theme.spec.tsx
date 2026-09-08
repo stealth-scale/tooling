@@ -11,7 +11,7 @@ import { preview } from '#preview/store.ts'
 import { type CurrentTheme, Themed } from './theme.tsx'
 
 /** A recipe that states only what it must. */
-const RECIPE = { accent: 200, chart: [258, 152, 292, 45, 12], neutral: 260, primary: 258 }
+const RECIPE = { color: { primary: 258 } }
 
 /** An appearance in one theme and one mode. */
 function drawnIn(theme: string, mode: Appearance['mode']): Appearance {
@@ -45,7 +45,10 @@ describe('Themed', () => {
   })
 
   it('draws the block from the theme the document is in, and follows the toolbars', () => {
-    const themes = { kalon: { title: 'Kalon', values: emitTheme(RECIPE, 'kalon').values } }
+    const emitted = emitTheme(RECIPE, 'kalon')
+    const themes = {
+      kalon: { tables: emitted.tables, title: 'Kalon', values: emitted.values },
+    }
     const { container } = render(<Themed>{Printed}</Themed>)
 
     act(() => {
