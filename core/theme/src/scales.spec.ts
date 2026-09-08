@@ -18,10 +18,17 @@ import {
   TRACKING,
 } from '#scales.ts'
 
-/** The size steps Tailwind names, smallest first, where a namespace runs that far. */
+/**
+ * Lists the size steps Tailwind names, smallest first, where a namespace runs that far.
+ */
 const SIZES = ['2xs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl', '4xl'] as const
 
-/** Sorts steps as a designer reads them rather than as a dictionary does. */
+/**
+ * Sorts steps as a designer reads them rather than as a dictionary does.
+ *
+ * @param {readonly string[]} steps - The steps to sort.
+ * @returns {string[]} The steps, smallest first.
+ */
 function bySize(steps: readonly string[]): string[] {
   return [...steps].toSorted((a, b) => SIZES.indexOf(a as never) - SIZES.indexOf(b as never))
 }
@@ -71,7 +78,7 @@ describe('the radii', () => {
 })
 
 describe('the shadows', () => {
-  it('run Tailwind’s steps for each kind of shadow', () => {
+  it("run Tailwind's steps for each kind of shadow", () => {
     expect(bySize(Object.keys(SHADOW))).toEqual(['2xs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl'])
     expect(bySize(Object.keys(INSET_SHADOW))).toEqual(['2xs', 'xs', 'sm'])
     expect(bySize(Object.keys(DROP_SHADOW))).toEqual(['xs', 'sm', 'md', 'lg', 'xl', '2xl'])

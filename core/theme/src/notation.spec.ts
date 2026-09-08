@@ -4,7 +4,12 @@ import { type Rgb } from '#convert.ts'
 import { NAMED } from '#named.ts'
 import { parseColor } from '#notation.ts'
 
-/** A colour as the 0 to 255 channels a designer reads, rounded. */
+/**
+ * Writes a colour as the 0 to 255 channels a designer reads, rounded.
+ *
+ * @param {Rgb | undefined} color - The colour in sRGB, or nothing.
+ * @returns {string | undefined} The three channels, comma separated, or `undefined` for none.
+ */
 function bytes(color: Rgb | undefined): string | undefined {
   return color === undefined
     ? undefined

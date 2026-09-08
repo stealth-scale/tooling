@@ -3,12 +3,20 @@ import { describe, expect, it } from 'vite-plus/test'
 import { assertComplete, completeTokens, isComplete } from '#assert.ts'
 import { REQUIRED_TOKENS, type ThemeValues } from '#tokens.ts'
 
-/** One mode with every token present, built from the contract itself. */
+/**
+ * Builds one mode with every token present, from the contract itself.
+ *
+ * @returns {Record<string, string>} Every required token, each set to one grey.
+ */
 function mode(): Record<string, string> {
   return Object.fromEntries(REQUIRED_TOKENS.map((token) => [token, 'oklch(50% 0 0)']))
 }
 
-/** A theme with every token present in both modes. */
+/**
+ * Builds a theme with every token present in both modes.
+ *
+ * @returns {ThemeValues} The theme.
+ */
 function complete(): ThemeValues {
   return { dark: completeTokens(mode()), light: completeTokens(mode()) }
 }

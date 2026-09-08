@@ -3,7 +3,12 @@ import { describe, expect, it } from 'vite-plus/test'
 import { contrast } from '#color.ts'
 import { oklch, solveContrast } from '#solve.ts'
 
-/** The lightness an `oklch()` value states, 0 to 100. */
+/**
+ * Reads the lightness an `oklch()` value states.
+ *
+ * @param {string} value - The colour as written.
+ * @returns {number} The lightness, 0 to 100.
+ */
 function lightness(value: string): number {
   return Number(/^oklch\(([\d.]+)%/u.exec(value)?.[1])
 }

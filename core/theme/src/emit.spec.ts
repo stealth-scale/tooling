@@ -5,12 +5,21 @@ import { GLOW, OWNED_NAMESPACES, RADIUS, SHADOW, TEXT } from '#scales.ts'
 import { declarations } from '#stylesheet.ts'
 import { COLOR_TOKENS, REQUIRED_TOKENS, type ThemeValues } from '#tokens.ts'
 
-/** One mode with every token present, each value telling which mode it is. */
+/**
+ * Builds one mode with every token present, each value telling which mode it is.
+ *
+ * @param {string} label - The mode's name, written into every value.
+ * @returns {Record<string, string>} Every required token, each set to its labelled value.
+ */
 function mode(label: string): Record<string, string> {
   return Object.fromEntries(REQUIRED_TOKENS.map((token) => [token, `${label}-${token}`]))
 }
 
-/** A theme with every token present in both modes. */
+/**
+ * Builds a theme with every token present in both modes.
+ *
+ * @returns {ThemeValues} The theme.
+ */
 function complete(): ThemeValues {
   return { dark: mode('dark'), light: mode('light') }
 }
@@ -30,7 +39,7 @@ describe('emit', () => {
     }
   })
 
-  it('maps every colour token into the theme layer, pointing at the theme’s own variable', () => {
+  it("maps every colour token into the theme layer, pointing at the theme's own variable", () => {
     for (const token of COLOR_TOKENS) {
       expect(layer[`color-${token}`]).toBe(`var(--${token})`)
     }
@@ -51,7 +60,7 @@ describe('emit', () => {
     }
   })
 
-  it('mixes every shadow from the theme’s ink and lays the raised edge’s highlight under it', () => {
+  it("mixes every shadow from the theme's ink, with the raised edge's highlight under it", () => {
     for (const step of Object.keys(SHADOW)) {
       const shadow = layer[`shadow-${step}`] ?? ''
 
@@ -90,7 +99,7 @@ describe('emit', () => {
 })
 
 describe('emitScoped', () => {
-  it('puts a theme behind its own attribute and registers no layer, which the document holds once', () => {
+  it('puts a theme behind its own attribute and no layer, which the document holds once', () => {
     const css = emitScoped(complete(), 'probe')
 
     expect(css).toContain("[data-theme='probe'] {")

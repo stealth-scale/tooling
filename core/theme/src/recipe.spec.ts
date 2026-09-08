@@ -14,7 +14,9 @@ import {
   tintOf,
 } from '#recipe.ts'
 
-/** A recipe that states only what it must. */
+/**
+ * Holds a recipe that states only what it must.
+ */
 const bare: PaletteRecipe = {
   accent: 200,
   chart: [258, 152, 292, 45, 12],
@@ -22,7 +24,9 @@ const bare: PaletteRecipe = {
   primary: 258,
 }
 
-/** A recipe that states everything it may. */
+/**
+ * Holds a recipe that states everything it may.
+ */
 const full: PaletteRecipe = {
   ...bare,
   chroma: 0.2,

@@ -8,7 +8,12 @@ import { buildPalette } from '#palette.ts'
 import { type PaletteRecipe } from '#recipe.ts'
 import { CODE_TOKENS, COLOR_TOKENS, type TokenName } from '#tokens.ts'
 
-/** The lightness an `oklch()` value states, 0 to 100. */
+/**
+ * Reads the lightness an `oklch()` value states.
+ *
+ * @param {string} value - The colour as written.
+ * @returns {number} The lightness, 0 to 100.
+ */
 function lightness(value: string): number {
   return Number(/^oklch\(([\d.]+)%/u.exec(value)?.[1])
 }
@@ -25,12 +30,19 @@ function channels(value: string): [number, number, number] | undefined {
   return match === null ? undefined : [Number(match[1]) / 100, Number(match[2]), Number(match[3])]
 }
 
-/** The hue an `oklch(L% C H)` value states, as written, with or without an alpha. */
+/**
+ * Reads the hue an `oklch(L% C H)` value states, as written, with or without an alpha.
+ *
+ * @param {string} value - The colour as written.
+ * @returns {string} The hue as the value spells it, or an empty string for no `oklch()`.
+ */
 function hue(value: string): string {
   return /^oklch\([\d.]+% [\d.]+ (-?[\d.]+)/u.exec(value)?.[1] ?? ''
 }
 
-/** A recipe that states only what it must. */
+/**
+ * Holds a recipe that states only what it must.
+ */
 const bare: PaletteRecipe = {
   accent: 200,
   chart: [258, 152, 292, 45, 12],
@@ -68,7 +80,10 @@ const TEXT_PAIRS: readonly (readonly [TokenName, TokenName])[] = [
   ['highlight', 'highlight-foreground'],
 ] as const
 
-/** The fills a recipe’s level applies to. Everything else is text on a surface and stays AAA. */
+/**
+ * Lists the fills a recipe's level applies to. Everything else is text on a surface and stays
+ * AAA.
+ */
 const FILL_PAIRS = [
   ['primary', 'primary-foreground'],
   ['destructive', 'destructive-foreground'],
@@ -78,7 +93,9 @@ const FILL_PAIRS = [
   ['sidebar-primary', 'sidebar-primary-foreground'],
 ] as const
 
-/** Four hues far enough apart that any lightness bug shows up in at least one. */
+/**
+ * Lists four hues far enough apart that any lightness bug shows up in at least one.
+ */
 const RECIPES: readonly PaletteRecipe[] = [
   { accent: 232, chart: [258, 190, 300, 45, 12], neutral: 262, primary: 258 },
   { accent: 178, chart: [162, 196, 128, 250, 40], neutral: 168, primary: 162 },
@@ -102,7 +119,7 @@ describe('buildPalette', () => {
     expect(values.dark.foreground).toContain('96.0%')
   })
 
-  it('takes its outcome hues from the recipe when it names them, and the chart tones follow', () => {
+  it('takes the outcome hues a recipe names, and the chart tones follow', () => {
     const branded = buildPalette({ ...bare, status: { destructive: 351, success: 209 } })
 
     expect(hue(branded.light.success)).toBe('209')
@@ -193,7 +210,7 @@ describe('buildPalette', () => {
   it('lays a hairline of light along a raised edge in dark, and nothing in light', () => {
     expect(values.light['shadow-highlight']).toBe('transparent')
     expect(values.dark['shadow-highlight']).toMatch(/^oklch\(98\.0%/u)
-    expect(values.dark.shadow, 'the ink carries the largest step’s opacity').toMatch(/\/ 0\.60\)$/u)
+    expect(values.dark.shadow, "the ink carries the largest step's opacity").toMatch(/\/ 0\.60\)$/u)
   })
 })
 
