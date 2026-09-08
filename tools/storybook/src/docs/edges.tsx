@@ -41,7 +41,7 @@ interface EdgeProps {
  * @param {EdgeProps} props - The token and the theme. `EdgeProps` documents every member.
  * @returns {JSX.Element} The edge, labelled.
  */
-function Edge({ token, tokens }: Readonly<EdgeProps>): JSX.Element {
+function Edge({ token, tokens }: EdgeProps): JSX.Element {
   const box: CSSProperties = { blockSize: '2.5rem', borderRadius: CORNER, inlineSize: '100%' }
 
   // Total over the outline tokens, so an edge added to the contract has to say how it is drawn.
@@ -113,7 +113,7 @@ interface TokenProps {
  * @param {TokenProps} props - The role and the text. `TokenProps` documents every member.
  * @returns {JSX.Element} The span.
  */
-function Token({ role, text, tokens }: Readonly<TokenProps>): JSX.Element {
+function Token({ role, text, tokens }: TokenProps): JSX.Element {
   return <span style={{ color: tokens[role] }}>{text}</span>
 }
 

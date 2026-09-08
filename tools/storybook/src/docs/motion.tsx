@@ -49,7 +49,7 @@ interface RunnerProps {
  * @param {RunnerProps} props - The curve and the time. `RunnerProps` documents every member.
  * @returns {JSX.Element} The track and the runner.
  */
-function Runner({ duration, easing, playing }: Readonly<RunnerProps>): JSX.Element {
+function Runner({ duration, easing, playing }: RunnerProps): JSX.Element {
   return (
     <div style={TRACK}>
       <div
@@ -85,7 +85,7 @@ interface RunnersProps {
  * @param {RunnersProps} props - The rows. `RunnersProps` documents every member.
  * @returns {JSX.Element} The button, then one labelled track per row.
  */
-function Runners({ rows }: Readonly<RunnersProps>): JSX.Element {
+function Runners({ rows }: RunnersProps): JSX.Element {
   const [playing, setPlaying] = useState(false)
   const reduced = usePreview()?.appearance.reducedMotion === true
 

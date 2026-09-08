@@ -32,7 +32,7 @@ interface SwatchProps {
  * @param {SwatchProps} props - The token and its value. `SwatchProps` documents every member.
  * @returns {JSX.Element} The colour, its name and its value, side by side.
  */
-function Swatch({ token, value }: Readonly<SwatchProps>): JSX.Element {
+function Swatch({ token, value }: SwatchProps): JSX.Element {
   return (
     <div style={{ alignItems: 'center', display: 'flex', gap: '0.75rem', minWidth: '16rem' }}>
       <div
@@ -70,7 +70,7 @@ export interface SwatchesProps {
  * @param {SwatchesProps} props - The group. `SwatchesProps` documents every member.
  * @returns {JSX.Element} One swatch per token, in the order the contract emits them.
  */
-export function Swatches({ of }: Readonly<SwatchesProps>): JSX.Element {
+export function Swatches({ of }: SwatchesProps): JSX.Element {
   return (
     <Themed>
       {({ tokens }: CurrentTheme) => (

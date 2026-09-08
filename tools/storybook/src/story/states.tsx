@@ -81,7 +81,7 @@ export interface StateGridProps<Row extends string> {
   /**
    * Lists the row axis, in the order it is drawn.
    */
-  rows: readonly Row[]
+  rows: ReadonlyArray<Row>
 }
 
 /**
@@ -95,9 +95,6 @@ export interface StateGridProps<Row extends string> {
  * @param {StateGridProps<Row>} props - The props. `StateGridProps` documents every member.
  * @returns {JSX.Element} Every row against every state, labelled on both edges.
  */
-export function StateGrid<Row extends string>({
-  cell,
-  rows,
-}: Readonly<StateGridProps<Row>>): JSX.Element {
+export function StateGrid<Row extends string>({ cell, rows }: StateGridProps<Row>): JSX.Element {
   return <Grid cell={cell} columns={STATES} rows={rows} />
 }

@@ -95,7 +95,7 @@ export interface ThemedProps {
  * @param {ThemedProps} props - The block to draw. `ThemedProps` documents every member.
  * @returns {JSX.Element} The block, or a note that no theme is registered.
  */
-export function Themed({ children }: Readonly<ThemedProps>): JSX.Element {
+export function Themed({ children }: ThemedProps): JSX.Element {
   const theme = useTheme()
   if (theme !== undefined) return <>{children(theme)}</>
 

@@ -177,6 +177,26 @@ describe('extractArgTypes', () => {
     })
   })
 
+  it('takes back the comma and the indent a line break allowed', () => {
+    const component = {
+      __docgenInfo: {
+        props: {
+          cell: {
+            tsType: {
+              name: 'signature',
+              raw: '(\n  row: Row,\n  column: Column,\n) => ReactNode',
+              type: 'function',
+            },
+          },
+        },
+      },
+    }
+
+    expect(extractArgTypes(component)?.['cell']?.table?.type).toEqual({
+      summary: '(row: Row, column: Column) => ReactNode',
+    })
+  })
+
   it('reads a prop whose type docgen left out as unknown', () => {
     const component = { __docgenInfo: { props: { odd: { tsType: null } } } }
 

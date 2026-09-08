@@ -110,7 +110,7 @@ interface SpecimenProps {
  *     member.
  * @returns {JSX.Element} The stage, then the utility's name and the real time.
  */
-function Specimen({ name, shorthand, slow, tables }: Readonly<SpecimenProps>): JSX.Element {
+function Specimen({ name, shorthand, slow, tables }: SpecimenProps): JSX.Element {
   const time = millisecondsOf(shorthand, tables)
 
   return (

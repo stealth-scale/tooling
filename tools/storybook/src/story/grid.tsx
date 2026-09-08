@@ -31,20 +31,23 @@ export interface GridProps<Row extends string, Column extends string> {
   /**
    * Lists the column axis, in the order it is drawn.
    */
-  columns: readonly Column[]
+  columns: ReadonlyArray<Column>
 
   /**
    * Lists the row axis, in the order it is drawn.
    */
-  rows: readonly Row[]
+  rows: ReadonlyArray<Row>
 }
 
 /**
  * Describes the props of {@link Legend}.
  */
-interface LegendProps {
+export interface LegendProps {
   /**
-   * Names the axis value this legend labels.
+   * Names the axis value this legend labels. A legend takes a string rather than a node,
+   * because a header carrying markup is a header doing something the grid does not describe.
+   *
+   * @category Content
    */
   children: string
 }
@@ -56,7 +59,7 @@ interface LegendProps {
  * @param {LegendProps} props - The props. `LegendProps` documents every member.
  * @returns {JSX.Element} The label.
  */
-function Legend({ children }: Readonly<LegendProps>): JSX.Element {
+export function Legend({ children }: LegendProps): JSX.Element {
   return <span className="text-muted-foreground text-xs whitespace-nowrap">{children}</span>
 }
 
@@ -76,7 +79,7 @@ export function Grid<Row extends string, Column extends string>({
   cell,
   columns,
   rows,
-}: Readonly<GridProps<Row, Column>>): JSX.Element {
+}: GridProps<Row, Column>): JSX.Element {
   return (
     <div
       className="grid w-fit items-center justify-items-start gap-x-8 gap-y-3"

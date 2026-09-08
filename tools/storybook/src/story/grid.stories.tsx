@@ -5,7 +5,7 @@ import { expect, within } from 'storybook/test'
 
 import { countsEveryCell } from './assert.ts'
 import { example } from './example.ts'
-import { type Cell, Grid, type GridProps } from './grid.tsx'
+import { type Cell, Grid, type GridProps, Legend } from './grid.tsx'
 
 // The home domain: a design system's own control, which is what a variant matrix is for.
 const TONES = ['neutral', 'brand', 'destructive'] as const
@@ -50,6 +50,10 @@ const meta = {
     cell: { control: false },
   },
   component: Matrix,
+
+  // The legend is the grid's one part. Naming it here is what puts its props table beside the
+  // grid's own as a tab rather than leaving it undocumented.
+  subcomponents: { Legend },
 } satisfies Meta<typeof Matrix>
 
 export default meta

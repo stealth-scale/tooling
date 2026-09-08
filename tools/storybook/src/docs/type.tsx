@@ -59,7 +59,7 @@ interface RowProps {
  * @param {RowProps} props - The row. `RowProps` documents every member.
  * @returns {JSX.Element} The utility and its value, then the specimen beside them.
  */
-function Row({ children, label, note }: Readonly<RowProps>): JSX.Element {
+function Row({ children, label, note }: RowProps): JSX.Element {
   return (
     <div data-slot="specimen" style={ROW}>
       <div style={LABEL}>
@@ -87,7 +87,7 @@ interface TableProps {
  * @param {TableProps} props - The rows. `TableProps` documents every member.
  * @returns {JSX.Element} The rows, closed by a hairline.
  */
-function Table({ children }: Readonly<TableProps>): JSX.Element {
+function Table({ children }: TableProps): JSX.Element {
   return <div style={{ borderBottom: HAIRLINE, margin: '1.5rem 0' }}>{children}</div>
 }
 

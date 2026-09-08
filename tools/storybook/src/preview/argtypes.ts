@@ -117,12 +117,22 @@ export function sbTypeOf(type?: DocgenType): SBType {
 /**
  * Writes a prop's type as the table shows it: the source text, on one line.
  *
+ * A type long enough to wrap is written across lines in the source, and the formatter leaves
+ * a trailing comma and an indent on each. Collapsing the newlines alone shows those as
+ * `( row: Row, column: Column, ) => ReactNode`, so the punctuation a line break allowed is
+ * taken back out with it.
+ *
  * @param {DocgenType} [type] - The type as docgen read it off the annotation.
  * @returns {string} The type as written, or `unknown` where docgen read nothing.
  */
 function summaryOf(type?: DocgenType): string {
   if (type === undefined) return 'unknown'
-  return (type.raw ?? type.name).replaceAll(/\s*\n\s*/gu, ' ').replace(/^\|\s*/u, '')
+  return (type.raw ?? type.name)
+    .replaceAll(/\s*\n\s*/gu, ' ')
+    .replaceAll(/,\s*(?=[)\]}])/gu, '')
+    .replaceAll(/([([{])\s+/gu, '$1')
+    .replaceAll(/\s+([)\]}])/gu, '$1')
+    .replace(/^\|\s*/u, '')
 }
 
 /**

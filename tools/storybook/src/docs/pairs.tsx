@@ -74,7 +74,7 @@ interface RatioProps {
  * @param {RatioProps} props - The two colours. `RatioProps` documents every member.
  * @returns {JSX.Element} The ratio to two decimals, then the level, in a badge.
  */
-function Ratio({ floor, on, over }: Readonly<RatioProps>): JSX.Element {
+function Ratio({ floor, on, over }: RatioProps): JSX.Element {
   const ratio = contrast(over, on)
   const level = reached(ratio)
   const ok = ratio >= floor
@@ -108,7 +108,7 @@ export interface PairsProps {
  * @param {PairsProps} props - The pairs. `PairsProps` documents every member.
  * @returns {JSX.Element} One card per pair.
  */
-export function Pairs({ pairs }: Readonly<PairsProps>): JSX.Element {
+export function Pairs({ pairs }: PairsProps): JSX.Element {
   return (
     <Themed>
       {({ tokens }: CurrentTheme) => (
@@ -157,7 +157,7 @@ export interface InksProps {
   /**
    * Lists the tokens to draw as text.
    */
-  tokens: readonly ColorToken[]
+  tokens: ReadonlyArray<ColorToken>
 }
 
 /**
@@ -169,7 +169,7 @@ export interface InksProps {
  * @param {InksProps} props - The inks and their surface. `InksProps` documents every member.
  * @returns {JSX.Element} One line per ink.
  */
-export function Inks({ on = 'background', tokens: named }: Readonly<InksProps>): JSX.Element {
+export function Inks({ on = 'background', tokens: named }: InksProps): JSX.Element {
   return (
     <Themed>
       {({ tokens }: CurrentTheme) => (

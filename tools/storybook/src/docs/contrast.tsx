@@ -62,7 +62,7 @@ interface Group {
   /**
    * Lists the pairs.
    */
-  pairs: readonly Pair[]
+  pairs: ReadonlyArray<Pair>
 
   /**
    * Says what the group is, as the table's own heading.
@@ -134,7 +134,7 @@ interface RowProps {
  *     member.
  * @returns {JSX.Element} The row: the pair, a sample, the ratio, the floor, and the result.
  */
-function Row({ criterion, floor, pair: [on, over], tokens }: Readonly<RowProps>): JSX.Element {
+function Row({ criterion, floor, pair: [on, over], tokens }: RowProps): JSX.Element {
   const ratio = contrast(tokens[over], tokens[on])
   const ok = ratio >= floor
 
@@ -196,7 +196,7 @@ interface RowsProps {
  * @param {RowsProps} props - The group and the theme. `RowsProps` documents every member.
  * @returns {JSX.Element} A heading row, then one measured row per pair.
  */
-function Rows({ group, tokens }: Readonly<RowsProps>): JSX.Element {
+function Rows({ group, tokens }: RowsProps): JSX.Element {
   return (
     <>
       <tr style={ROW}>

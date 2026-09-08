@@ -56,7 +56,7 @@ export function contain(event: SyntheticEvent): void {
  * @param {ContainedProps} props - The story to draw. `ContainedProps` documents every member.
  * @returns {JSX.Element} The story, wrapped in something that catches what would leave.
  */
-export function Contained({ children }: Readonly<ContainedProps>): JSX.Element {
+export function Contained({ children }: ContainedProps): JSX.Element {
   return (
     <div
       data-slot="canvas"
