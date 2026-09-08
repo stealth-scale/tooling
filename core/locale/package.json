@@ -1,0 +1,36 @@
+{
+  "name": "@stealthscale/core-locale",
+  "version": "0.0.0",
+  "description": "Which locale to answer in: BCP-47 tags read with the engine's own Intl, and ECMA-402 lookup against what a catalogue ships.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stealth-scale/tooling.git",
+    "directory": "core/locale"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "stealth-source": "./src/index.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.mjs",
+      "./package.json": "./package.json"
+    },
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vp pack src/index.ts"
+  },
+  "devDependencies": {
+    "@stealthscale/tool-config": "workspace:^"
+  }
+}
