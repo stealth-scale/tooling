@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/core-appearance",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "How a product is drawn for one person, as one value: theme, mode, density, motion, locale and direction, read from the machine, written on the document, checked at a boundary.",
   "license": "MIT",
   "repository": {

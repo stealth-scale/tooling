@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/core-env",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "The environment as a value: layered .env files, the machine winning over them, and one written default per absence.",
   "license": "MIT",
   "repository": {
