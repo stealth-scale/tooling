@@ -35,15 +35,15 @@ type Wrap = (
 ) => { createIndex: (file: string, options: unknown) => Promise<Entry[]> }[]
 
 /**
- * Builds the entry the configuration adds for the kit's own pages, relative to a workspace's
- * configuration directory.
+ * Builds the entries the configuration adds for the kit's own pages, one per page and in the
+ * order they read, relative to a workspace's configuration directory.
  */
-function pagesEntry(scratch: ScratchWorkspace): Record<string, string> {
-  return {
-    directory: relative(join(scratch.root, '.storybook'), pagesDirectory()),
-    files: '*.mdx',
+function pagesEntries(configDir: string): Record<string, string>[] {
+  return PAGES.map((page) => ({
+    directory: relative(configDir, pagesDirectory()),
+    files: `${page}.mdx`,
     titlePrefix: 'Foundations',
-  }
+  }))
 }
 
 /**
@@ -86,14 +86,15 @@ async function indexed(
 }
 
 describe('storybookConfig', () => {
-  it('looks for stories in every package that keeps a source, and in its own pages', () => {
+  it('opens with its own pages, then looks in every package that keeps a source', () => {
     const scratch = workspace()
 
     const { stories } = storybookConfig({ root: scratch.root, sourceCondition: CONDITION })
 
+    // The sidebar follows this order, so the pages come first and read in their own order.
     expect(stories).toEqual([
+      ...pagesEntries(join(scratch.root, '.storybook')),
       { directory: '../components/library/src', files: '**/*.@(stories.tsx|mdx)' },
-      pagesEntry(scratch),
     ])
     scratch.remove()
   })
@@ -108,12 +109,8 @@ describe('storybookConfig', () => {
     })
 
     expect(stories).toEqual([
+      ...pagesEntries(scratch.path('storybook/config')),
       { directory: '../../components/library/src', files: '**/*.@(stories.tsx|mdx)' },
-      {
-        directory: relative(scratch.path('storybook/config'), pagesDirectory()),
-        files: '*.mdx',
-        titlePrefix: 'Foundations',
-      },
     ])
     scratch.remove()
   })
@@ -124,7 +121,7 @@ describe('storybookConfig', () => {
 
     expect(
       storybookConfig({ root: scratch.root, sourceCondition: CONDITION, stories: own }).stories,
-    ).toEqual([...own, pagesEntry(scratch)])
+    ).toEqual([...pagesEntries(join(scratch.root, '.storybook')), ...own])
     scratch.remove()
   })
 

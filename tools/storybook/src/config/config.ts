@@ -16,7 +16,7 @@ import {
   workspaceRoot,
 } from '@stealthscale/tool-workspace'
 
-import { FOUNDATIONS } from '#pages.ts'
+import { FOUNDATIONS, PAGES } from '#pages.ts'
 
 import { CONFIG_DIR } from './directory.ts'
 import { derivedIndexers } from './indexer.ts'
@@ -44,9 +44,14 @@ const ADDONS = [
 const FILES = '**/*.@(stories.tsx|mdx)'
 
 /**
- * Names the files that hold one of the kit's own pages.
+ * Names the file one of the kit's own pages sits in.
+ *
+ * @param {string} page - The page's name, which is its file's stem.
+ * @returns {string} The file name, relative to the pages directory.
  */
-const PAGE_FILES = '*.mdx'
+function pageFile(page: string): string {
+  return `${page}.mdx`
+}
 
 /**
  * Names the directory the kit keeps its pages in, below the package root.
@@ -196,9 +201,16 @@ export function storybookConfig(options: Readonly<ConfigOptions>): StorybookConf
     const refusals = read.failure.map((issue) => `${issue.path}: ${issue.reason}`)
     throw new Error(`The workspace registers what Storybook cannot draw:\n${refusals.join('\n')}`)
   }
-  // Storybook indexes a page written in MDX itself and titles it after its file, under the
-  // prefix this entry names, which is how every page lands under the first section.
-  const pages = { directory: relative(configDir, pagesDirectory()), files: PAGE_FILES }
+  // The sidebar follows the index, and the index follows these entries: one per page, in the
+  // order they read, ahead of everything the workspace holds. Storybook 10 keeps a story
+  // sorter and calls it from nowhere, so `parameters.options.storySort` moves nothing and a
+  // page's place has to be decided here.
+  const directory = relative(configDir, pagesDirectory())
+  const pages = PAGES.map((page) => ({
+    directory,
+    files: pageFile(page),
+    titlePrefix: FOUNDATIONS,
+  }))
 
   return {
     addons: [presetPath(), ...ADDONS, ...(options.addons ?? [])],
@@ -206,10 +218,7 @@ export function storybookConfig(options: Readonly<ConfigOptions>): StorybookConf
     docs: { defaultName: 'Docs' },
     experimental_indexers: derivedIndexers(root),
     framework: '@storybook/react-vite',
-    stories: [
-      ...(options.stories ?? storiesIn(root, configDir)),
-      { ...pages, titlePrefix: FOUNDATIONS },
-    ],
+    stories: [...pages, ...(options.stories ?? storiesIn(root, configDir))],
 
     // Storybook's own reader recognises a component by the JSX it returns, which misses one
     // that renders through a render prop. `stealthDocgen` in `viteFinal` reads those too and
