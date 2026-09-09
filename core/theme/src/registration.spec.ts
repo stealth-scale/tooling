@@ -11,16 +11,16 @@ describe('THEME_KEY', () => {
 })
 
 describe('THEME_CONTRIBUTION', () => {
-  it('accepts the recipe and the title a theme declares', () => {
-    expect(safeParse(THEME_CONTRIBUTION, { recipe: './src/recipe.ts', title: 'Thesmos' })).toEqual({
+  it('accepts the attribute value and the title a theme declares', () => {
+    expect(safeParse(THEME_CONTRIBUTION, { name: 'thesmos', title: 'Thesmos' })).toEqual({
       ok: true,
-      value: { recipe: './src/recipe.ts', title: 'Thesmos' },
+      value: { name: 'thesmos', title: 'Thesmos' },
     })
   })
 
   it('carries a key it does not name through unread', () => {
     const read = safeParse(THEME_CONTRIBUTION, {
-      recipe: './src/recipe.ts',
+      name: 'thesmos',
       swatch: './swatch.png',
       title: 'Thesmos',
     })
@@ -30,16 +30,24 @@ describe('THEME_CONTRIBUTION', () => {
     expect(read.value.title).toBe('Thesmos')
   })
 
-  it('refuses an entry that names no title, and says so', () => {
+  it('refuses an entry that names neither, and says so about both', () => {
     const read = safeParse(THEME_CONTRIBUTION, {})
 
     expect(read.ok).toBe(false)
     if (read.ok) return
-    expect(read.failure.map(({ path }) => path)).toEqual(['title'])
+    expect(read.failure.map(({ path }) => path)).toEqual(['name', 'title'])
+  })
+
+  it('refuses a theme that states a title but no attribute value to scope it to', () => {
+    const read = safeParse(THEME_CONTRIBUTION, { title: 'Thesmos' })
+
+    expect(read.ok).toBe(false)
+    if (read.ok) return
+    expect(read.failure.map(({ path }) => path)).toEqual(['name'])
   })
 
   it('refuses a word that is not a string, with a code and no words of its own', () => {
-    const read = safeParse(THEME_CONTRIBUTION, { title: 12 })
+    const read = safeParse(THEME_CONTRIBUTION, { name: 'thesmos', title: 12 })
 
     expect(read.ok).toBe(false)
     if (read.ok) return

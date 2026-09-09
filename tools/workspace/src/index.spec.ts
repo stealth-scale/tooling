@@ -7,6 +7,7 @@ describe('the package barrel', () => {
     expect(Object.keys(pkg).toSorted()).toEqual([
       'contributions',
       'dependencyClosure',
+      'dependencyManifests',
       'expandWorkspacePattern',
       'packageRoot',
       'readManifest',

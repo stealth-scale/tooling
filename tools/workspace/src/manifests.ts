@@ -130,6 +130,7 @@ const RAW_MANIFEST = looseObject({
   bin: optional(union([record(string(), string()), string()])),
   dependencies: optional(record(string(), string())),
   description: optional(string()),
+  devDependencies: optional(record(string(), string())),
   exports: optional(unknown()),
   files: optional(array(string())),
   name: optional(string()),
@@ -306,6 +307,50 @@ export function workspaceManifests(root: string): Manifest[] {
     .flatMap((pattern) => expandWorkspacePattern(root, pattern))
     .filter((directory) => existsSync(join(directory, 'package.json')))
     .map((directory) => readManifest(directory))
+}
+
+/**
+ * Reads one installed package's manifest, answering nothing where it cannot be read.
+ *
+ * A dependency's manifest belongs to whoever published it, and this tool has no claim on its
+ * shape: a `bin` or a `files` written in a way the reader refuses is that package's business,
+ * and refusing to start over it would break a repository for a field nothing here uses.
+ *
+ * @param {string} directory - The package's directory, absolute.
+ * @returns {Manifest | undefined} The manifest, or nothing where the directory holds none or
+ *     holds one this reader refuses.
+ */
+function installed(directory: string): Manifest | undefined {
+  if (!existsSync(join(directory, 'package.json'))) return undefined
+  try {
+    return readManifest(directory)
+  } catch {
+    return undefined
+  }
+}
+
+/**
+ * Lists every package the root manifest depends on that is installed: each name under
+ * `dependencies` and `devDependencies`, read from `node_modules`.
+ *
+ * A workspace package registers with the toolchain by being in the workspace. A package a
+ * repository installs has no other way to register at all, which is the ordinary case for
+ * anything consuming the toolchain rather than holding it.
+ *
+ * @param {string} root - The directory whose manifest names them, absolute.
+ * @returns {Manifest[]} The manifests, each once, in the order the root declares them. A name
+ *     that is not installed is left out.
+ */
+export function dependencyManifests(root: string): Manifest[] {
+  const manifest = read(join(root, 'package.json'))
+  const names = new Set([
+    ...Object.keys(manifest.dependencies ?? {}),
+    ...Object.keys(manifest.devDependencies ?? {}),
+  ])
+
+  return [...names]
+    .map((name) => installed(join(root, 'node_modules', name)))
+    .filter((found): found is Manifest => found !== undefined)
 }
 
 /**

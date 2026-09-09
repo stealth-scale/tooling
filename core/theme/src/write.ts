@@ -10,13 +10,28 @@
  * leave the directory empty.
  */
 
-import { mkdirSync, writeFileSync } from 'node:fs'
-import { basename, dirname } from 'node:path'
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 
+import {
+  looseObject,
+  optional,
+  record,
+  safeParse,
+  string,
+  unknown,
+} from '@stealthscale/core-schema'
+
 import { type EmittedTheme, emitTheme } from '#emit.ts'
+import { THEME_CONTRIBUTION, THEME_KEY } from '#registration.ts'
 import { type Tables } from '#tables.ts'
 import { type ThemeValues } from '#tokens.ts'
+
+/**
+ * Accepts a manifest in the one field this reads: the `stealth` registry, keyed by the kind of
+ * contribution. Every value stays unread, because the theme's own schema reads its key.
+ */
+const MANIFEST = looseObject({ stealth: optional(record(string(), unknown())) })
 
 /**
  * Maps every entry a theme package offers to the file that serves it.
@@ -75,20 +90,40 @@ function announce(name: string, report: readonly string[]): void {
 }
 
 /**
+ * Reads the value a theme's document attribute is written as, out of its own manifest.
+ *
+ * The manifest rather than the directory, because the directory is the author's and a
+ * consumer installs the package under its name. One declaration serves the stylesheet this
+ * writes and the registry that reads the package, so the two cannot drift.
+ *
+ * @param {string} manifest - The package's manifest file, absolute.
+ * @returns {string} The name, as `stealth.theme.name` states it.
+ * @throws {Error} When the file registers no theme. Nothing else can supply the name, and a
+ *     stylesheet written under a guessed one is scoped to an attribute nothing sets.
+ */
+function nameFrom(manifest: string): string {
+  const read = safeParse(MANIFEST, JSON.parse(readFileSync(manifest, 'utf8')))
+  const theme = read.ok
+    ? safeParse(THEME_CONTRIBUTION, read.value.stealth?.[THEME_KEY])
+    : { ok: false as const }
+
+  if (!theme.ok) throw new Error(`${manifest} states no stealth.${THEME_KEY}.name`)
+  return theme.value.name
+}
+
+/**
  * Solves a theme and writes everything its package ships.
  *
- * The name a document writes is the package directory's basename, so a theme states it
- * nowhere and two themes cannot claim one name. A theme's whole build is one call, and its
- * `dist` is complete on its own: a theme that extends another extends its recipe, not its
- * stylesheets.
+ * A theme's whole build is one call, and its `dist` is complete on its own: a theme that
+ * extends another extends its recipe, not its stylesheets.
  *
  * @param {unknown} recipe - The theme's recipe, as its own module wrote it.
  * @param {string} from - The `import.meta.url` of the script calling this, which sits at the
- *     package root. The name and the target directory are both read from it.
+ *     package root. The manifest and the target directory are both found from it.
  * @returns {EmittedTheme} Everything that was written, so a build or a specification reads it
  *     back without opening the files.
- * @throws {Error} When the recipe fails its schema, when a token is missing, or when a pair
- *     the theme promises falls below its floor.
+ * @throws {Error} When the manifest states no theme name, when the recipe fails its schema,
+ *     when a token is missing, or when a pair the theme promises falls below its floor.
  * @example
  * ```ts
  * // themes/base/vite.config.ts, from the pack's build:before hook
@@ -96,8 +131,9 @@ function announce(name: string, report: readonly string[]): void {
  * ```
  */
 export function writeTheme(recipe: unknown, from: string): EmittedTheme {
-  const dist = new URL('dist/', new URL('./', from))
-  const name = basename(dirname(fileURLToPath(from)))
+  const root = new URL('./', from)
+  const dist = new URL('dist/', root)
+  const name = nameFrom(fileURLToPath(new URL('package.json', root)))
   const emitted = emitTheme(recipe, name)
 
   mkdirSync(fileURLToPath(dist), { recursive: true })

@@ -54,6 +54,7 @@
   },
   "stealth": {
     "theme": {
+      "name": "lumen",
       "title": "Lumen"
     }
   }

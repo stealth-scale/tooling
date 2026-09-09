@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -14,9 +14,25 @@ const RECIPE: Recipe = { color: { primary: 265 } }
 
 let root = ''
 
+/**
+ * Writes the theme package's manifest, which is where the write reads its name.
+ *
+ * @param {unknown} [theme] - What the package registers under `stealth.theme`. Default: none,
+ *     giving a package that registers no theme at all.
+ */
+function manifest(theme?: unknown): void {
+  writeFileSync(
+    join(root, 'package.json'),
+    JSON.stringify({ name: '@probe/theme-kalon', stealth: { theme }, version: '0.0.0' }),
+  )
+}
+
 beforeEach(() => {
-  root = join(mkdtempSync(join(tmpdir(), 'stealth-theme-')), 'kalon')
+  // The directory is deliberately not the theme's name: what a document writes comes from the
+  // manifest, and a directory that agreed with it would hide the day it stopped being read.
+  root = join(mkdtempSync(join(tmpdir(), 'stealth-theme-')), 'package')
   mkdirSync(root, { recursive: true })
+  manifest({ name: 'kalon', title: 'Kalon' })
 })
 
 afterEach(() => {
@@ -68,10 +84,32 @@ describe('writeTheme', () => {
     expect(written('values.d.mts')).toContain('Tables')
   })
 
-  it('takes the name a document writes from the package directory, so a theme states it nowhere', () => {
+  it('scopes the stylesheet to the name the manifest states, not to the directory', () => {
     writeTheme(RECIPE, from())
 
     expect(written('scoped.css')).toContain("[data-theme='kalon']")
+    expect(written('scoped.css'), 'the directory is called something else').not.toContain('package')
+  })
+
+  it('refuses a package that registers no theme, since nothing else supplies the name', () => {
+    manifest()
+
+    expect(() => writeTheme(RECIPE, from())).toThrow(/states no stealth\.theme\.name/u)
+  })
+
+  it('refuses a theme that states a title and no name, rather than guessing one', () => {
+    manifest({ title: 'Kalon' })
+
+    expect(() => writeTheme(RECIPE, from())).toThrow(/states no stealth\.theme\.name/u)
+  })
+
+  it('refuses a manifest whose registry is not a registry, rather than reaching into it', () => {
+    writeFileSync(
+      join(root, 'package.json'),
+      JSON.stringify({ name: '@probe/x', stealth: 'kalon' }),
+    )
+
+    expect(() => writeTheme(RECIPE, from())).toThrow(/states no stealth\.theme\.name/u)
   })
 
   it('answers what it wrote, so a build reads the palette back without opening a file', () => {

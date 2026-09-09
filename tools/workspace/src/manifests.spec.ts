@@ -10,6 +10,7 @@ import {
 
 import {
   dependencyClosure,
+  dependencyManifests,
   expandWorkspacePattern,
   packageRoot,
   readManifest,
@@ -23,6 +24,7 @@ const HERE = join(import.meta.dirname, '..', '..', '..')
 
 describe('manifests', () => {
   let workspace: ScratchWorkspace
+  let installs: ScratchWorkspace
 
   beforeAll(() => {
     workspace = scratchWorkspace({
@@ -49,10 +51,24 @@ describe('manifests', () => {
       ...packageFiles('lone', { bin: './run.mjs', name: 'lone', version: '2.0.0' }),
       'packages/no-manifest/README.md': '',
     })
+
+    installs = scratchWorkspace({
+      ...workspaceFiles(['packages/*'], {
+        dependencies: { '@t/gone': '^1', '@t/runtime': '^1' },
+        devDependencies: { '@t/dev': '^1', '@t/odd': '^1', '@t/runtime': '^1' },
+      }),
+      ...packageFiles('node_modules/@t/runtime', {
+        name: '@t/runtime',
+        stealth: { theme: { name: 'kalon', title: 'Kalon' } },
+      }),
+      ...packageFiles('node_modules/@t/dev', { name: '@t/dev' }),
+      ...packageFiles('node_modules/@t/odd', { files: 'dist', name: '@t/odd' }),
+    })
   })
 
   afterAll(() => {
     workspace.remove()
+    installs.remove()
   })
 
   describe('workspaceRoot', () => {
@@ -222,6 +238,42 @@ describe('manifests', () => {
         packageRoot(import.meta.dirname),
       )
       expect(manifests.every((manifest) => manifest.version !== '')).toBe(true)
+    })
+  })
+
+  describe('dependencyManifests', () => {
+    it('reads every installed dependency the root declares, whichever list names it', () => {
+      expect(dependencyManifests(installs.root).map((found) => found.name)).toEqual([
+        '@t/runtime',
+        '@t/dev',
+      ])
+    })
+
+    it('reads a package once where both lists name it', () => {
+      expect(
+        dependencyManifests(installs.root).filter((found) => found.name === '@t/runtime'),
+      ).toHaveLength(1)
+    })
+
+    it('leaves out a name that is declared and not installed', () => {
+      expect(dependencyManifests(installs.root).map((found) => found.name)).not.toContain('@t/gone')
+    })
+
+    it('carries the contributions of an installed package, which is what registers it', () => {
+      const [runtime] = dependencyManifests(installs.root)
+
+      expect(runtime?.contributions).toEqual({ theme: { name: 'kalon', title: 'Kalon' } })
+      expect(runtime?.directory).toBe(installs.path('node_modules/@t/runtime'))
+    })
+
+    it('skips a dependency whose manifest this reader refuses, rather than refusing to start', () => {
+      // A published package's manifest is its author's business, and a `files` written as a
+      // string is not this tool's to reject: the repository still has to build.
+      expect(dependencyManifests(installs.root).map((found) => found.name)).not.toContain('@t/odd')
+    })
+
+    it('answers nothing for a root that declares no dependencies at all', () => {
+      expect(dependencyManifests(workspace.root)).toEqual([])
     })
   })
 

@@ -13,6 +13,8 @@ import { offeredBy, type Registrations, registrations } from './registrations.ts
 /** Describes one package of a scratch workspace: what it registers, and what it exports. */
 interface Package {
   exports?: Readonly<Record<string, unknown>>
+  /** Names the package, where the directory it sits in does not decide it. */
+  name?: string
   stealth: unknown
 }
 
@@ -32,21 +34,28 @@ const DESIGN_SYSTEM: Package = {
 }
 
 /**
- * Builds a theme package: its title, and the two artefacts every theme exports.
+ * Builds a theme package: the value its attribute takes, its title, and the artefacts every
+ * theme exports. The name is the title in lower case, so a case naming one names both.
  */
 function theme(
   title: unknown,
   exports: Readonly<Record<string, unknown>> = THEME_EXPORTS,
 ): Package {
-  return { exports, stealth: { theme: { title } } }
+  return { exports, stealth: { theme: { name: String(title).toLowerCase(), title } } }
 }
 
 /**
  * Builds a workspace whose packages register and export what the fields say.
+ *
+ * A directory under `node_modules` is a package the repository installed rather than one it
+ * holds, which is how a consumer of the toolchain has every theme it draws.
  */
-function workspaceOf(packages: Record<string, Package>): ScratchWorkspace {
+function workspaceOf(
+  packages: Record<string, Package>,
+  root: Readonly<Record<string, unknown>> = {},
+): ScratchWorkspace {
   const files: Record<string, string> = {
-    ...workspaceFiles(['foundations/*', 'components/*', 'themes/*']),
+    ...workspaceFiles(['foundations/*', 'components/*', 'themes/*'], root),
   }
   for (const [directory, fields] of Object.entries(packages)) {
     Object.assign(
@@ -75,7 +84,7 @@ function refusalsOf(scratch: ScratchWorkspace): string[] {
 }
 
 describe('registrations', () => {
-  it('finds every theme and names it after the directory that holds it', () => {
+  it('finds every theme and names it as the package that registered it states', () => {
     const scratch = workspaceOf({
       'themes/kalon': theme('Kalon'),
       'themes/thesmos': theme('Thesmos'),
@@ -89,6 +98,50 @@ describe('registrations', () => {
       '@t/themes-kalon',
       '@t/themes-thesmos',
     ])
+    scratch.remove()
+  })
+
+  it('names a theme what its manifest says rather than the directory holding it', () => {
+    const scratch = workspaceOf({ 'themes/package': theme('Kalon') })
+
+    // The two disagree here on purpose: the value a document writes is what the theme's own
+    // build scoped its stylesheet to, and only the manifest carries that to a consumer.
+    expect(readingOf(scratch).themes[0]?.name).toBe('kalon')
+    scratch.remove()
+  })
+
+  it('finds a theme the repository installed, which is how a consumer has any at all', () => {
+    const scratch = workspaceOf(
+      {
+        'node_modules/@s/theme-ember': { ...theme('Ember'), name: '@s/theme-ember' },
+        'themes/kalon': theme('Kalon'),
+      },
+      { devDependencies: { '@s/theme-ember': '^1' } },
+    )
+
+    const { themes } = readingOf(scratch)
+
+    expect(
+      themes.map(({ name }) => name),
+      'workspace first, then what is installed',
+    ).toEqual(['kalon', 'ember'])
+    expect(themes[1]?.stylesheet).toBe(scratch.path('node_modules/@s/theme-ember/dist/scoped.css'))
+    scratch.remove()
+  })
+
+  it('draws the theme on disk where a repository develops one it also depends on', () => {
+    const scratch = workspaceOf(
+      {
+        'node_modules/@t/themes-kalon': { ...theme('Installed'), name: '@t/themes-kalon' },
+        'themes/kalon': theme('Kalon'),
+      },
+      { devDependencies: { '@t/themes-kalon': '^1' } },
+    )
+
+    const { themes } = readingOf(scratch)
+
+    expect(themes, 'the installed copy is the same package, so it registers once').toHaveLength(1)
+    expect(themes[0]?.title).toBe('Kalon')
     scratch.remove()
   })
 
@@ -138,7 +191,8 @@ describe('registrations', () => {
   it('refuses a theme that exports none of the artefacts the preview reads, naming each', () => {
     const scratch = workspaceOf({
       'themes/kalon': theme('Kalon', { './*.css': './dist/*.css' }),
-      'themes/thesmos': { stealth: { theme: { title: 'Thesmos' } } },
+      // No `exports` field at all, which is a different miss from one that exports nothing.
+      'themes/thesmos': { stealth: { theme: { name: 'thesmos', title: 'Thesmos' } } },
     })
 
     expect(refusalsOf(scratch)).toEqual([

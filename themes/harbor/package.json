@@ -53,6 +53,7 @@
   },
   "stealth": {
     "theme": {
+      "name": "harbor",
       "title": "Harbor"
     }
   }

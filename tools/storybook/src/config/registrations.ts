@@ -6,7 +6,7 @@
  * together and turns each declared path into one a bundler can resolve.
  */
 
-import { basename, resolve } from 'node:path'
+import { resolve } from 'node:path'
 
 import {
   APPEARANCE_CONTRIBUTION,
@@ -26,7 +26,13 @@ import {
   unknown,
 } from '@stealthscale/core-schema'
 import { THEME_CONTRIBUTION, THEME_KEY, type ThemeContribution } from '@stealthscale/core-theme'
-import { contributions, type Registered, workspaceManifests } from '@stealthscale/tool-workspace'
+import {
+  contributions,
+  dependencyManifests,
+  type Manifest,
+  type Registered,
+  workspaceManifests,
+} from '@stealthscale/tool-workspace'
 
 /**
  * Names what a reading refuses with: one entry per malformed field, each path naming the
@@ -70,8 +76,8 @@ export interface ThemeRegistration {
   fonts: string
 
   /**
-   * Carries the value written to the document's theme attribute, which is the basename of the
-   * package's directory: `themes/thesmos` gives `thesmos`.
+   * Carries the value written to the document's theme attribute, as the package's manifest
+   * states it. It is the same value its own build scoped `./scoped.css` to.
    */
   name: string
 
@@ -319,14 +325,14 @@ function missingArtefact(name: string, entry: string): FieldIssue {
  *
  * @param {Registered<ThemeContribution>} registered - The package's theme entry.
  * @param {Logger} log - Where the reading reports what it found.
- * @returns {Result<ThemeRegistration, Refusals>} The theme, named after the directory that
- *     holds it, or one refusal per artefact the package does not export.
+ * @returns {Result<ThemeRegistration, Refusals>} The theme, named as its manifest states, or
+ *     one refusal per artefact the package does not export.
  */
 function themeOf(
   { manifest, value }: Registered<ThemeContribution>,
   log: Logger,
 ): Result<ThemeRegistration, Refusals> {
-  const name = basename(manifest.directory)
+  const { name } = value
   const fonts = exportTarget(manifest.exports, THEME_ARTEFACTS.fonts)
   const stylesheet = exportTarget(manifest.exports, THEME_ARTEFACTS.stylesheet)
   const values = exportTarget(manifest.exports, THEME_ARTEFACTS.values)
@@ -351,7 +357,28 @@ function themeOf(
 }
 
 /**
- * Reads a workspace and answers what its packages registered for Storybook.
+ * Lists every package that may register, workspace first.
+ *
+ * A repository that installs the toolchain rather than holding it registers nothing of its
+ * own: its themes are packages it depends on, and reading the workspace alone found none of
+ * them. Workspace first, so a repository developing a theme it also depends on draws the one
+ * on disk.
+ *
+ * @param {string} root - The workspace root, absolute.
+ * @returns {Manifest[]} The manifests, each package once.
+ */
+function registrable(root: string): Manifest[] {
+  const found = new Map<string, Manifest>()
+
+  for (const manifest of [...workspaceManifests(root), ...dependencyManifests(root)]) {
+    if (!found.has(manifest.name)) found.set(manifest.name, manifest)
+  }
+
+  return [...found.values()]
+}
+
+/**
+ * Reads a workspace and answers what it and its dependencies registered for Storybook.
  *
  * One reading answers the whole configuration, so nothing keeps a second list of the themes,
  * the stylesheets or what a toolbar offers. One reading reports every malformed field in
@@ -366,7 +393,7 @@ function themeOf(
  *     that wrote the field on each path.
  */
 export function registrations(root: string, log: Logger = SILENT): Result<Registrations, Refusals> {
-  const manifests = workspaceManifests(root)
+  const manifests = registrable(root)
   const appearance = contributions(manifests, APPEARANCE_KEY, APPEARANCE_CONTRIBUTION)
   const themes = contributions(manifests, THEME_KEY, THEME_CONTRIBUTION)
   if (!appearance.ok || !themes.ok) {
