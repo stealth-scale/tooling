@@ -13,7 +13,9 @@ type Rules = Record<string, unknown>
  * The order a docblock's tags are written in.
  *
  * One group, so the tags stay contiguous and `tag-lines` alone decides the blank line before
- * them. A prop's `@category` and `@default` come last, where the props table reads them.
+ * them. A prop's `@category` and `@default` come last, where the props table reads them, and
+ * `@component` after those: it is a marker for the extractor rather than something a page
+ * shows, so it belongs where a reader stops reading.
  */
 const TAG_ORDER = [
   'fileoverview',
@@ -26,6 +28,7 @@ const TAG_ORDER = [
   'deprecated',
   'category',
   'default',
+  'component',
 ]
 
 /**
@@ -100,7 +103,7 @@ const AMBIENT_TYPES = {
 export const DOC_RULES: Rules = {
   'jsdoc-js/check-line-alignment': ['error', 'never', { wrapIndent: '    ' }],
   'jsdoc-js/check-param-names': ['error', ONE_PARAM_PER_OBJECT],
-  'jsdoc-js/check-tag-names': ['error', { definedTags: ['category'] }],
+  'jsdoc-js/check-tag-names': ['error', { definedTags: ['category', 'component'] }],
   'jsdoc-js/check-template-names': 'error',
   'jsdoc-js/check-types': 'error',
   'jsdoc-js/informative-docs': 'error',

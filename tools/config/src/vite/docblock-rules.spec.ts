@@ -86,6 +86,7 @@ describe('DOC_RULES', () => {
       'deprecated',
       'category',
       'default',
+      'component',
     ])
   })
 
@@ -116,8 +117,11 @@ describe('DOC_RULES', () => {
     ])
   })
 
-  it("allows the props table's own tag and no other beyond the standard set", () => {
-    expect(DOC_RULES['jsdoc-js/check-tag-names']).toEqual(['error', { definedTags: ['category'] }])
+  it('allows the two tags the catalogue reads, and no other beyond the standard set', () => {
+    expect(DOC_RULES['jsdoc-js/check-tag-names']).toEqual([
+      'error',
+      { definedTags: ['category', 'component'] },
+    ])
   })
 })
 
