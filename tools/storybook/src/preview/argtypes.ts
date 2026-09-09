@@ -116,6 +116,30 @@ export function sbTypeOf(type?: DocgenType): SBType {
 }
 
 /**
+ * Writes what a prop may be, dropping what stands for it being absent and resolving a name
+ * that stands for a set of values.
+ *
+ * Every optional prop is written `T | undefined`, which the table would otherwise print as
+ * two entries, one of them the word `undefined`; the Name column already says the prop may be
+ * left out. Dropping it leaves one member, and where that member is a named union the name
+ * alone tells a reader nothing, so the values behind it are what gets written.
+ *
+ * @param {DocgenType} type - The type as docgen read it off the annotation.
+ * @returns {string} The values the prop may take, as the source writes them.
+ */
+function stated(type: DocgenType): string {
+  const members =
+    type.name === 'union'
+      ? (type.elements ?? []).map((member) => docgenType(member)).filter((read) => present(read))
+      : []
+  const [only] = members
+
+  if (only !== undefined && members.length === 1) return stated(only)
+  if (members.length > 1) return members.map((member) => stated(member)).join(' | ')
+  return type.value ?? type.raw ?? type.name
+}
+
+/**
  * Writes a prop's type as the table shows it: the source text, on one line.
  *
  * A type long enough to wrap is written across lines in the source, and the formatter leaves
@@ -128,7 +152,7 @@ export function sbTypeOf(type?: DocgenType): SBType {
  */
 function summaryOf(type?: DocgenType): string {
   if (type === undefined) return 'unknown'
-  return (type.raw ?? type.name)
+  return stated(type)
     .replaceAll(/\s*\n\s*/gu, ' ')
     .replaceAll(/,\s*(?=[)\]}])/gu, '')
     .replaceAll(/([([{])\s+/gu, '$1')

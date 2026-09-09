@@ -177,6 +177,50 @@ describe('extractArgTypes', () => {
     })
   })
 
+  it('leaves the word undefined out, since the Name column already says a prop is optional', () => {
+    const component = {
+      __docgenInfo: {
+        props: {
+          orientation: {
+            tsType: {
+              elements: [
+                { name: 'literal', value: "'horizontal'" },
+                { name: 'literal', value: "'vertical'" },
+                { name: 'undefined' },
+              ],
+              name: 'union',
+              raw: "'horizontal' | 'vertical' | undefined",
+            },
+          },
+        },
+      },
+    }
+
+    expect(extractArgTypes(component)?.['orientation']?.table?.type).toEqual({
+      summary: "'horizontal' | 'vertical'",
+    })
+  })
+
+  it('writes the values behind a named union, since the name alone says nothing', () => {
+    const component = {
+      __docgenInfo: {
+        props: {
+          variant: {
+            tsType: {
+              elements: [{ name: 'union', raw: "'ghost' | 'solid'" }, { name: 'undefined' }],
+              name: 'union',
+              raw: 'BadgeVariant | undefined',
+            },
+          },
+        },
+      },
+    }
+
+    expect(extractArgTypes(component)?.['variant']?.table?.type).toEqual({
+      summary: "'ghost' | 'solid'",
+    })
+  })
+
   it('takes back the comma and the indent a line break allowed', () => {
     const component = {
       __docgenInfo: {
