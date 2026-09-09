@@ -43,7 +43,7 @@ export function viteFinal(
     ...vite,
     plugins: [
       ...(vite.plugins ?? []),
-      tailwindSources(),
+      tailwindSources(registered.appearance.stylesheets),
       tailwind(),
       virtualModules(registered),
       stealthDocgen(),
