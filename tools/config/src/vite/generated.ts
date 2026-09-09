@@ -22,6 +22,11 @@ export const GENERATED = [
   // A declaration beside a config file, which only a tsconfig that includes its own config
   // would produce. No package's tsconfig does, and nobody writes one by hand.
   '**/*.config.d.ts',
+  // Changesets writes this from the changeset files when it versions a package, in its own
+  // shape. Holding it to the formatter fails the release: the version commit lands on main,
+  // the check refuses what changesets wrote, and the publish that follows a green run never
+  // runs.
+  '**/CHANGELOG.md',
 ] as const
 
 /**

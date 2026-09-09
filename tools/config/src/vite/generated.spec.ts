@@ -11,12 +11,19 @@ describe('GENERATED', () => {
       '**/.scratch/**',
       '**/*.gen.*',
       '**/*.config.d.ts',
+      '**/CHANGELOG.md',
     ])
   })
 
   it('keeps a running catalogue out of the working directory it writes notes to', () => {
     expect(GENERATED, 'a catalogue built into .scratch reloads every client').toContain(
       '**/.scratch/**',
+    )
+  })
+
+  it('keeps the changelog out, since refusing what changesets wrote blocks the release', () => {
+    expect(GENERATED, 'the version commit lands on main and the check runs on it').toContain(
+      '**/CHANGELOG.md',
     )
   })
 })
