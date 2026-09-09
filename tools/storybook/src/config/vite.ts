@@ -12,6 +12,7 @@ import { generatedGlobs, serverSourceConditions, sourceConditions } from '@steal
 import { stealthDocgen } from './docgen.ts'
 import { virtualModules } from './modules.ts'
 import { type Registrations } from './registrations.ts'
+import { tailwindSources } from './sources.ts'
 
 /**
  * Names the Vite configuration Storybook hands its `viteFinal`.
@@ -40,7 +41,13 @@ export function viteFinal(
 ): (vite: ViteConfig) => ViteConfig {
   return (vite) => ({
     ...vite,
-    plugins: [...(vite.plugins ?? []), tailwind(), virtualModules(registered), stealthDocgen()],
+    plugins: [
+      ...(vite.plugins ?? []),
+      tailwindSources(),
+      tailwind(),
+      virtualModules(registered),
+      stealthDocgen(),
+    ],
     resolve: { ...vite.resolve, conditions: sourceConditions(sourceCondition) },
 
     // Vite keeps its own ignores and merges these on top, so `.git` and `node_modules` stay
