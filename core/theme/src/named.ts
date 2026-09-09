@@ -3,8 +3,8 @@
  * writes one in a story or a specification, and a contrast measured against `undefined`
  * would report 0 and read as unmeasurable rather than as white.
  *
- * The values are the CSS Color 4 named colours. The table is baked in rather than depended
- * on, because 148 fixed integers do not need a release cycle.
+ * The values are the CSS Color 4 named colours. The table is written out here rather than
+ * taken from a dependency, because 148 fixed integers do not need a release cycle.
  */
 
 /**

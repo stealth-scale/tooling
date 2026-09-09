@@ -10,10 +10,9 @@
  * Selects the block a props table sits in, tab bar and all.
  *
  * Storybook wraps the tabs and the table in one element whose class is generated, so there is
- * no name to hold on to. What it does have is a table with a class Storybook keeps stable,
- * and `:has` reaches the wrapper from it. It is one selector rather than a list, because a
- * list interpolated into a descendant rule splits on its comma and the first half then
- * matches everything.
+ * no name to hold on to. The table inside it does keep a stable class, and `:has` reaches the
+ * wrapper from that. It stays one selector rather than a list, because a list interpolated
+ * into a descendant rule splits on its comma and the first half then matches everything.
  */
 const BLOCK = '.sbdocs-content > div:has(table.docblock-argstable)'
 

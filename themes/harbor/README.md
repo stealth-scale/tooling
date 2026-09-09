@@ -22,8 +22,8 @@ export const recipe = extendRecipe(base, {
 ```
 
 Space Grotesk is wide and squared where the base's Inter is narrow and round, and it holds that
-width at arm's length or behind safety glass. Its monospace sibling carries the same skeleton
-into code, so a table of readings and the prose around it read as one face.
+width at arm's length or behind safety glass. Spline Sans Mono is cut from the same skeleton,
+so a table of readings and the words around it read as one face.
 
 `src/recipe.ts` is the only file a person wrote; everything under
 `dist` is written by `writeTheme` when the package is built. The brand's teal goes in as the

@@ -11,8 +11,8 @@ import { DEFAULT_LOCALE, definitionsFor } from '#locales.ts'
 /**
  * Seeds every fixture.
  *
- * The number is arbitrary and fixed. What matters is that it never changes, because changing
- * it rewrites every value every fixture in every repository has ever produced.
+ * The number itself is arbitrary, and it must never change: changing it rewrites every value
+ * every fixture in every repository has ever produced.
  */
 export const SEED = 20_260_908
 

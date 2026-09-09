@@ -54,11 +54,12 @@ export function prose(description: string): string {
  * Reads the description a component's page shows.
  *
  * Registered as `parameters.docs.extractComponentDescription`, which the `Description` block
- * and the sidebar summary read. Without it the page prints the docblock's tags as prose.
+ * and the sidebar summary read. Without it the page prints the docblock's tags as running
+ * text.
  *
  * @param {unknown} [component] - The story's component, as Storybook hands it over.
- * @returns {null | string} The prose, or `null` when the component carries no docgen or its
- *     docblock holds nothing but tags.
+ * @returns {null | string} The description, or `null` when the component carries no docgen or
+ *     its docblock holds nothing but tags.
  */
 export function extractComponentDescription(component?: unknown): null | string {
   const description = documented(component)?.description

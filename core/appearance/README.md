@@ -39,9 +39,9 @@ translates.
 
 ## What a design system contributes
 
-A host and a Storybook need the same three things before the first pixel: the provider to
-render, the stylesheets to load before any theme, and the densities on offer. The package
-that has them says so in its manifest, under the `stealth` field the toolchain reads:
+Before the first pixel, a host and a Storybook both need the provider to render, the
+stylesheets to load before any theme, and the densities on offer. The package that has them
+says so in its manifest, under the `stealth` field the toolchain reads:
 
 ```json
 {

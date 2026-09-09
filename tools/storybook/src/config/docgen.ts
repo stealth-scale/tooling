@@ -29,7 +29,8 @@ const NOT_COMPONENTS = /node_modules|\.(?:spec|stories)\.tsx$/u
 
 /**
  * Matches the annotation that tells the reader a function is a component. It is for the
- * reader alone, so a page that printed it would be showing an implementation detail as prose.
+ * reader alone, so a page that printed it would be showing an implementation detail as
+ * running text.
  */
 const ANNOTATION = /^\s*\*?\s*@component\b/u
 
@@ -154,9 +155,9 @@ function described(written = ''): string {
 /**
  * Builds the plugin that reads a component's docblocks into its props table.
  *
- * What it writes is what Storybook's own plugin writes, so the docs blocks read it without
- * being told. A file with no component in it is left exactly as it arrived, rather than
- * paying for a source map it does not need.
+ * It writes what Storybook's own plugin writes, so the docs blocks read it without being
+ * told. A file with no component in it is left exactly as it arrived, rather than costing a
+ * source map it does not need.
  *
  * @returns {Plugin} The plugin, for a Storybook configuration's `viteFinal`.
  */

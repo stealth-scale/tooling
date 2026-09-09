@@ -27,9 +27,9 @@ export const recipe: Recipe = {
     // because a surface needs far more of it than a border to read as coloured at all.
     accent: { chroma: 0.032, hue: 232 },
 
-    // The five series hues, in the order a chart assigns them. They are spread around the
-    // wheel rather than stepped along it, because a reader tells two series apart by hue and a
-    // ramp of one hue reads as a quantity.
+    // A chart assigns these five hues in the order they are written. They are spread around
+    // the wheel rather than stepped along it, because a reader tells two series apart by hue
+    // and a ramp of one hue reads as a quantity.
     chart: [258, 190, 300, 45, 12],
 
     // What a fill has to clear against the label on it. AAA would pin the light primary near

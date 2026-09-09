@@ -54,7 +54,7 @@ export interface CopyEntry {
   from: string
 
   /**
-   * Names where it lands. Default: the directory the build writes to.
+   * Names the directory it is copied into. Default: the directory the build writes to.
    */
   to?: string
 }

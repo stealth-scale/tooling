@@ -1,7 +1,8 @@
 /**
  * @fileoverview Builds the props table off a component's own docblocks. Storybook's built-in
  * extractor reads the type and the description and stops there, so a `@category` and a
- * `@default` the source states would be printed as prose in the middle of the description.
+ * `@default` the source states would be printed as running text in the middle of the
+ * description.
  * This reads them into the columns the table shows them in, which is what lets a prop be
  * documented once, in the source, and nowhere else.
  */

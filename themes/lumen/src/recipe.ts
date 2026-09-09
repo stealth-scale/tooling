@@ -24,8 +24,8 @@ export const recipe: Recipe = extendRecipe(base, {
     // plane with the shadow doing the separating.
     dark: { cardLift: 3, page: 9, popoverLift: 6 },
 
-    // Nearly white, because prose reads best on it, with the cards lifted the base's distance
-    // so a pull quote still sits on something.
+    // Nearly white, because body text reads best on it, with the cards lifted the base's
+    // distance so a pull quote still sits on something.
     light: { cardLift: 3, page: 98, popoverLift: 3 },
 
     // The greys keep a trace of the violet rather than a trace of the blue.
@@ -53,7 +53,7 @@ export const recipe: Recipe = extendRecipe(base, {
       source: '@fontsource-variable/fraunces/wght.css',
     },
 
-    // A narrow, upright monospace, so a code block sits inside a measure of prose rather than
+    // A narrow, upright monospace, so a code block sits inside a measure of text rather than
     // pushing it wider.
     mono: {
       family: 'Source Code Pro Variable',
@@ -61,7 +61,7 @@ export const recipe: Recipe = extendRecipe(base, {
     },
 
     // A serif for the body too, cut for screens with sturdy slabs and a large x-height. This
-    // is the change a reader sees first: every other theme sets prose in a sans.
+    // is the change a reader sees first: every other theme sets body text in a sans.
     sans: {
       fallback: 'Georgia, serif',
       family: 'Literata Variable',
@@ -70,7 +70,7 @@ export const recipe: Recipe = extendRecipe(base, {
   },
 
   size: {
-    // Larger body text, since a page of prose is read rather than scanned. The whole type
+    // Larger body text, since a page of it is read rather than scanned. The whole type
     // scale follows the one number.
     text: { base: '17px' },
   },

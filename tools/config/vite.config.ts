@@ -5,8 +5,8 @@ import { defineConfig } from 'vite-plus'
 import { packConfig } from './src/index.ts'
 
 /**
- * This package ships two things a build does not write: the tsconfig bases every stealth
- * package extends.
+ * The two tsconfig bases every stealth package extends, `base.json` and `react.json`, are
+ * written by hand rather than by the build.
  *
  * The pack step rewrites `exports` from what it built, so a file it did not build is dropped
  * from the map unless it is named. A package config replaces the root's `pack` block whole,

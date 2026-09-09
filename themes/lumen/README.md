@@ -2,9 +2,10 @@
 
 A **library**: an app links it, and a Storybook draws it beside the other themes.
 
-Draws an editorial product: a violet the brand owns, prose set in a serif at seventeen pixels, a
-display serif over it and a heavier hand with elevation. It is the one theme here that sets body
-text in a serif, so a page tells itself apart from the other three before a word is read.
+Draws an editorial product. The brand's violet ships exactly as the company wrote it, headings
+take a display serif, body text takes a serif of its own at seventeen pixels, and every shadow
+carries half as much ink again as the base's. No other theme here sets body text in a serif, so
+a reader tells a Lumen page from the rest before reading a word.
 
 ```ts
 import { extendRecipe } from '@stealthscale/core-theme'
