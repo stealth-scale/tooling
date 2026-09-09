@@ -16,8 +16,13 @@ const RENDER = /^ {2}render:/u
 
 /**
  * Matches an arrow taking nothing or `args`, whose body is the element it renders.
+ *
+ * The return type is optional here and present in practice: `explicit-function-return-type`
+ * asks every story for one, so a `render` reaches this as `(): ReactElement =>` and an arrow
+ * matched without it survives into the panel, where a reader meets the annotation instead of
+ * the markup.
  */
-const ARROW = /^\((?:|args|_args)\)\s*=>\s*/u
+const ARROW = /^\((?:|args|_args)\)(?:\s*:\s*[\w.|[\]<> ]+?)?\s*=>\s*/u
 
 /**
  * Reads the smallest indentation any non-empty line has, so a block moves to the left margin

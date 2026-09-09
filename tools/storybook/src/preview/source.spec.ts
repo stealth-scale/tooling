@@ -66,6 +66,11 @@ describe('sourceOf', () => {
     expect(sourceOf('{\n  render: () => <Badge />,\n}')).toBe('<Badge />')
   })
 
+  it('unwraps an arrow that states its return type, which every story is asked for', () => {
+    expect(sourceOf('{\n  render: (): ReactElement => <Badge />,\n}')).toBe('<Badge />')
+    expect(sourceOf('{\n  render: (args): JSX.Element => <Badge />,\n}')).toBe('<Badge />')
+  })
+
   it('keeps an arrow whose body is a block', () => {
     expect(sourceOf('{\n  render: () => {\n    return <Badge />\n  }\n}')).toBe(
       '() => {\n  return <Badge />\n}',
