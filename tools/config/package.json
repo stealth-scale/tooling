@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/tool-config",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "The toolchain every stealth repository runs: how files are formatted, what the linter enforces, how libraries are packed and how specifications run, with the tsconfig bases beside it.",
   "license": "MIT",
   "repository": {
