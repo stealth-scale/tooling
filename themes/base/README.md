@@ -8,18 +8,18 @@ Tailwind stack, the base layer, the densities, the keyframes and this theme's ow
 the order the cascade needs them. The parts are exported on their own for a Storybook that
 draws several themes at once, which loads `./scoped.css` and `./fonts.css` per theme.
 
-| Entry            | Holds                                                                      |
-| ---------------- | -------------------------------------------------------------------------- |
-| `./index.css`    | The whole stylesheet, which an app links and nothing else                  |
-| `./fonts.css`    | An `@import` per font file this theme's own families load from             |
-| `./tailwind.css` | Tailwind, `tw-animate-css` and the typography plugin, once for every theme |
-| `./base.css`     | The mode variant, and the base layer that reads the tokens                 |
-| `./density.css`  | The three densities, each behind `data-density`, the default on `:root`    |
-| `./motion.css`   | The keyframes every animation runs, and the reduced-motion policy          |
-| `./tokens.css`   | The theme layer, then every value, with the dark tokens under `.dark`      |
-| `./scoped.css`   | The same values behind `[data-theme='base']`, for a page drawing several   |
-| `./values`       | The solved tokens and the merged tables, for what reads a theme as data    |
-| `.`              | The recipe, for a theme that starts from this one                          |
+| Entry            | Holds                                                                    |
+| ---------------- | ------------------------------------------------------------------------ |
+| `./index.css`    | The whole stylesheet, which an app links and nothing else                |
+| `./fonts.css`    | An `@import` per font file this theme's own families load from           |
+| `./tailwind.css` | Tailwind, `tw-animate-css` and the typography plugin, one copy per theme |
+| `./base.css`     | The mode variant, and the base layer that reads the tokens               |
+| `./density.css`  | The three densities, each behind `data-density`, the default on `:root`  |
+| `./motion.css`   | The keyframes every animation runs, and the reduced-motion policy        |
+| `./tokens.css`   | The theme layer, then every value, with the dark tokens under `.dark`    |
+| `./scoped.css`   | The same values behind `[data-theme='base']`, for a page drawing several |
+| `./values`       | The solved tokens and the merged tables, for what reads a theme as data  |
+| `.`              | The recipe, for a theme that starts from this one                        |
 
 The palette is solved once, when this package is built: the pack step's `build:before` hook
 calls `writeTheme` from `core-theme`, which holds the recipe to its schema, solves every
@@ -37,26 +37,32 @@ They belong to the library that writes them, which registers its own stylesheet 
 `stealth.appearance` and loads before any theme.
 
 The manifest registers the theme under `stealth.theme` and, under `stealth.appearance`, the
-densities `density.css` answers and `./index.css` as the stylesheet every story is drawn under.
+densities `density.css` answers and `./dist/index.css` as the stylesheet every story is drawn
+under.
 
 ## Extending it
 
-A theme of its own states only what makes it different and takes the rest from here:
+A theme of its own states only what makes it different and takes the rest from here.
+`extendRecipe` lays one recipe over the other group by group and entry by entry, then holds
+the result to the schema, so a member left out keeps this theme's value and a member that is
+no field at all fails the build naming itself:
 
 ```ts
 // themes/acme/src/recipe.ts
+import { extendRecipe } from '@stealthscale/core-theme'
 import { recipe as base } from '@stealthscale/theme-base'
 
-export const recipe = { ...base, primary: 12, accent: 40 }
+export const recipe = extendRecipe(base, { color: { accent: 40, primary: 12 } })
 ```
 
 ```ts
 // themes/acme/vite.config.ts, from the pack's build:before hook
-writeTheme(recipe, import.meta.url, { base: '@stealthscale/theme-base' })
+writeTheme(recipe, import.meta.url)
 ```
 
-The generated `index.css` then imports this package's Tailwind stack, base, densities and
-motion before the new theme's own tokens.
+`writeTheme` then writes the new theme its own Tailwind stack, base layer, densities and
+keyframes alongside its tokens, so its `dist` stands on its own and imports nothing from
+here.
 
 ## Install
 

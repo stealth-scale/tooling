@@ -13,7 +13,7 @@ A theme is a package that states a recipe and calls `writeTheme` from its pack h
 // themes/acme/vite.config.ts
 import { defineConfig } from 'vite-plus'
 
-import { writeTheme } from '@stealthscale/core-theme/write'
+import { THEME_EXPORTS, writeTheme } from '@stealthscale/core-theme/write'
 import { packConfig } from '@stealthscale/tool-config'
 
 import { recipe } from './src/recipe.ts'
@@ -21,34 +21,37 @@ import { recipe } from './src/recipe.ts'
 export default defineConfig({
   pack: packConfig({
     hooks: {
-      'build:before': () =>
-        writeTheme(recipe, import.meta.url, { base: '@stealthscale/theme-base' }),
+      'build:before': (): void => {
+        writeTheme(recipe, import.meta.url)
+      },
     },
     sourceCondition: 'acme-source',
-    staticExports: {
-      './index.css': './dist/index.css',
-      './scoped.css': './dist/scoped.css',
-      './tokens.css': './dist/tokens.css',
-      './values': './dist/values.mjs',
-    },
+    staticExports: THEME_EXPORTS,
   }),
 })
 ```
 
 ## What a theme ships
 
-`writeTheme` reads the theme's name from its package directory, holds the recipe to its
-schema, solves the palette and writes five files into `dist/`: `tokens.css` with the light
-values on `:root` and the dark ones under `.dark`, `scoped.css` with the same values behind
-`[data-theme]` for a page drawing several themes, `values.mjs` with the solved table and its
-declaration, and `index.css`, which imports the base package's Tailwind stack, base,
-densities and motion before the theme's own tokens. `emitTheme` answers the same three
-things without touching the disk, for a specification or a build that reads the palette
-back.
+`writeTheme` takes the recipe and the `import.meta.url` of the config calling it. From that
+URL it reads the theme's name and the directory to write into; it then holds the recipe to
+its schema, solves the palette, and writes ten files into `dist/`. `tokens.css` puts the
+light values on `:root` and the dark ones under `.dark`. `scoped.css` puts the same values
+behind `[data-theme]`, for a page drawing several themes at once. `values.mjs` and its
+declaration carry the solved table for whatever reads a theme as data. The remaining six —
+`fonts.css`, `tailwind.css`, `base.css`, `density.css`, `motion.css` and `tokens.css` — are
+what `index.css` imports, in that order, which is the order the cascade needs. `emitTheme`
+builds the same strings without touching the disk, for a specification or a build that reads
+the palette back.
 
-The parts every theme shares are written by the base theme alone, from `emitTailwind`,
-`emitDensities` and `emitMotion`, and a theme extending it imports them from there rather
-than restating them.
+`THEME_EXPORTS` names every entry those files serve, so a theme hands one constant to
+`packConfig` as its `staticExports` instead of keeping a list in step with a writer it does
+not own.
+
+Each theme writes its own Tailwind stack, base layer, densities and keyframes, from
+`emitTailwind`, `emitBase`, `emitDensities` and `emitMotion`. A theme extends another by
+extending its recipe, so its `dist` is complete on its own and imports no other theme's
+stylesheet.
 
 ## Densities
 
@@ -152,7 +155,7 @@ A recipe states colours and a shape, and `buildPalette` turns it into every toke
 modes. Every surface is placed against the page rather than at a lightness of its own: a
 card, a popover, a muted panel, an accent, a sidebar and every hairline is a signed lift off
 `page`, so a theme that moves its paper or its ink carries all of them with it and a theme
-that wants its cards flush states `cardLift: 0`.
+that wants its cards flush states `color.light.cardLift: 0`.
 Every fill is solved for contrast rather than set: at the same lightness a green is
 perceptibly lighter than a blue, so a fixed number clears 7:1 with white text for one theme
 and not for the next. The walk moves lightness until the ratio holds, which makes the ratio a
@@ -170,29 +173,23 @@ nothing.
 
 ### What a recipe states
 
-Four members are required and ten have a default. A hue is 0 to 360 and a lightness is 0 to 100.
+A recipe is five groups. Only `color` is required, and inside it only `primary`. Anywhere a
+colour is asked for, a theme may write a hue from 0 to 360, any colour CSS expresses that
+sRGB holds, or a hue with a chroma of its own: the solver keeps the hue and the chroma and
+sets the lightness per mode, because the lightness is what a contrast guarantee is solved on.
 
-| Member          | Required | Default               | Decides                                                     |
-| --------------- | -------- | --------------------- | ----------------------------------------------------------- |
-| `primary`       | yes      |                       | The hue of the primary action                               |
-| `accent`        | yes      |                       | The hue of the accent surface, which a hover and a row take |
-| `neutral`       | yes      |                       | The hue the greys are tinted with                           |
-| `chart`         | yes      |                       | The five series hues, in the order a chart assigns them     |
-| `chroma`        | no       | `0.17`                | How saturated the primary is; past 0.22 it shouts           |
-| `contrast`      | no       | `AAA`                 | What a fill clears against its label; text stays AAA        |
-| `fonts`         | no       | Inter, JetBrains Mono | The two families, as CSS lists                              |
-| `ink`           | no       | `13`                  | The lightness of the dark page                              |
-| `paper`         | no       | `97`                  | The lightness of the light page                             |
-| `neutralChroma` | no       | `0.008`               | How much the greys are tinted; 0 is a true grey             |
-| `surfaceChroma` | no       | `2.5 × neutralChroma` | How much the page, cards and popovers are tinted            |
-| `surfaceHue`    | no       | `neutral`             | The hue of the surfaces, when it is not the greys'          |
-| `radius`        | no       | `0.5rem`              | The corner every radius step is a multiple of               |
-| `status`        | no       | 27, 150, 85, 235      | The outcome hues: destructive, success, warning, info       |
+| Group    | Required | States                                                                                                                                                                                                                                                                                             |
+| -------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `color`  | yes      | `primary`, and beside it `accent`, `neutral`, `surface`, the five `chart` tones, the four `status` hues, the `contrast` level a fill clears, either mode's own steps under `light` and `dark`, where a fill and its label start under `fills`, and a token the palette may not move under `stated` |
+| `font`   | no       | `sans`, `display` and `mono`, each a family with the stylesheet that loads it, and any named `weight`                                                                                                                                                                                              |
+| `size`   | no       | `radius`, `spacing`, the `text` scale, `leading`, `tracking`, the `density` on offer and the `focus` ring                                                                                                                                                                                          |
+| `effect` | no       | `depth`, and any layer of `shadow`, `insetShadow`, `dropShadow`, `textShadow`, `glow`, `blur` or `perspective`                                                                                                                                                                                     |
+| `motion` | no       | `speed`, `press`, and any `duration`, `ease` or `animation`                                                                                                                                                                                                                                        |
 
-`themes/base` writes all fourteen, including the ones that would take the same value by
-default, because it is the theme another theme is written by. A theme of its own writes only
-what makes it different, and leaving a member out is how it says the default should move if
-the contract ever moves it.
+`themes/base` writes every member that changes what a reader sees, including the ones that
+would take the same value by default, because it is the theme another theme is written by. A
+theme of its own writes only what makes it different, and leaving a member out is how it says
+the default should move if the contract ever moves it.
 
 ### Stating a colour
 
@@ -201,25 +198,28 @@ company whose blue is a fixed hex has one value the palette may not move, so a t
 and leaves the rest derived:
 
 ```ts
-// themes/acme/vite.config.ts
-writeTheme(recipe, import.meta.url, {
-  base: '@stealthscale/theme-base',
-  values: {
-    dark: { primary: '#4f7cff' },
-    light: { primary: '#2d5bd7' },
+// themes/acme/src/recipe.ts
+export const recipe = extendRecipe(base, {
+  color: {
+    primary: '#2d5bd7',
+    stated: {
+      dark: { primary: '#4f7cff' },
+      light: { primary: '#2d5bd7' },
+    },
   },
 })
 ```
 
-Only what is named is replaced. `primary-foreground` is still solved against the new fill, the
-ring still takes the primary's hue, and the other mode is untouched where it is not named.
+Only what `stated` names is replaced. `primary-foreground` is still solved against the new
+fill, the ring still takes the primary's hue, and the other mode is untouched where it is not
+named.
 
 Anything stated is checked like anything solved. `assertReadable` runs over the finished table,
 so a brand colour its own label cannot be read on fails that theme's build with the pair and
 the two ratios:
 
 ```
-Theme acme fails 1 guarantee(s): light.primary-foreground on primary is 3.11:1, needs 4.5:1
+Theme fails 1 guarantee(s): light.primary-foreground on primary is 3.11:1, needs 4.5:1
 ```
 
 A name that is no token is refused the same way, because a typo would otherwise pass unread
