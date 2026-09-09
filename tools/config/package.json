@@ -18,7 +18,10 @@
     "#*": "./src/*"
   },
   "exports": {
-    ".": "./dist/index.mjs",
+    ".": {
+      "tooling-source": "./src/index.ts",
+      "default": "./dist/index.mjs"
+    },
     "./package.json": "./package.json",
     "./tsconfig/base.json": "./tsconfig/base.json",
     "./tsconfig/react.json": "./tsconfig/react.json"

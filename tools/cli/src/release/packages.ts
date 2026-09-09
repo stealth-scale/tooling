@@ -11,7 +11,7 @@ import { join, resolve } from 'node:path'
 
 import { type Manifest } from '@stealthscale/tool-workspace'
 
-import { type Declared, resolvedRanges } from '#release/ranges.ts'
+import { type Declared, publishedManifest } from '#release/published.ts'
 import { failed, lastLines, passed, type Step } from '#report/report.ts'
 import { type CommandOutcome, type Shell } from '#shell/shell.ts'
 
@@ -123,19 +123,19 @@ function declaredIn(text: string): Declared {
 }
 
 /**
- * Runs one step with the package's manifest holding real ranges instead of the workspace
- * protocol, and writes back what was there however the step ended.
+ * Runs one step with the package's manifest in the form that ships, and writes back what was
+ * there however the step ended.
  *
- * The manifest is written rather than the tarball patched, because bun packs what is on
- * disk: with no protocol left there is nothing for it to rewrite out of a stale lockfile.
+ * The manifest is written rather than the tarball patched, because bun packs what is on disk.
  * The original text goes back byte for byte, so a manifest a person formatted stays as they
- * wrote it. A caller naming no versions has nothing to write, and the file is left alone.
+ * wrote it, and the workspace keeps resolving a package to its source the moment the pack is
+ * over. A caller naming no versions has nothing to write, and the file is left alone.
  *
  * @template Result - The value the step answers with.
  * @param {Manifest} manifest - The package being packed.
  * @param {ReadonlyMap<string, string>} versions - Each workspace package mapped to the
  *     version it is being published at.
- * @param {() => Promise<Result>} step - The work to run while the ranges are written.
+ * @param {() => Promise<Result>} step - The work to run while the published form is written.
  * @returns {Promise<Result>} The step's own answer, unchanged.
  */
 async function written<Result>(
@@ -147,7 +147,7 @@ async function written<Result>(
 
   const path = join(manifest.directory, 'package.json')
   const before = readFileSync(path, 'utf8')
-  const after = resolvedRanges(declaredIn(before), versions)
+  const after = publishedManifest(declaredIn(before), versions)
 
   writeFileSync(path, `${JSON.stringify(after, undefined, 2)}\n`)
   try {

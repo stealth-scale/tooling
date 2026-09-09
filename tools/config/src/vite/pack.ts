@@ -81,10 +81,9 @@ export interface PackHooks {
 export interface PackOptions {
   /**
    * Maps each command the package installs to the source file that runs it. The pack step
-   * writes `bin` from this, naming the built file rather than the source, because a command
-   * runs under whatever the consumer has and Node cannot execute TypeScript. Left out, it
-   * names one command after the package, which is right only where the package is named for
-   * its command.
+   * writes both forms of `bin` from this: the source path for the workspace, and the built
+   * path for the tarball. Left out, it names one command after the package, which is right
+   * only where the package is named for its command.
    */
   bin?: Readonly<Record<string, string>> | undefined
 
@@ -110,15 +109,9 @@ export interface PackOptions {
   neverBundle?: readonly (RegExp | string)[] | undefined
 
   /**
-   * Names this repository's source condition. Its Vite and TypeScript configs resolve a
-   * workspace package's source through it, and `sourceConditions` documents why it is named
-   * after the repository; every config in one repository names the same one.
-   *
-   * The pack step does not write it into a manifest. Tsdown's `devExports` would, and it
-   * writes the pnpm layout with it: the dev paths on top and the built ones under
-   * `publishConfig`, for a publisher that applies them. Neither npm nor bun does, so what
-   * shipped was the dev manifest — a `bin` naming a TypeScript file Node cannot execute, and
-   * an `exports` naming a `src` directory no tarball carries.
+   * Names this repository's source condition, which the pack step writes into every manifest
+   * it packs. `sourceConditions` documents why it is named after the repository, and every
+   * Vite config in one repository names the same one.
    */
   sourceCondition: string
 
@@ -154,9 +147,9 @@ export function stylesheetExports(files: readonly string[] = []): Record<string,
  * Builds the `pack` block a library is packed by: per-file ESM, declarations from tsgo, and
  * the `exports` map written back into the manifest so it cannot drift.
  *
- * The map names what was packed and nothing else, so the manifest a contributor reads is the
- * manifest that ships. Every pack is then read the way a registry and a consumer would read
- * it: publint reads the manifest, arethetypeswrong resolves the declarations. The
+ * The map names two conditions: the workspace's own, pointing at the source, and `default`,
+ * pointing at what was packed. Every pack is then read the way a registry and a consumer
+ * would read it: publint reads the manifest, arethetypeswrong resolves the declarations. The
  * profile is `esm-only` because that is what these packages are; a `main`-less ESM package
  * fails the node10 and CJS resolutions by nature and a finding about them says nothing. A
  * stylesheet is not a module and is excluded, or it fails every resolution the same way.
@@ -166,7 +159,7 @@ export function stylesheetExports(files: readonly string[] = []): Record<string,
  * @returns {PackBlock} The `pack` block, ready to hand to `defineConfig`.
  */
 export function packConfig(options: Readonly<PackOptions>): PackBlock {
-  const { bin, copy, hooks, neverBundle, staticExports } = options
+  const { bin, copy, hooks, neverBundle, sourceCondition, staticExports } = options
 
   return {
     attw: { excludeEntrypoints: [/\.css$/u], profile: 'esm-only' },
@@ -185,6 +178,7 @@ export function packConfig(options: Readonly<PackOptions>): PackBlock {
             ...exports,
             ...stylesheetExports(pkg.files),
           }),
+      devExports: sourceCondition,
     },
     publint: true,
   }

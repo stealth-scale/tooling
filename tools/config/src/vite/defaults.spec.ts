@@ -39,17 +39,14 @@ describe('stealthDefaults', () => {
     ).toEqual(serverSourceConditions(CONDITION))
   })
 
-  it('gives the resolvers the one condition it was told, and the pack step none of it', () => {
+  it('gives both resolvers and the pack step the one condition it was told', () => {
     const { exports } = defaults.pack as { exports: { devExports?: unknown } }
 
+    expect(exports.devExports, 'what the pack step writes into every manifest').toBe(CONDITION)
     expect(defaults.resolve?.conditions?.[0]).toBe(CONDITION)
     expect(stealthDefaults({ sourceCondition: 'platform-source' }).resolve?.conditions?.[0]).toBe(
       'platform-source',
     )
-    expect(
-      exports.devExports,
-      'a manifest that ships names what shipped, and no tarball carries src',
-    ).toBeUndefined()
   })
 
   it('packs the way the pack builder does, deriving stylesheets per package', () => {

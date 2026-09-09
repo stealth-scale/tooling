@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vite-plus/test'
 
-import { DEPENDENCY_BLOCKS, rangeFor, resolvedRanges } from '#release/ranges.ts'
+import {
+  DEPENDENCY_BLOCKS,
+  overridden,
+  publishedManifest,
+  rangeFor,
+  resolvedRanges,
+} from '#release/published.ts'
 
 /**
  * Holds the versions one release is going out at.
@@ -73,5 +79,61 @@ describe('resolvedRanges', () => {
     const declared = { dependencies: { '@stealthscale/core-theme': 5 }, devDependencies: 'wrong' }
 
     expect(resolvedRanges(declared, VERSIONS)).toEqual(declared)
+  })
+})
+
+describe('overridden', () => {
+  it('publishes the built paths a manifest names for publishing, not the source it works on', () => {
+    const declared = {
+      bin: { stealth: './src/bin/stealth.ts' },
+      exports: { '.': { default: './dist/index.mjs', 'tooling-source': './src/index.ts' } },
+      publishConfig: {
+        access: 'public',
+        bin: { stealth: './dist/bin/stealth.mjs' },
+        exports: { '.': './dist/index.mjs' },
+      },
+    }
+
+    expect(overridden(declared)).toMatchObject({
+      bin: { stealth: './dist/bin/stealth.mjs' },
+      exports: { '.': './dist/index.mjs' },
+    })
+  })
+
+  it('leaves what npm reads off the tarball where npm reads it', () => {
+    const declared = { publishConfig: { access: 'public', registry: 'https://example.test' } }
+    const written = overridden(declared)
+
+    expect(written['publishConfig'], 'access decides whether the package is public').toEqual(
+      declared.publishConfig,
+    )
+    expect(Object.keys(written), 'and neither becomes a field of its own').toEqual([
+      'publishConfig',
+    ])
+  })
+
+  it('leaves a manifest that overrides nothing exactly as it was', () => {
+    const declared = { name: 'x', version: '0.1.0' }
+
+    expect(overridden(declared)).toEqual(declared)
+    expect(overridden({ ...declared, publishConfig: 'wrong' })).toEqual({
+      ...declared,
+      publishConfig: 'wrong',
+    })
+  })
+})
+
+describe('publishedManifest', () => {
+  it('does both jobs: the published fields, and a real range for the protocol', () => {
+    const declared = {
+      bin: { stealth: './src/bin/stealth.ts' },
+      dependencies: { '@stealthscale/core-theme': 'workspace:^' },
+      publishConfig: { access: 'public', bin: { stealth: './dist/bin/stealth.mjs' } },
+    }
+
+    expect(publishedManifest(declared, VERSIONS)).toMatchObject({
+      bin: { stealth: './dist/bin/stealth.mjs' },
+      dependencies: { '@stealthscale/core-theme': '^0.1.0' },
+    })
   })
 })

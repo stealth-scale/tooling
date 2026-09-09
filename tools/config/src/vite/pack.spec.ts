@@ -55,14 +55,11 @@ describe('packConfig', () => {
     expect(pack.dts, 'declarations come from the native compiler').toEqual({ tsgo: true })
   })
 
-  it('keeps the source condition out of every exports map, since a tarball ships no source', () => {
-    expect(
-      asExports(packConfig({ sourceCondition: CONDITION }).exports).devExports,
-      'tsdown would write the pnpm layout with it, which neither npm nor bun applies',
-    ).toBeUndefined()
+  it('writes the source condition into every exports map', () => {
+    expect(asExports(packConfig({ sourceCondition: CONDITION }).exports).devExports).toBe(CONDITION)
     expect(
       asExports(packConfig({ sourceCondition: CONDITION, staticExports: {} }).exports).devExports,
-    ).toBeUndefined()
+    ).toBe(CONDITION)
   })
 
   it('derives a stylesheet export from the manifest when a package names none', () => {
