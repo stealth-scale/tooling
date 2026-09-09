@@ -1,5 +1,13 @@
 # @stealthscale/theme-ember
 
+## 0.1.2
+
+### Patch Changes
+
+- Updated dependencies [bf78d6f]
+  - @stealthscale/core-theme@0.2.0
+  - @stealthscale/theme-base@0.1.3
+
 ## 0.1.1
 
 ### Patch Changes
