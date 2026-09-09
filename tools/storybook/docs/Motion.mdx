@@ -1,4 +1,4 @@
-import { Animations, Durations, Easings } from '@stealthscale/tool-storybook/docs'
+import { Animations, Durations, Easings, Responses } from '@stealthscale/tool-storybook/docs'
 
 # Motion
 
@@ -43,6 +43,28 @@ one frame at full opacity before it starts and an exit snaps back to visible the
 ends, which reads as a blip rather than as motion. A collapse animates to
 `--collapsible-panel-height`, which the component measures and sets, because a keyframe cannot
 animate to `auto`.
+
+## Responding to the pointer
+
+An animation is something the page does; a response is something a control does when a person
+touches it. The theme writes the second as two classes, so a component states that it responds
+without deciding how fast or to what.
+
+```tsx
+<button className="motion-state">Save</button>
+<button className="motion-press">Delete</button>
+```
+
+<Responses />
+
+`motion-state` eases the properties a hover, a focus or a disable actually touches — colour,
+fill, border, shadow, opacity and the three transform properties Tailwind writes separately —
+at the fast duration on the out curve. `motion-press` adds the shrink to `--press-scale` while
+the control is held, which is the one thing a pointer gets that a hover colour cannot say.
+
+Neither names reduced motion. The rules below already hold every element on the page to a
+hundredth of a millisecond, with `!important`, so a class repeating the check would be
+restating a rule that has already won.
 
 ## Reduced motion
 

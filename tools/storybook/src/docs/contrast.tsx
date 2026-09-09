@@ -7,6 +7,7 @@
 import { type CSSProperties, type JSX } from 'react'
 
 import {
+  CODE_TOKENS,
   contrast,
   FILL_PAIRS,
   OUTLINE_PAIRS,
@@ -71,23 +72,66 @@ interface Group {
 }
 
 /**
- * Lists the pairs the fills' level does not apply to: text on a surface, which every theme
- * holds to AAA whatever its recipe asks.
+ * Names the syntax roles, widened, so a pair's token can be tested against them.
  */
-const SURFACE_PAIRS = TEXT_PAIRS.filter(
-  ([on, over]) => !FILL_PAIRS.some(([fill, label]) => fill === on && label === over),
-)
+const CODE = new Set<string>(CODE_TOKENS)
 
 /**
- * Lists the three groups, in the order the table prints them.
+ * Returns `true` for a pair the fills' level decides, which every other group excludes.
+ *
+ * @param {Pair} pair - The surface and what sits on it.
+ * @returns {boolean} `true` where the pair is a fill and its label.
  */
-const GROUPS: readonly Group[] = [
+function isFill([on, over]: Pair): boolean {
+  return FILL_PAIRS.some(([fill, label]) => fill === on && label === over)
+}
+
+/**
+ * Lists the pairs the fills' level does not apply to, which every theme holds to AAA whatever
+ * its recipe asks. They are split into the kinds a reader is looking for rather than printed
+ * as one list: a page of twenty rows under one heading answers no question anybody asked.
+ *
+ * Each kind is derived from what the token is rather than named here, so an outcome or a
+ * syntax role added to the contract reaches the right group without an edit.
+ */
+const READ: readonly Group[] = [
   {
     criterion: 'text',
     floor: RATIOS.AAA,
-    pairs: SURFACE_PAIRS,
+    pairs: TEXT_PAIRS.filter(
+      (pair) =>
+        !isFill(pair) &&
+        !CODE.has(pair[1]) &&
+        !pair[1].endsWith('-ink') &&
+        !pair[0].endsWith('-soft'),
+    ),
     title: 'Text on a surface, AAA in every theme',
   },
+  {
+    criterion: 'text',
+    floor: RATIOS.AAA,
+    pairs: TEXT_PAIRS.filter(([, over]) => over.endsWith('-ink')),
+    title: 'An outcome as text on the page, which is what a word or a number is drawn with',
+  },
+  {
+    criterion: 'text',
+    floor: RATIOS.AAA,
+    pairs: TEXT_PAIRS.filter(([on]) => on.endsWith('-soft')),
+    title: 'A label on an outcome’s soft surface, which a badge or a callout sits inside',
+  },
+  {
+    criterion: 'text',
+    floor: RATIOS.AAA,
+    pairs: TEXT_PAIRS.filter(([, over]) => CODE.has(over)),
+    title: 'A syntax role on the surface a snippet sits on',
+  },
+]
+
+/**
+ * Lists every group, in the order the table prints them.
+ */
+const GROUPS: readonly Group[] = [
+  ...READ,
   {
     criterion: 'text',
     floor: RATIOS.AA,

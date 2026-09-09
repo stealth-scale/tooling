@@ -14,7 +14,9 @@ describe('Easings', () => {
 
     expect(runners).toHaveLength(Object.keys(DEFAULT_TABLES.ease).length)
     expect(runners[0]?.getAttribute('style')).toContain('translateX(0)')
-    expect(runners[0]?.getAttribute('style')).toContain('350ms')
+    expect(runners[0]?.getAttribute('style')).toContain(
+      `${String(DEFAULT_TABLES.duration['slow'])}ms`,
+    )
 
     fireEvent.click(container.querySelector('button') as Element)
 
@@ -30,7 +32,9 @@ describe('Durations', () => {
     const runners = container.querySelectorAll('[data-slot="runner"]')
 
     expect(runners).toHaveLength(Object.keys(DEFAULT_TABLES.duration).length)
-    expect(runners[0]?.getAttribute('style')).toContain('100ms')
+    expect(runners[0]?.getAttribute('style')).toContain(
+      `${String(DEFAULT_TABLES.duration['fast'])}ms`,
+    )
     expect(container.textContent).toContain('duration-fast')
   })
 

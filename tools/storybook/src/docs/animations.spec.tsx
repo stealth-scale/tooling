@@ -6,6 +6,9 @@ import { DEFAULT_TABLES } from '@stealthscale/core-theme'
 import { Animations } from './animations.tsx'
 import { previewWrote } from './fixtures.ts'
 
+/** The normal duration, which most of the contract's animations run at. */
+const NORMAL = DEFAULT_TABLES.duration['normal'] ?? 0
+
 describe('Animations', () => {
   it('plays every animation the contract names, from the table rather than a variable', () => {
     const { container } = render(<Animations />)
@@ -24,7 +27,9 @@ describe('Animations', () => {
     const { container } = render(<Animations />)
     previewWrote()
 
-    expect(container.textContent, 'normal is 200ms in every theme').toContain('200ms')
+    expect(container.textContent, 'the normal duration, in every theme').toContain(
+      `${String(NORMAL)}ms`,
+    )
     expect(container.textContent, 'and a spinner states its own second').toContain('1000ms')
   })
 
@@ -52,7 +57,9 @@ describe('Animations', () => {
 
     const fade = container.querySelector<HTMLElement>('[data-animation*="fade-in"]')
 
-    expect(fade?.style.animationDuration, '200ms stretched six times').toBe('1200ms')
+    expect(fade?.style.animationDuration, 'the normal duration, stretched six times').toBe(
+      `${String(NORMAL * 6)}ms`,
+    )
   })
 
   it('marks the spinner, so the stylesheet slows it rather than stopping it', () => {

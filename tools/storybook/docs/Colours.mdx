@@ -63,9 +63,9 @@ it against the page rather than against white.
 ## Status
 
 Outcomes. A theme keeps these hues unless its recipe names its own, because a warning that
-changes colour with the brand is a warning nobody learns to read. Each outcome is a pair for a
-solid fill and an ink for everything else. The ink is what a soft badge, an alert and a delta
-draw with, in both modes, with no component choosing per mode.
+changes colour with the brand is a warning nobody learns to read. Each outcome carries a solid
+fill for the thing that must be seen first, a soft one for the thing that sits inside something
+else, and an ink for a number or a word on the page.
 
 <Pairs
   pairs={[
@@ -79,6 +79,23 @@ draw with, in both modes, with no component choosing per mode.
 <Inks tokens={['destructive-ink', 'success-ink', 'warning-ink', 'info-ink']} />
 
 <Swatches of="status" />
+
+### Soft
+
+The tinted surface a badge, a callout or a table cell takes where the solid fill would shout.
+It is a lift off the page in the outcome's hue, so a theme that moves its paper carries these
+with it, and the label on each is walked until it clears 7:1 against the surface it actually
+sits on rather than against the page. That is the difference from tinting a fill by hand: a
+component writing `destructive` at ten percent with the ink on top has a pair nothing measures.
+
+<Pairs
+  pairs={[
+    ['destructive-soft', 'destructive-soft-foreground'],
+    ['success-soft', 'success-soft-foreground'],
+    ['warning-soft', 'warning-soft-foreground'],
+    ['info-soft', 'info-soft-foreground'],
+  ]}
+/>
 
 ## Outline
 
