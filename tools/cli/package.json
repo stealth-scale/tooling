@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/tool-cli",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Ships the stealth command, and publishes a workspace's public packages in dependency order.",
   "license": "MIT",
   "repository": {
