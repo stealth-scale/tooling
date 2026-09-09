@@ -55,17 +55,15 @@ describe('storybookPreview', () => {
     expect(preview.parameters).toMatchObject({ docs: { container: ThemedDocs } })
   })
 
-  it('opens the sidebar with its own pages, in the order they read', () => {
-    expect(preview.parameters).toMatchObject({
-      options: {
-        storySort: {
-          order: [
-            'Foundations',
-            ['Colours', 'Typography', 'Shape', 'Motion', 'Accessibility'],
-            '*',
-          ],
-        },
-      },
-    })
+  it('offers the widths a layout is decided at, which Storybook draws the tool for', () => {
+    const viewport = preview.parameters?.['viewport'] as { options: object }
+
+    expect(Object.keys(viewport.options)).toEqual(['mobile1', 'mobile2', 'tablet', 'desktop'])
+  })
+
+  it('states no story order, because Storybook 10 reads one and moves nothing', () => {
+    // The sidebar follows the index, so `storybookConfig` decides a page's place by naming it
+    // first among the entries. A parameter here would only look like it was doing that.
+    expect(preview.parameters).not.toHaveProperty('options')
   })
 })

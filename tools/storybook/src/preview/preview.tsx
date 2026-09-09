@@ -6,10 +6,9 @@
  */
 
 import { type Preview } from '@storybook/react-vite'
+import { MINIMAL_VIEWPORTS } from 'storybook/viewport'
 
 import { type Offered } from '@stealthscale/core-appearance'
-
-import { FOUNDATIONS, PAGES, titleCase } from '#pages.ts'
 
 import { type Themes } from './appearance.ts'
 import { appearanceDecorator, type Provider } from './decorator.tsx'
@@ -63,12 +62,16 @@ export function storybookPreview(options: Readonly<PreviewOptions>): Preview {
       controls: { matchers: { color: /(?:background|color)$/iu, date: /Date$/iu } },
       docs: docsParameters(),
       layout: 'centered',
-      options: { storySort: { order: [FOUNDATIONS, PAGES.map((page) => titleCase(page)), '*'] } },
       pseudo: {
         active: ['.pseudo-active'],
         focusVisible: ['.pseudo-focus-visible'],
         hover: ['.pseudo-hover'],
       },
+
+      // The widths a story is looked at. Storybook carries these itself and draws the tool
+      // for them; naming the set here is what turns it on. The four are the ones a layout is
+      // actually decided at, rather than the forty every phone ever sold has.
+      viewport: { options: MINIMAL_VIEWPORTS },
     },
   }
 }
