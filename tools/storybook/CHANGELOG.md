@@ -1,5 +1,17 @@
 # @stealthscale/tool-storybook
 
+## 0.1.3
+
+### Patch Changes
+
+- f8fdc74: Shows a story's markup in the code panel where the story states a return type, which `explicit-function-return-type` asks every story for. The arrow was matched without one, so a reader met `(): ReactElement =>` and the whole annotation instead of the markup.
+  
+  Writes the values a prop takes in the props table, rather than the name of its type and the word `undefined`. Every optional prop is written `T | undefined`, and the Name column already says a prop may be left out.
+- 254aed7: Reads the kit's own components when Tailwind builds. Automatic source detection skips `node_modules`, so a repository that installs the kit rather than holding its source generated none of the classes the kit draws with: a variant matrix came out with no gaps whatever its recipe said, and nothing reported it.
+- 2688a94: Opens the sidebar with the Foundations pages, in the order they read. Storybook 10 keeps a story sorter and calls it from nowhere, so `parameters.options.storySort` moved nothing and the sidebar followed the index; the pages are named ahead of the workspace now, one entry each. The parameter is gone rather than left looking useful.
+  
+  Adds the widths a layout is decided at to the toolbar, which Storybook carries itself.
+
 ## 0.1.2
 
 ### Patch Changes
