@@ -163,7 +163,7 @@ describe('emitScoped', () => {
   it('carries every scale behind the attribute, so switching a theme changes more than colour', () => {
     const scoped = declarations(css, "[data-theme='probe'] {")
 
-    expect(scoped['duration-normal']).toBe('200ms')
+    expect(scoped['duration-normal']).toBe(`${String(DEFAULT_TABLES.duration['normal'])}ms`)
     expect(scoped['text-base']).toBe('1rem')
     expect(scoped['shadow-md']).toContain('color-mix')
   })
@@ -196,10 +196,11 @@ describe('emitTheme', () => {
       'tables',
       'tailwind',
       'tokens',
+      'utilities',
       'values',
     ])
     expect(emitted.values.light['background'], 'the palette was solved').toBeDefined()
-    expect(emitted.tables.duration['normal']).toBe(200)
+    expect(emitted.tables.duration['normal']).toBe(DEFAULT_TABLES.duration['normal'])
   })
 
   it('scopes one stylesheet to the name a document writes, and roots the other', () => {
@@ -216,7 +217,9 @@ describe('emitTheme', () => {
   it('carries what a theme states into the stylesheet it writes', () => {
     const { tokens } = emitTheme({ ...RECIPE, motion: { speed: 2 } }, 'base')
 
-    expect(declarations(tokens, ':root')['duration-normal']).toBe('400ms')
+    expect(declarations(tokens, ':root')['duration-normal']).toBe(
+      `${String((DEFAULT_TABLES.duration['normal'] ?? 0) * 2)}ms`,
+    )
   })
 
   it('reports how it read a colour a designer wrote out', () => {

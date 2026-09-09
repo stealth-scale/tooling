@@ -286,6 +286,12 @@ export interface EffectRecipe {
   depth?: number
 
   /**
+   * Sets how far a disabled control fades, 0 to 1. A product whose page is already low in
+   * contrast states more than this, so its unavailable controls stay legible. Default: 0.5.
+   */
+  disabled?: number
+
+  /**
    * Replaces one drop shadow's layers.
    */
   dropShadow?: LayersRecipe
@@ -505,6 +511,8 @@ const LADDER: SchemaOf<Partial<Ladder>> = strictObject({
   sidebarBorderLift: LIFT,
   sidebarLift: LIFT,
   sidebarText: STEP,
+  softLift: LIFT,
+  softText: STEP,
   text: STEP,
 })
 
@@ -627,6 +635,7 @@ const LAYERS: SchemaOf<LayersRecipe> = record(
 const EFFECT: SchemaOf<EffectRecipe> = strictObject({
   blur: exactOptional(record(string(), NONNEGATIVE)),
   depth: exactOptional(FACTOR),
+  disabled: exactOptional(pipe(number(), minValue(0), maxValue(1))),
   dropShadow: exactOptional(LAYERS),
   glow: exactOptional(LAYERS),
   insetShadow: exactOptional(LAYERS),

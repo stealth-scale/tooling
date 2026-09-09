@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vite-plus/test'
 import { DARK, DARK_FILLS, LIGHT, LIGHT_FILLS } from '#ladder.ts'
 import { DEFAULT_FAMILIES, type Recipe, STATUS_HUES } from '#recipe.ts'
 import { resolveRecipe } from '#resolve.ts'
+import { DEFAULT_TABLES } from '#tables.ts'
 
 /**
  * Holds the smallest recipe there is: one colour.
@@ -169,6 +170,6 @@ describe('resolveRecipe', () => {
   it('carries the tables beside the colours, so one reading answers the whole theme', () => {
     const { tables } = resolveRecipe({ ...bare, motion: { speed: 2 } })
 
-    expect(tables.duration['normal']).toBe(400)
+    expect(tables.duration['normal']).toBe((DEFAULT_TABLES.duration['normal'] ?? 0) * 2)
   })
 })

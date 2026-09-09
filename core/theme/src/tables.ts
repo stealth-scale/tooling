@@ -18,6 +18,7 @@ import {
   DEFAULT_DENSITY,
   DENSITY,
   type Density,
+  DISABLED_OPACITY,
   DROP_SHADOW,
   DURATION,
   EASE,
@@ -74,6 +75,11 @@ export interface Tables {
    * Maps each density to its one length and its focus offset.
    */
   density: Readonly<Record<string, Density>>
+
+  /**
+   * Sets how far a disabled control fades.
+   */
+  disabled: number
 
   /**
    * Maps each drop shadow step to its layers.
@@ -165,6 +171,7 @@ export const DEFAULT_TABLES: Tables = {
   blur: BLUR,
   defaultDensity: DEFAULT_DENSITY,
   density: DENSITY,
+  disabled: DISABLED_OPACITY,
   dropShadow: DROP_SHADOW,
   duration: DURATION,
   ease: EASE,
@@ -287,6 +294,7 @@ function scaled(table: Readonly<Record<string, number>>, depth: number): Record<
 type ShadowTables = Pick<
   Tables,
   | 'blur'
+  | 'disabled'
   | 'dropShadow'
   | 'glow'
   | 'insetShadow'
@@ -307,6 +315,7 @@ function effectTables(effect: EffectRecipe): ShadowTables {
 
   return {
     blur: over(DEFAULT_TABLES.blur, effect.blur),
+    disabled: effect.disabled ?? DEFAULT_TABLES.disabled,
     dropShadow: deepened(over(DEFAULT_TABLES.dropShadow, effect.dropShadow), depth),
     glow: deepened(over(DEFAULT_TABLES.glow, effect.glow), depth),
     insetShadow: deepened(over(DEFAULT_TABLES.insetShadow, effect.insetShadow), depth),

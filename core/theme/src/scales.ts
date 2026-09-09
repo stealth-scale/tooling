@@ -326,10 +326,15 @@ export const EASE: Readonly<Record<string, string>> = {
  * Sets each duration, in milliseconds. A ripple, a hover and a page all compose from these,
  * and a theme that wants a snappier or calmer product overrides the three rather than a
  * hundred transitions.
+ *
+ * The floor is the threshold of recognition rather than zero. Anything under a hundred
+ * milliseconds is not read as movement at all, so a state change at that speed is a snap with
+ * the cost of a transition and none of the benefit: the three steps start above it, at the
+ * durations Material names short3, medium1 and medium3.
  */
 export const DURATION: Readonly<Record<string, number>> = {
-  fast: 100,
-  normal: 200,
+  fast: 150,
+  normal: 250,
   slow: 350,
 }
 
@@ -362,6 +367,14 @@ export const CONTROL_STEPS: Readonly<Record<ControlSize, number>> = {
  * be thinnest where controls sit closest together.
  */
 export const FOCUS_WIDTH = 2
+
+/**
+ * Sets how far a disabled control fades. Faint enough to read as unavailable at a glance and no
+ * fainter: its label still has to be legible, because a control a person cannot use is one they
+ * often most need to read. One number the whole system shares rather than each component's own
+ * guess at what half looks like.
+ */
+export const DISABLED_OPACITY = 0.5
 
 /**
  * Sets the two target sizes WCAG names, in pixels: the minimum every control clears in every

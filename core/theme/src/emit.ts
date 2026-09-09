@@ -32,7 +32,15 @@ import { buildPalette } from '#palette.ts'
 import { recipeSchema } from '#recipe.ts'
 import { type Resolved, resolveRecipe } from '#resolve.ts'
 import { CONTROL_SIZES, OWNED_NAMESPACES, RADIUS } from '#scales.ts'
-import { emitBase, emitDensities, emitFonts, emitIndex, emitMotion, emitTailwind } from '#shared.ts'
+import {
+  emitBase,
+  emitDensities,
+  emitFonts,
+  emitIndex,
+  emitMotion,
+  emitTailwind,
+  emitUtilities,
+} from '#shared.ts'
 import { type Tables } from '#tables.ts'
 import { COLOR_TOKENS, REQUIRED_TOKENS, type ThemeMode, type ThemeValues } from '#tokens.ts'
 
@@ -178,6 +186,7 @@ ${references('animate', tables.animation)}
 function scaleValues(tables: Tables): string {
   return `  --spacing: ${tables.spacing};
   --press-scale: ${String(tables.press)};
+  --disabled-opacity: ${String(tables.disabled)};
 
 ${typeScale(tables, false)}
 
@@ -336,6 +345,11 @@ export interface EmittedTheme {
   tokens: string
 
   /**
+   * Carries the classes a component opts into.
+   */
+  utilities: string
+
+  /**
    * Carries every token in both modes.
    */
   values: ThemeValues
@@ -392,6 +406,7 @@ export function emitTheme(recipe: unknown, name: string): EmittedTheme {
     tables: theme.tables,
     tailwind: emitTailwind(),
     tokens: emit(values, theme.tables),
+    utilities: emitUtilities(),
     values,
   }
 }

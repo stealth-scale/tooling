@@ -145,6 +145,7 @@ describe('emitIndex', () => {
       `@import './base.css';`,
       `@import './density.css';`,
       `@import './motion.css';`,
+      `@import './utilities.css';`,
       `@import './tokens.css';`,
     ])
   })

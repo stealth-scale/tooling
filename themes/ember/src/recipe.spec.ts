@@ -62,8 +62,12 @@ describe('the Ember recipe', () => {
   it('moves a fifth quicker than the contract, and the whole vocabulary with it', () => {
     const { tables } = resolveRecipe(recipe)
 
-    expect(tables.duration['normal']).toBe(160)
-    expect(tables.duration['fast']).toBe(80)
+    // Derived rather than written out: the speed is what this theme states, and the contract
+    // owns what it is a fifth of.
+    expect(tables.duration['normal']).toBe(
+      Math.round((DEFAULT_TABLES.duration['normal'] ?? 0) * 0.8),
+    )
+    expect(tables.duration['fast']).toBe(Math.round((DEFAULT_TABLES.duration['fast'] ?? 0) * 0.8))
     expect(tables.animation['fade-in'], 'a shorthand still names the step').toContain(
       'var(--duration-normal)',
     )

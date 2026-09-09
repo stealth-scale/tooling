@@ -179,6 +179,18 @@ export interface Ladder {
   sidebarText: number
 
   /**
+   * Sets an outcome's soft surface: the tinted fill a badge, a callout or a table cell takes
+   * where the solid one would shout. It is a lift off the page like any other surface, so a
+   * theme that moves its paper carries the soft fills with it.
+   */
+  softLift: number
+
+  /**
+   * Sets where the text on a soft surface starts. The walk to a readable pair goes from here.
+   */
+  softText: number
+
+  /**
    * Sets the text on the page.
    */
   text: number
@@ -251,6 +263,8 @@ export const LIGHT: Ladder = {
   sidebarBorderLift: -10,
   sidebarLift: -1,
   sidebarText: 25,
+  softLift: -5,
+  softText: 30,
   text: 20,
 }
 
@@ -285,6 +299,8 @@ export const DARK: Ladder = {
   sidebarBorderLift: 13,
   sidebarLift: 2,
   sidebarText: 92,
+  softLift: 12,
+  softText: 88,
   text: 96,
 }
 

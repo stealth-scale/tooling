@@ -106,6 +106,7 @@ export function writeTheme(recipe: unknown, from: string): EmittedTheme {
   writeFileSync(new URL('fonts.css', dist), emitted.fonts)
   writeFileSync(new URL('index.css', dist), emitted.index)
   writeFileSync(new URL('motion.css', dist), emitted.motion)
+  writeFileSync(new URL('utilities.css', dist), emitted.utilities)
   writeFileSync(new URL('scoped.css', dist), emitted.scoped)
   writeFileSync(new URL('tailwind.css', dist), emitted.tailwind)
   writeFileSync(new URL('tokens.css', dist), emitted.tokens)

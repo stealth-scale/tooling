@@ -55,15 +55,23 @@ export const STATUS_TOKENS = [
   'destructive',
   'destructive-foreground',
   'destructive-ink',
+  'destructive-soft',
+  'destructive-soft-foreground',
   'success',
   'success-foreground',
   'success-ink',
+  'success-soft',
+  'success-soft-foreground',
   'warning',
   'warning-foreground',
   'warning-ink',
+  'warning-soft',
+  'warning-soft-foreground',
   'info',
   'info-foreground',
   'info-ink',
+  'info-soft',
+  'info-soft-foreground',
 ] as const
 
 /**

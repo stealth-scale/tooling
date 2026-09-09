@@ -10,6 +10,10 @@ import { densityBlocks, densityDefaults, HEADER, rule } from '#css.ts'
 import { KEYFRAMES, SPINNING, STILL } from '#motion.ts'
 import { type Tables } from '#tables.ts'
 
+// The utilities are one of the stylesheets a theme ships, so they are read from here with the
+// rest. They sit in a file of their own only because the two together run past the line limit.
+export { emitUtilities } from '#utilities.ts'
+
 /**
  * Writes the stylesheet that loads the theme's own font files.
  *
@@ -48,6 +52,31 @@ export function emitTailwind(): string {
 @import 'tw-animate-css';
 @plugin '@tailwindcss/typography';
 `
+}
+
+/**
+ * Writes the two states a component never has to draw for itself.
+ *
+ * Being disabled arrives three ways, and a component that handled one of them is how a
+ * disabled trigger and a disabled button came to look different: a native control carries
+ * `disabled`, Base UI writes `data-disabled`, and something that cannot disable its own
+ * element writes `aria-disabled`. Being invalid takes the geometry focus already has and
+ * changes only the colour, so a control that is both does not wear two rings of two shapes.
+ *
+ * @returns {string} The rules, indented for the layer they sit in.
+ */
+function states(): string {
+  return `${rule(
+    ":disabled,\n  [data-disabled],\n  [aria-disabled='true']",
+    ['opacity: var(--disabled-opacity)', 'pointer-events: none'],
+    '  ',
+  )}
+
+${rule(
+  "[aria-invalid='true']",
+  ['border-color: var(--destructive)', 'outline-color: var(--destructive)'],
+  '  ',
+)}`
 }
 
 /**
@@ -98,6 +127,8 @@ ${rule(
   ['outline: var(--focus-width) solid var(--ring)', 'outline-offset: var(--focus-offset)'],
   '  ',
 )}
+
+${states()}
 
   /* Selected text is still text, so it takes the pair the contract guarantees. */
 ${rule(
@@ -223,6 +254,7 @@ export function emitIndex(): string {
 @import './base.css';
 @import './density.css';
 @import './motion.css';
+@import './utilities.css';
 @import './tokens.css';
 `
 }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test'
 
-import { emitTheme, LIGHT, resolveRecipe } from '@stealthscale/core-theme'
+import { DEFAULT_TABLES, emitTheme, LIGHT, resolveRecipe } from '@stealthscale/core-theme'
 
 import { recipe } from './recipe.ts'
 
@@ -56,6 +56,8 @@ describe('the base recipe', () => {
 
     expect(recipe.effect?.depth).toBe(1)
     expect(recipe.motion?.speed).toBe(1)
-    expect(tables.duration['normal'], 'so the timing is the contract’s').toBe(200)
+    expect(tables.duration['normal'], 'so the timing is the contract’s').toBe(
+      DEFAULT_TABLES.duration['normal'],
+    )
   })
 })

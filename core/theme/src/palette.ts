@@ -12,6 +12,17 @@ import { oklch, solveContrast } from '#solve.ts'
 import { type ThemeMode, type ThemeValues, type TokenName } from '#tokens.ts'
 
 /**
+ * Sets how much of its hue a soft surface carries.
+ *
+ * Far below a fill's, because this is a surface a person reads a sentence on rather than a
+ * badge they glance at: enough tint to say which outcome without competing with the text that
+ * says what happened. It is one number for every outcome, because the label is solved against
+ * whatever it produces, so an amber that lands lighter than a red is answered by the walk
+ * rather than by a second number here.
+ */
+const SOFT_CHROMA = 0.04
+
+/**
  * Sets the hue each syntax role carries, 0 to 360.
  *
  * These are fixed rather than derived from the recipe, for the same reason the chart tones
@@ -196,12 +207,14 @@ function emphasis(theme: Resolved, which: ThemeMode): Record<string, string> {
  *
  * @param {Resolved} theme - The resolved recipe.
  * @param {ThemeMode} which - The mode.
- * @param {Outcome} name - The outcome, which its three tokens are named after.
- * @returns {Record<string, string>} The fill, the text on it and the ink on the page.
+ * @param {Outcome} name - The outcome, which its five tokens are named after.
+ * @returns {Record<string, string>} The fill, the text on it, the ink on the page, the soft
+ *     surface and the text on that.
  */
 function outcome(theme: Resolved, which: ThemeMode, name: Outcome): Record<string, string> {
-  const { contrast, fills, neutral, status } = theme.color
+  const { contrast, fills, ladder, neutral, status } = theme.color
   const hue = status[name]
+  const rung = ladder[which]
   const fill = fills[which]
   const label = oklch(fill.statusText[name], neutral.chroma * 2.5, hue)
   const solved = solveContrast(
@@ -210,11 +223,17 @@ function outcome(theme: Resolved, which: ThemeMode, name: Outcome): Record<strin
     RATIOS[contrast],
   )
   const ink = inkOn(theme, which, hue, name === 'destructive' ? 0.18 : 0.14)
+  const soft = oklch(raised(theme, which, rung.softLift), SOFT_CHROMA, hue)
 
   return Object.fromEntries([
     [name, solved],
     [`${name}-foreground`, label],
     [`${name}-ink`, ink],
+    [`${name}-soft`, soft],
+    [
+      `${name}-soft-foreground`,
+      solveContrast({ chroma: neutral.chroma * 2, hue, lightness: rung.softText }, soft),
+    ],
   ])
 }
 
