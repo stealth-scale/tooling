@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/core-schema",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Validation and parsing at every boundary: one schema language, one shape for a refusal.",
   "license": "MIT",
   "repository": {

@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/tool-fixtures",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Builds the sample values a specification or a story shows, the same on every run, drawn from any locale.",
   "license": "MIT",
   "repository": {

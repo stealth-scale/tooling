@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/core-locale",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Which locale to answer in: BCP-47 tags read with the engine's own Intl, and ECMA-402 lookup against what a catalogue ships.",
   "license": "MIT",
   "repository": {
