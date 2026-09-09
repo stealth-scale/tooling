@@ -34,7 +34,7 @@
     },
     "core/appearance": {
       "name": "@stealthscale/core-appearance",
-      "version": "0.0.0",
+      "version": "0.1.2",
       "dependencies": {
         "@stealthscale/core-locale": "workspace:^",
         "@stealthscale/core-schema": "workspace:^",
@@ -45,7 +45,7 @@
     },
     "core/env": {
       "name": "@stealthscale/core-env",
-      "version": "0.0.0",
+      "version": "0.1.1",
       "devDependencies": {
         "@stealthscale/tool-config": "workspace:^",
         "@stealthscale/tool-testing": "workspace:^",
@@ -53,28 +53,28 @@
     },
     "core/locale": {
       "name": "@stealthscale/core-locale",
-      "version": "0.0.0",
+      "version": "0.1.1",
       "devDependencies": {
         "@stealthscale/tool-config": "workspace:^",
       },
     },
     "core/logging": {
       "name": "@stealthscale/core-logging",
-      "version": "0.0.0",
+      "version": "0.1.1",
       "devDependencies": {
         "@stealthscale/tool-config": "workspace:^",
       },
     },
     "core/result": {
       "name": "@stealthscale/core-result",
-      "version": "0.0.0",
+      "version": "0.1.1",
       "devDependencies": {
         "@stealthscale/tool-config": "workspace:^",
       },
     },
     "core/schema": {
       "name": "@stealthscale/core-schema",
-      "version": "0.0.0",
+      "version": "0.1.1",
       "dependencies": {
         "@stealthscale/core-locale": "workspace:^",
         "@stealthscale/core-result": "workspace:^",
@@ -86,7 +86,7 @@
     },
     "core/theme": {
       "name": "@stealthscale/core-theme",
-      "version": "0.0.0",
+      "version": "0.1.2",
       "dependencies": {
         "@stealthscale/core-schema": "workspace:^",
       },
@@ -96,7 +96,7 @@
     },
     "themes/base": {
       "name": "@stealthscale/theme-base",
-      "version": "0.0.0",
+      "version": "0.1.2",
       "dependencies": {
         "@fontsource-variable/inter": "catalog:",
         "@fontsource-variable/jetbrains-mono": "catalog:",
@@ -111,7 +111,7 @@
     },
     "themes/ember": {
       "name": "@stealthscale/theme-ember",
-      "version": "0.0.0",
+      "version": "0.1.1",
       "dependencies": {
         "@fontsource-variable/bricolage-grotesque": "catalog:",
         "@fontsource-variable/fira-code": "catalog:",
@@ -128,7 +128,7 @@
     },
     "themes/harbor": {
       "name": "@stealthscale/theme-harbor",
-      "version": "0.0.0",
+      "version": "0.1.2",
       "dependencies": {
         "@fontsource-variable/space-grotesk": "catalog:",
         "@fontsource-variable/spline-sans-mono": "catalog:",
@@ -144,7 +144,7 @@
     },
     "themes/lumen": {
       "name": "@stealthscale/theme-lumen",
-      "version": "0.0.0",
+      "version": "0.1.2",
       "dependencies": {
         "@fontsource-variable/fraunces": "catalog:",
         "@fontsource-variable/literata": "catalog:",
@@ -161,7 +161,7 @@
     },
     "tools/cli": {
       "name": "@stealthscale/tool-cli",
-      "version": "0.0.0",
+      "version": "0.1.1",
       "bin": {
         "stealth": "./src/bin/stealth.ts",
       },
@@ -177,7 +177,7 @@
     },
     "tools/config": {
       "name": "@stealthscale/tool-config",
-      "version": "0.0.0",
+      "version": "0.1.3",
       "devDependencies": {
         "eslint-plugin-jsdoc": "catalog:",
         "eslint-plugin-perfectionist": "catalog:",
@@ -191,7 +191,7 @@
     },
     "tools/fixtures": {
       "name": "@stealthscale/tool-fixtures",
-      "version": "0.0.0",
+      "version": "0.1.1",
       "dependencies": {
         "@faker-js/faker": "catalog:",
         "@stealthscale/core-locale": "workspace:^",
@@ -202,7 +202,7 @@
     },
     "tools/storybook": {
       "name": "@stealthscale/tool-storybook",
-      "version": "0.0.0",
+      "version": "0.1.4",
       "dependencies": {
         "@stealthscale/core-appearance": "workspace:^",
         "@stealthscale/core-logging": "workspace:^",
@@ -250,14 +250,29 @@
     },
     "tools/testing": {
       "name": "@stealthscale/tool-testing",
-      "version": "0.0.0",
+      "version": "0.1.1",
       "devDependencies": {
         "@stealthscale/tool-config": "workspace:^",
       },
     },
+    "tools/testing-react": {
+      "name": "@stealthscale/tool-testing-react",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@stealthscale/tool-config": "workspace:^",
+        "@testing-library/react": "catalog:",
+        "@types/react": "catalog:",
+        "react": "catalog:",
+      },
+      "peerDependencies": {
+        "@testing-library/react": "^16.0.0",
+        "react": "^19.0.0",
+        "vite-plus": "catalog:",
+      },
+    },
     "tools/workspace": {
       "name": "@stealthscale/tool-workspace",
-      "version": "0.0.0",
+      "version": "0.1.1",
       "dependencies": {
         "@stealthscale/core-result": "workspace:^",
         "@stealthscale/core-schema": "workspace:^",
@@ -803,6 +818,8 @@
     "@stealthscale/tool-storybook": ["@stealthscale/tool-storybook@workspace:tools/storybook"],
 
     "@stealthscale/tool-testing": ["@stealthscale/tool-testing@workspace:tools/testing"],
+
+    "@stealthscale/tool-testing-react": ["@stealthscale/tool-testing-react@workspace:tools/testing-react"],
 
     "@stealthscale/tool-workspace": ["@stealthscale/tool-workspace@workspace:tools/workspace"],
 

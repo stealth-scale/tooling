@@ -85,6 +85,7 @@ const AMBIENT_TYPES = {
     'Element',
     'Event',
     'HTMLElement',
+    'ParentNode',
     'ReadonlyMap',
     'ReadonlySet',
     'Window',
