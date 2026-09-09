@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/tool-testing-react",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Reads a rendered component in a specification: the parts it drew, the attributes on them, and the suite every component owes its consumers.",
   "license": "MIT",
   "repository": {
