@@ -82,7 +82,7 @@ export function Grid<Row extends string, Column extends string>({
 }: GridProps<Row, Column>): JSX.Element {
   return (
     <div
-      className="grid w-fit items-center justify-items-start gap-x-8 gap-y-3"
+      className="grid w-fit items-center justify-items-start gap-x-10 gap-y-6"
       style={{ gridTemplateColumns: `auto repeat(${String(columns.length)}, max-content)` }}
     >
       <span />
