@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/tool-storybook",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Builds a repository's Storybook: what a story is written with, the config derived from the workspace, the toolbars that drive the document, and the pages that document a theme.",
   "license": "MIT",
   "repository": {
