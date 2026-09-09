@@ -53,9 +53,12 @@ export function appearanceOf(context: StoryContext, offered: Offered): Appearanc
  * @returns {Decorator} The decorator, for the preview's `decorators`.
  */
 export function appearanceDecorator(offered: Offered, Wrap: Provider): Decorator {
-  return (Story, context) =>
-    createElement(Wrap, {
-      appearance: appearanceOf(context, offered),
-      children: createElement(Contained, { children: createElement(Story) }),
+  return (Story, context) => {
+    const appearance = appearanceOf(context, offered)
+
+    return createElement(Wrap, {
+      appearance,
+      children: createElement(Contained, { appearance, children: createElement(Story) }),
     })
+  }
 }
