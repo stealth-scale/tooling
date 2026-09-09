@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/tool-workspace",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Reads a workspace off its manifests: which packages the root names, what each declares, and the order their dependencies put them in.",
   "license": "MIT",
   "repository": {

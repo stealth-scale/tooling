@@ -1,5 +1,13 @@
 # @stealthscale/theme-harbor
 
+## 0.1.4
+
+### Patch Changes
+
+- Updated dependencies [a471dc9]
+  - @stealthscale/core-theme@0.3.0
+  - @stealthscale/theme-base@0.1.4
+
 ## 0.1.3
 
 ### Patch Changes

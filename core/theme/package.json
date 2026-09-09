@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/core-theme",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Defines the tokens a theme must set, solves a palette that clears WCAG contrast, and writes the stylesheet a theme ships.",
   "license": "MIT",
   "repository": {
